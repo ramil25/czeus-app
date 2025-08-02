@@ -1,0 +1,10 @@
+{
+  "name": "czeus-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo for czeus web (Next.js) and mobile (Expo)",
+  "scripts": {
+    "web": "cd web && npm run dev",
+    "mobile": "cd mobile/czeus && npx expo start"
+  }
+}
