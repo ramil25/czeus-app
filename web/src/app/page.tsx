@@ -3,21 +3,32 @@ import Image from 'next/image';
 import { signInWithEmail } from '@/lib/auth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supbaseClient';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
     const { error } = await signInWithEmail(email, password);
-    if (error) setError(error.message);
-    else {
-      router.push('/dashboard');
+    if (error) {
+      setError(error.message);
+      setIsSubmitting(false);
+    } else {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        router.push('/dashboard');
+      }
+      setIsSubmitting(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md flex flex-col items-center">
@@ -47,6 +58,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isSubmitting}
           />
           <label
             htmlFor="password"
@@ -61,12 +73,14 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="border border-blue-200 text-black rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
+            disabled={isSubmitting}
           />
           <button
             type="submit"
             className="bg-blue-600 text-white font-semibold rounded-lg py-2 mt-2 hover:bg-blue-700 transition-colors"
+            disabled={isSubmitting}
           >
-            Login
+            {isSubmitting ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>
