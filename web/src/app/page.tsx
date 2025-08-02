@@ -1,6 +1,23 @@
+'use client';
 import Image from 'next/image';
-
+import { signInWithEmail } from '@/lib/auth';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setError] = useState('');
+
+  const router = useRouter();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const { error } = await signInWithEmail(email, password);
+    if (error) setError(error.message);
+    else {
+      router.push('/dashboard');
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md flex flex-col items-center">
@@ -17,15 +34,19 @@ export default function LoginPage() {
         <p className="text-blue-500 mb-6">
           Welcome back! Please enter your details.
         </p>
-        <form className="w-full flex flex-col gap-4">
+
+        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
           <label htmlFor="email" className="text-sm font-medium text-blue-700">
             Email
           </label>
           <input
             type="email"
             placeholder="Email"
-            className="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 text-black focus:ring-blue-300"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <label
             htmlFor="password"
@@ -36,7 +57,9 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="Password"
-            className="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border border-blue-200 text-black rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
           />
           <button
