@@ -11,10 +11,14 @@ export default function ProtectedLayout({
   useRequireAuth();
   return (
     <>
-      <Header />
       <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex-1 bg-black">{children}</main>
+        <div className="fixed top-0 left-0 w-full bg-gray-200">
+          <Header />
+        </div>
+        <div className="flex w-full pt-20 min-h-screen">
+          <Sidebar />
+          <main className="flex-1 bg-gray-200">{children}</main>
+        </div>
       </div>
     </>
   );
