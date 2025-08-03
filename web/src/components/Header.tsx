@@ -12,7 +12,7 @@ export function Header() {
   };
 
   return (
-    <header className="w-full flex items-center justify-between px-6 py-4 bg-white shadow">
+    <header className="w-full flex items-center justify-between px-6 py-4 bg-white border-none shadow-none">
       <div className="flex items-center">
         <Image src="/logo.svg" alt="Logo" width={140} height={140} />
       </div>
