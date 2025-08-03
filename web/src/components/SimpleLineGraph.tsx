@@ -38,7 +38,7 @@ export function SimpleLineGraph({
         {data.map((v, i) => (
           <circle
             key={i}
-            cx={(i / (data.length - 1)) * 280}
+            cx={data.length === 1 ? 140 : (i / (data.length - 1)) * 280}
             cy={140 - (v / max) * 120}
             r={4}
             fill={color || '#2563eb'}
