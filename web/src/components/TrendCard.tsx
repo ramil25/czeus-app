@@ -1,11 +1,10 @@
-"use client"
+'use client';
 import React from 'react';
 
 interface TrendCardProps {
   title: string;
   value: number | string;
-  trend: number; // percent change
-  color?: string;
+  trend: number;
 }
 
 export function TrendCard({ title, value, trend }: TrendCardProps) {
