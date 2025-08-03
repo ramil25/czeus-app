@@ -17,9 +17,13 @@ export function SimpleLineGraph({
   // Render a simple SVG line graph (no external dependencies)
   // This is a minimal placeholder for demonstration
   const max = Math.max(...data, 1);
-  const points = data
-    .map((v, i) => `${(i / (data.length - 1)) * 280},${140 - (v / max) * 120}`)
-    .join(' ');
+  const points = data.length > 1
+    ? data
+        .map((v, i) => `${(i / (data.length - 1)) * 280},${140 - (v / max) * 120}`)
+        .join(' ')
+    : data
+        .map((v, i) => `140,${140 - (v / max) * 120}`)
+        .join(' ');
 
   return (
     <div className="bg-white rounded-xl shadow p-6 w-full max-w-xl">
