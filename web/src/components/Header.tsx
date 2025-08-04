@@ -1,14 +1,24 @@
 'use client';
-import { supabase } from '@/lib/supbaseClient';
+
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useLogout } from '@/hooks/useLogout';
+import toast from 'react-hot-toast';
 
 export function Header() {
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.replace('/');
+  const { mutate, isPending } = useLogout();
+
+  const handleLogout = () => {
+    mutate(undefined, {
+      onSuccess: () => {
+        router.replace('/');
+      },
+      onError: () => {
+        toast.error('Failed to log out', { position: 'top-center' });
+      },
+    });
   };
 
   return (
@@ -19,8 +29,9 @@ export function Header() {
       <button
         onClick={handleLogout}
         className="bg-red-600 text-white font-semibold rounded-lg py-2 px-4 hover:bg-red-700 transition-colors"
+        disabled={isPending}
       >
-        Logout
+        {isPending ? 'Logging out...' : 'Logout'}
       </button>
     </header>
   );

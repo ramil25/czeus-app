@@ -1,32 +1,30 @@
 'use client';
 import Image from 'next/image';
-import { signInWithEmail } from '@/lib/auth';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supbaseClient';
+import { useSignInWithEmail } from '@/hooks/useSignInWithEmail';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const router = useRouter();
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { mutate, isPending } = useSignInWithEmail();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-    const { error } = await signInWithEmail(email, password);
-    if (error) {
-      setError(error.message);
-      setIsSubmitting(false);
-    } else {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        router.push('/dashboard');
+    mutate(
+      { email, password },
+      {
+        onSuccess: async () => {
+          // Optionally check session or just redirect
+          router.push('/dashboard');
+        },
+        onError: (err: Error) => {
+          toast.error(err.message, { position: 'top-center' });
+        },
       }
-      setIsSubmitting(false);
-    }
+    );
   };
 
   return (
@@ -45,8 +43,6 @@ export default function LoginPage() {
         <p className="text-blue-500 mb-6">
           Welcome back! Please enter your details.
         </p>
-
-        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
         <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
           <label htmlFor="email" className="text-sm font-medium text-blue-700">
             Email
@@ -58,7 +54,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isSubmitting}
+            disabled={isPending}
           />
           <label
             htmlFor="password"
@@ -73,14 +69,14 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="border border-blue-200 text-black rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
-            disabled={isSubmitting}
+            disabled={isPending}
           />
           <button
             type="submit"
             className="bg-blue-600 text-white font-semibold rounded-lg py-2 mt-2 hover:bg-blue-700 transition-colors"
-            disabled={isSubmitting}
+            disabled={isPending}
           >
-            {isSubmitting ? 'Logging in...' : 'Login'}
+            {isPending ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

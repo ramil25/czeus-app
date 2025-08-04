@@ -2,7 +2,7 @@
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
-
+import { Toaster } from 'react-hot-toast';
 export default function ProtectedLayout({
   children,
 }: {
@@ -17,7 +17,11 @@ export default function ProtectedLayout({
         </div>
         <div className="flex w-full pt-20 min-h-screen">
           <Sidebar />
-          <main className="flex-1 bg-gray-200">{children}</main>
+
+          <main className="flex-1 bg-gray-200">
+            <Toaster />
+            {children}
+          </main>
         </div>
       </div>
     </>
