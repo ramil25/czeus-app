@@ -37,11 +37,11 @@ export function Sidebar() {
           Sales
         </Link>
         <Link
-          href="/inventory"
+          href="/inventory-management"
           className="flex items-center gap-2 text-blue-700 font-semibold hover:underline"
         >
           <MdInventory className="text-xl" />
-          Inventory
+          Inventory Management
         </Link>
       </nav>
     </aside>
