@@ -1,11 +1,20 @@
 'use client';
 import { useState } from 'react';
 import { InviteUserModal } from './InviteUserModal';
+import { UserTable, User } from '../../../components/tables/UserTable';
 
+const now = new Date().toISOString();
 const sampleUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-  { id: 3, name: 'Alice Johnson', email: 'alice@example.com' },
+  { id: 1, name: 'John Doe', email: 'john@example.com', createdAt: now, updatedAt: now },
+  { id: 2, name: 'Jane Smith', email: 'jane@example.com', createdAt: now, updatedAt: now },
+  { id: 3, name: 'Alice Johnson', email: 'alice@example.com', createdAt: now, updatedAt: now },
+  { id: 4, name: 'Bob Brown', email: 'bob@example.com', createdAt: now, updatedAt: now },
+  { id: 5, name: 'Carol White', email: 'carol@example.com', createdAt: now, updatedAt: now },
+  { id: 6, name: 'David Black', email: 'david@example.com', createdAt: now, updatedAt: now },
+  { id: 7, name: 'Eve Green', email: 'eve@example.com', createdAt: now, updatedAt: now },
+  { id: 8, name: 'Frank Blue', email: 'frank@example.com', createdAt: now, updatedAt: now },
+  { id: 9, name: 'Grace Red', email: 'grace@example.com', createdAt: now, updatedAt: now },
+  { id: 10, name: 'Hank Yellow', email: 'hank@example.com', createdAt: now, updatedAt: now },
 ];
 
 export default function UserManagement() {
@@ -13,10 +22,19 @@ export default function UserManagement() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
+  const [page, setPage] = useState(1);
+  const pageSize = 5;
+
   const filteredUsers = sampleUsers.filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+  const paginatedUsers = filteredUsers.slice(
+    (page - 1) * pageSize,
+    page * pageSize
   );
 
   return (
@@ -40,47 +58,33 @@ export default function UserManagement() {
         />
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-blue-200">
-          <thead>
-            <tr className="bg-blue-50">
-              <th className="py-2 px-4 border-b text-left text-black">Name</th>
-              <th className="py-2 px-4 border-b text-left text-black">Email</th>
-              <th className="py-2 px-4  border-b text-right text-black border-black">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-blue-100">
-                <td className="py-2 px-4 border-b text-black">{user.name}</td>
-                <td className="py-2 px-4 border-b text-black">{user.email}</td>
-                <td className="py-2 px-4 border-b text-right border-black">
-                  <div className="flex gap-2 justify-end">
-                    <button
-                      className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
-                      onClick={() => alert(`View user: ${user.name}`)}
-                    >
-                      View
-                    </button>
-                    <button
-                      className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 text-sm"
-                      onClick={() => alert(`Edit user: ${user.name}`)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
-                      onClick={() => alert(`Remove user: ${user.name}`)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <UserTable
+          users={paginatedUsers}
+          onView={(user: User) => alert(`View user: ${user.name}`)}
+          onEdit={(user: User) => alert(`Edit user: ${user.name}`)}
+          onRemove={(user: User) => alert(`Remove user: ${user.name}`)}
+        />
+      </div>
+      <div className="flex justify-between items-center mt-4">
+        <span className="text-sm text-gray-700">
+          Page {page} of {totalPages}
+        </span>
+        <div className="flex gap-2">
+          <button
+            className="px-3 py-1 bg-blue-100 text-blue-700 rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Previous
+          </button>
+          <button
+            className="px-3 py-1 bg-blue-100 text-blue-700 rounded disabled:opacity-50"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages || totalPages === 0}
+          >
+            Next
+          </button>
+        </div>
       </div>
       <InviteUserModal
         open={showModal}
