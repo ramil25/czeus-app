@@ -12,13 +12,13 @@ export default function ProtectedLayout({
   return (
     <>
       <div className="flex min-h-screen">
-        <div className="fixed top-0 left-0 w-full bg-gray-200">
+        <div className="fixed top-0 left-0 w-full bg-blue-50">
           <Header />
         </div>
         <div className="flex w-full pt-20 min-h-screen">
           <Sidebar />
 
-          <main className="flex-1 bg-gray-200">
+          <main className="flex-1 bg-blue-50">
             <Toaster />
             {children}
           </main>

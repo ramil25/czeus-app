@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { AddInventoryModal, InventoryForm } from './AddInventoryModal';
+import { AddInventoryModal, InventoryForm } from '../../../components/modals/AddInventoryModal';
 import { InventoryTable } from '../../../components/tables/InventoryTable';
 
 // Sample inventory data for a coffee shop
@@ -98,19 +98,10 @@ export default function InventoryManagement() {
     unit: '',
   });
   const [inventory, setInventory] = useState(sampleInventory);
-  const [page, setPage] = useState(1);
-  const pageSize = 5;
-
   const filteredInventory = inventory.filter(
     (item) =>
       item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.category.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredInventory.length / pageSize);
-  const paginatedInventory = filteredInventory.slice(
-    (page - 1) * pageSize,
-    page * pageSize
   );
 
   const handleAdd = () => {
@@ -131,7 +122,7 @@ export default function InventoryManagement() {
   };
 
   return (
-    <div className="p-8 bg-gray-200 min-h-screen">
+    <div className="p-8 bg-blue-50 min-h-screen">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-blue-700">
           Inventory Management
@@ -150,34 +141,12 @@ export default function InventoryManagement() {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setPage(1);
           }}
           className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
         />
       </div>
       <div className="overflow-x-auto">
-        <InventoryTable items={paginatedInventory} />
-      </div>
-      <div className="flex justify-between items-center mt-4">
-        <span className="text-sm text-gray-700">
-          Page {page} of {totalPages}
-        </span>
-        <div className="flex gap-2">
-          <button
-            className="px-3 py-1 bg-blue-100 text-blue-700 rounded disabled:opacity-50"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            Previous
-          </button>
-          <button
-            className="px-3 py-1 bg-blue-100 text-blue-700 rounded disabled:opacity-50"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages || totalPages === 0}
-          >
-            Next
-          </button>
-        </div>
+        <InventoryTable items={filteredInventory} />
       </div>
       <AddInventoryModal
         open={showModal}
