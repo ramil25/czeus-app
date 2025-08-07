@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 
-export type InventoryItem = {
+export type Staff = {
   id: number;
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  updatedAt: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  position: string;
+  address: string;
+  createdAt: string;
 };
 
-export type InventoryTableProps = {
-  items: InventoryItem[];
-  onEdit?: (item: InventoryItem) => void;
-  onRemove?: (item: InventoryItem) => void;
+export type StaffTableProps = {
+  items: Staff[];
+  onEdit?: (item: Staff) => void;
+  onRemove?: (item: Staff) => void;
 };
 
-export function InventoryTable({
-  items,
-  onEdit,
-  onRemove,
-}: InventoryTableProps) {
+export function StaffTable({ items, onEdit, onRemove }: StaffTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
   const totalPages = Math.ceil(items.length / pageSize);
@@ -38,22 +36,25 @@ export function InventoryTable({
       <table className="min-w-full bg-white border border-blue-200 rounded shadow">
         <thead className="bg-blue-100">
           <tr>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Name
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Category
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Email
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Quantity
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Phone
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Unit
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Position
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Updated At
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Address
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Created At
+            </th>
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Action
             </th>
           </tr>
@@ -62,19 +63,24 @@ export function InventoryTable({
           {paginatedItems.map((item) => (
             <tr key={item.id} className="hover:bg-blue-50">
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.name}
+                {item.firstName} {item.lastName}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.category}
+                {item.email}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.quantity}
+                {item.phone}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.unit}
+                {item.position}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(item.updatedAt).toLocaleString()}
+                <div className="max-w-xs truncate" title={item.address}>
+                  {item.address || 'N/A'}
+                </div>
+              </td>
+              <td className="py-2 px-4 border-b border-blue-100 text-black">
+                {new Date(item.createdAt).toLocaleString()}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-center">
                 <div className="flex gap-2 justify-center">
@@ -96,8 +102,8 @@ export function InventoryTable({
           ))}
           {paginatedItems.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-4 text-center text-gray-500">
-                No items found.
+              <td colSpan={7} className="py-4 text-center text-gray-500">
+                No staff found.
               </td>
             </tr>
           )}

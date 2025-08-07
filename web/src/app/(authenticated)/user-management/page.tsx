@@ -7,6 +7,7 @@ type User = {
   id: number;
   name: string;
   email: string;
+  role: 'Admin' | 'Staff' | 'Customer';
   createdAt: string;
   updatedAt: string;
 };
@@ -17,6 +18,7 @@ const sampleUsers = [
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
+    role: 'Admin',
     createdAt: now,
     updatedAt: now,
   },
@@ -24,6 +26,7 @@ const sampleUsers = [
     id: 2,
     name: 'Jane Smith',
     email: 'jane@example.com',
+    role: 'Staff',
     createdAt: now,
     updatedAt: now,
   },
@@ -31,6 +34,7 @@ const sampleUsers = [
     id: 3,
     name: 'Alice Johnson',
     email: 'alice@example.com',
+    role: 'Customer',
     createdAt: now,
     updatedAt: now,
   },
@@ -38,6 +42,7 @@ const sampleUsers = [
     id: 4,
     name: 'Bob Brown',
     email: 'bob@example.com',
+    role: 'Admin',
     createdAt: now,
     updatedAt: now,
   },
@@ -45,6 +50,7 @@ const sampleUsers = [
     id: 5,
     name: 'Carol White',
     email: 'carol@example.com',
+    role: 'Staff',
     createdAt: now,
     updatedAt: now,
   },
@@ -52,6 +58,7 @@ const sampleUsers = [
     id: 6,
     name: 'David Black',
     email: 'david@example.com',
+    role: 'Customer',
     createdAt: now,
     updatedAt: now,
   },
@@ -59,6 +66,7 @@ const sampleUsers = [
     id: 7,
     name: 'Eve Green',
     email: 'eve@example.com',
+    role: 'Admin',
     createdAt: now,
     updatedAt: now,
   },
@@ -66,6 +74,7 @@ const sampleUsers = [
     id: 8,
     name: 'Frank Blue',
     email: 'frank@example.com',
+    role: 'Staff',
     createdAt: now,
     updatedAt: now,
   },
@@ -73,6 +82,7 @@ const sampleUsers = [
     id: 9,
     name: 'Grace Red',
     email: 'grace@example.com',
+    role: 'Customer',
     createdAt: now,
     updatedAt: now,
   },
@@ -80,6 +90,7 @@ const sampleUsers = [
     id: 10,
     name: 'Hank Yellow',
     email: 'hank@example.com',
+    role: 'Admin',
     createdAt: now,
     updatedAt: now,
   },
@@ -88,13 +99,20 @@ const sampleUsers = [
 export default function UserManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'Staff',
+  });
 
-  const filteredUsers = sampleUsers.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers: User[] = sampleUsers
+    .filter(
+      (u) =>
+        u.name.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase())
+    )
+    .map((u) => ({ ...u, role: u.role as 'Admin' | 'Staff' | 'Customer' }));
 
   return (
     <div className="p-8 bg-blue-50 min-h-screen">
@@ -118,10 +136,10 @@ export default function UserManagement() {
       </div>
       <div className="overflow-x-auto">
         <UserTable
-          users={filteredUsers}
-          onView={(user: User) => alert(`View user: ${user.name}`)}
-          onEdit={(user: User) => alert(`Edit user: ${user.name}`)}
-          onRemove={(user: User) => alert(`Remove user: ${user.name}`)}
+          users={filteredUsers as User[]}
+          onView={(user) => alert(`View user: ${user.name}`)}
+          onEdit={(user) => alert(`Edit user: ${user.name}`)}
+          onRemove={(user) => alert(`Remove user: ${user.name}`)}
         />
       </div>
       <InviteUserModal
