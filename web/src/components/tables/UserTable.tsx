@@ -4,6 +4,7 @@ type User = {
   id: number;
   name: string;
   email: string;
+  role: string; // Add role to User type
   createdAt: string;
   updatedAt: string;
 };
@@ -39,19 +40,22 @@ const UserTable: React.FC<UserTableProps> = ({
       <table className="min-w-full bg-white border border-blue-200 rounded shadow">
         <thead className="bg-blue-100">
           <tr>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Name
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Email
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Role
+            </th>
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Created At
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Updated At
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Action
             </th>
           </tr>
@@ -64,6 +68,9 @@ const UserTable: React.FC<UserTableProps> = ({
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
                 {user.email}
+              </td>
+              <td className="py-2 px-4 border-b border-blue-100 text-black">
+                {user.role}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
                 {new Date(user.createdAt).toLocaleString()}
@@ -97,7 +104,7 @@ const UserTable: React.FC<UserTableProps> = ({
           ))}
           {paginatedUsers.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-4 text-center text-gray-500">
+              <td colSpan={6} className="py-4 text-center text-gray-500">
                 No users found.
               </td>
             </tr>

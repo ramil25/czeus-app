@@ -86,10 +86,16 @@ export function Sidebar() {
               <MdDiscount className="text-lg" /> Discounts
             </Link>
             <Link
-              href="/pos-setup/staff"
+              href="/pos-setup/staffs"
               className="flex items-center gap-2 font-bold hover:underline"
             >
-              <FaUserTie className="text-lg" /> Staff
+              <FaUserTie className="text-lg" /> Staffs
+            </Link>
+            <Link
+              href="/pos-setup/products"
+              className="flex items-center gap-2 font-bold hover:underline"
+            >
+              <MdInventory className="text-lg" /> Products
             </Link>
           </div>
         )}

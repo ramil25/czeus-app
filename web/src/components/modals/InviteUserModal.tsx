@@ -3,8 +3,8 @@ import React from "react";
 
 interface InviteUserModalProps {
   open: boolean;
-  form: { name: string; email: string; password: string };
-  setForm: React.Dispatch<React.SetStateAction<{ name: string; email: string; password: string }>>;
+  form: { name: string; email: string; password: string; role: string };
+  setForm: React.Dispatch<React.SetStateAction<{ name: string; email: string; password: string; role: string }>>;
   onCancel: () => void;
   onInvite: () => void;
 }
@@ -37,6 +37,20 @@ export function InviteUserModal({ open, form, setForm, onCancel, onInvite }: Inv
             onChange={e => setForm({ ...form, password: e.target.value })}
             className="border border-blue-300 rounded px-3 py-2 text-black bg-white"
           />
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Role *
+            </label>
+            <select
+              className="w-full border border-blue-200 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 text-black bg-blue-50"
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+            >
+              <option value="Admin">Admin</option>
+              <option value="Staff">Staff</option>
+              <option value="Customer">Customer</option>
+            </select>
+          </div>
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
