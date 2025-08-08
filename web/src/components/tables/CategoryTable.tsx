@@ -1,39 +1,31 @@
 'use client';
 import React, { useState } from 'react';
 
-type User = {
+export type Category = {
   id: number;
   name: string;
-  email: string;
-  role: string; // Add role to User type
+  description: string;
   createdAt: string;
-  updatedAt: string;
 };
 
-type UserTableProps = {
-  users: User[];
-  onView: (user: User) => void;
-  onEdit: (user: User) => void;
-  onRemove: (user: User) => void;
+export type CategoryTableProps = {
+  items: Category[];
+  onEdit?: (item: Category) => void;
+  onRemove?: (item: Category) => void;
 };
 
-const UserTable: React.FC<UserTableProps> = ({
-  users,
-  onView,
-  onEdit,
-  onRemove,
-}) => {
+export function CategoryTable({ items, onEdit, onRemove }: CategoryTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
-  const totalPages = Math.ceil(users.length / pageSize);
-  const paginatedUsers = users.slice(
+  const totalPages = Math.ceil(items.length / pageSize);
+  const paginatedItems = items.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
   };
 
   return (
@@ -45,16 +37,10 @@ const UserTable: React.FC<UserTableProps> = ({
               Name
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
-              Email
-            </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
-              Role
+              Description
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Created At
-            </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
-              Updated At
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Action
@@ -62,40 +48,30 @@ const UserTable: React.FC<UserTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {paginatedUsers.map((user) => (
-            <tr key={user.id} className="hover:bg-blue-50">
+          {paginatedItems.map((item) => (
+            <tr key={item.id} className="hover:bg-blue-50">
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {user.name}
+                {item.name}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {user.email}
+                <div className="max-w-xs truncate" title={item.description}>
+                  {item.description || 'N/A'}
+                </div>
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {user.role}
-              </td>
-              <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(user.createdAt).toLocaleString()}
-              </td>
-              <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(user.updatedAt).toLocaleString()}
+                {new Date(item.createdAt).toLocaleString()}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-center">
                 <div className="flex gap-2 justify-center">
                   <button
-                    className="px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
-                    onClick={() => onView(user)}
-                  >
-                    View
-                  </button>
-                  <button
                     className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 text-sm"
-                    onClick={() => onEdit(user)}
+                    onClick={() => onEdit && onEdit(item)}
                   >
                     Edit
                   </button>
                   <button
                     className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
-                    onClick={() => onRemove(user)}
+                    onClick={() => onRemove && onRemove(item)}
                   >
                     Remove
                   </button>
@@ -103,10 +79,10 @@ const UserTable: React.FC<UserTableProps> = ({
               </td>
             </tr>
           ))}
-          {paginatedUsers.length === 0 && (
+          {paginatedItems.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-4 text-center text-gray-500">
-                No users found.
+              <td colSpan={4} className="py-4 text-center text-gray-500">
+                No categories found.
               </td>
             </tr>
           )}
@@ -116,7 +92,7 @@ const UserTable: React.FC<UserTableProps> = ({
       <div className="flex justify-between items-center mt-4">
         <span className="text-sm text-black">
           Showing {(currentPage - 1) * pageSize + 1} -{' '}
-          {Math.min(currentPage * pageSize, users.length)} of {users.length}
+          {Math.min(currentPage * pageSize, items.length)} of {items.length}
         </span>
         <div className="flex gap-2">
           <button
@@ -150,6 +126,4 @@ const UserTable: React.FC<UserTableProps> = ({
       </div>
     </div>
   );
-};
-
-export default UserTable;
+}
