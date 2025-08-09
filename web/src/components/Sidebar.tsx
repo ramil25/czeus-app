@@ -74,7 +74,7 @@ export function Sidebar() {
               <MdCategory className="text-lg" /> Categories
             </Link>
             <Link
-              href="/pos-setup/size"
+              href="/pos-setup/sizes"
               className="flex items-center gap-2 font-bold hover:underline"
             >
               <MdFormatSize className="text-lg" /> Size
