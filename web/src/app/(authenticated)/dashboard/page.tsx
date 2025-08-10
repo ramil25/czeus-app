@@ -69,91 +69,29 @@ export default function DashboardPage() {
   const current = ranges[range];
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold text-blue-700 mb-8">Dashboard</h1>
-      <div className="mb-6 flex gap-4 items-center">
+    <div className="p-3 sm:p-8 max-w-5xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-6 sm:mb-8">Dashboard</h1>
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center">
         <span className="font-semibold text-gray-700">Data Range:</span>
-        <button
-          className={`px-4 py-2 rounded-lg font-semibold border ${
-            range === 'week'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-blue-600'
-          }`}
-          onClick={() => setRange('week')}
-        >
-          Weekly
-        </button>
-        <button
-          className={`px-4 py-2 rounded-lg font-semibold border ${
-            range === 'month'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-blue-600'
-          }`}
-          onClick={() => setRange('month')}
-        >
-          Monthly
-        </button>
-        <button
-          className={`px-4 py-2 rounded-lg font-semibold border ${
-            range === 'year'
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-blue-600'
-          }`}
-          onClick={() => setRange('year')}
-        >
-          Annually
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <button className={`px-3 sm:px-4 py-2 rounded-lg font-semibold border ${range === 'week' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'}`} onClick={() => setRange('week')}>Weekly</button>
+          <button className={`px-3 sm:px-4 py-2 rounded-lg font-semibold border ${range === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'}`} onClick={() => setRange('month')}>Monthly</button>
+          <button className={`px-3 sm:px-4 py-2 rounded-lg font-semibold border ${range === 'year' ? 'bg-blue-600 text-white' : 'bg-white text-blue-600'}`} onClick={() => setRange('year')}>Annually</button>
+        </div>
       </div>
-      <div className="flex gap-8 flex-wrap mb-10">
-        <StatCard
-          title="Number of Users"
-          value={current.users}
-          icon={<FaUsers />}
-          color="#2563eb"
-        />
-        <StatCard
-          title="Number of Items on Inventory"
-          value={current.inventoryCount}
-          icon={<MdInventory />}
-          color="#059669"
-        />
-        <StatCard
-          title="Highest Points Earned"
-          value={current.highestPoints}
-          icon={<MdLeaderboard />}
-          color="#f59e42"
-        />
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-8 flex-wrap mb-6 sm:mb-10">
+        <StatCard title="Number of Users" value={current.users} icon={<FaUsers />} color="#2563eb" />
+        <StatCard title="Number of Items on Inventory" value={current.inventoryCount} icon={<MdInventory />} color="#059669" />
+        <StatCard title="Highest Points Earned" value={current.highestPoints} icon={<MdLeaderboard />} color="#f59e42" />
       </div>
-      <div className="flex gap-8 flex-wrap mb-10">
-        <TrendCard
-          title="Users Trend"
-          value={current.users}
-          trend={current.trends.users}
-        />
-        <TrendCard
-          title="Inventory Trend"
-          value={current.inventoryCount}
-          trend={current.trends.inventory}
-        />
-        <TrendCard
-          title="Points Trend"
-          value={current.highestPoints}
-          trend={current.trends.points}
-        />
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-8 flex-wrap mb-6 sm:mb-10">
+        <TrendCard title="Users Trend" value={current.users} trend={current.trends.users} />
+        <TrendCard title="Inventory Trend" value={current.inventoryCount} trend={current.trends.inventory} />
+        <TrendCard title="Points Trend" value={current.highestPoints} trend={current.trends.points} />
       </div>
-      <div className="flex gap-8 flex-wrap">
-        <SimpleLineGraph
-          title="Inventory"
-          labels={current.labels}
-          data={current.inventory}
-          color="#059669"
-        />
-        <SimpleLineGraph
-          title="Sales"
-          labels={current.labels}
-          data={current.sales}
-          color="#2563eb"
-        />
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-8 flex-wrap">
+        <SimpleLineGraph title="Inventory" labels={current.labels} data={current.inventory} color="#059669" />
+        <SimpleLineGraph title="Sales" labels={current.labels} data={current.sales} color="#2563eb" />
       </div>
     </div>
   );
