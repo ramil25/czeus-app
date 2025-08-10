@@ -1,25 +1,21 @@
+'use client';
 import React, { useState } from 'react';
 
-export type InventoryItem = {
+export type Discount = {
   id: number;
   name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  updatedAt: string;
+  value: number;
+  type: 'percentage' | 'actual';
+  createdAt: string;
 };
 
-export type InventoryTableProps = {
-  items: InventoryItem[];
-  onEdit?: (item: InventoryItem) => void;
-  onRemove?: (item: InventoryItem) => void;
+export type DiscountTableProps = {
+  items: Discount[];
+  onEdit?: (item: Discount) => void;
+  onRemove?: (item: Discount) => void;
 };
 
-export function InventoryTable({
-  items,
-  onEdit,
-  onRemove,
-}: InventoryTableProps) {
+export function DiscountTable({ items, onEdit, onRemove }: DiscountTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
   const totalPages = Math.ceil(items.length / pageSize);
@@ -38,22 +34,19 @@ export function InventoryTable({
       <table className="min-w-full bg-white border border-blue-200 rounded shadow">
         <thead className="bg-blue-100">
           <tr>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Name
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Discount Name
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Category
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Discount Value
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Quantity
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Type of Discount
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Unit
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Created At
             </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
-              Updated At
-            </th>
-            <th className="py-2 px-4 border-b border-blue-200 text-black">
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Action
             </th>
           </tr>
@@ -65,16 +58,15 @@ export function InventoryTable({
                 {item.name}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.category}
+                {item.type === 'percentage'
+                  ? `${item.value}%`
+                  : `₱${item.value.toFixed(2)}`}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.quantity}
+                {item.type === 'percentage' ? 'Percentage' : 'Actual Value'}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.unit}
-              </td>
-              <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(item.updatedAt).toLocaleString()}
+                {new Date(item.createdAt).toLocaleString()}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-center">
                 <div className="flex gap-2 justify-center">
@@ -96,8 +88,8 @@ export function InventoryTable({
           ))}
           {paginatedItems.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-4 text-center text-gray-500">
-                No items found.
+              <td colSpan={5} className="py-4 text-center text-gray-500">
+                No discounts found.
               </td>
             </tr>
           )}
