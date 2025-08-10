@@ -28,29 +28,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md flex flex-col items-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-white p-2 sm:p-0">
+      <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-8 w-full max-w-md flex flex-col items-center">
         <Image
           src="/logo.svg"
           alt="Logo"
-          width={120}
-          height={32}
-          className="mb-6"
+          width={80}
+          height={24}
+          className="mb-4 sm:mb-6"
         />
-        <h1 className="text-2xl font-bold text-blue-700 mb-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-blue-700 mb-1 sm:mb-2 text-center w-full">
           Sign in to your account
         </h1>
-        <p className="text-blue-500 mb-6">
+        <p className="text-blue-500 mb-4 sm:mb-6 text-center w-full">
           Welcome back! Please enter your details.
         </p>
-        <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
+        <form
+          className="w-full flex flex-col gap-3 sm:gap-4"
+          onSubmit={handleSubmit}
+        >
           <label htmlFor="email" className="text-sm font-medium text-blue-700">
             Email
           </label>
           <input
             type="email"
             placeholder="Email"
-            className="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 text-black focus:ring-blue-300"
+            className="border border-blue-200 rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 text-black focus:ring-blue-300"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -67,7 +70,7 @@ export default function LoginPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border border-blue-200 text-black rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="border border-blue-200 text-black rounded-lg px-3 sm:px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
             required
             disabled={isPending}
           />

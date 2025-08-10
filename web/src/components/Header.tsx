@@ -23,7 +23,7 @@ export function Header() {
 
   return (
     <header className="w-full flex items-center justify-between px-6 py-4 bg-white border-none shadow-none">
-      <div className="flex items-center">
+      <div className="flex items-center ml-10 sm:ml-0">
         <Image src="/logo.svg" alt="Logo" width={140} height={140} />
       </div>
       <button

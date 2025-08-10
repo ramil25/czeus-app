@@ -131,7 +131,7 @@ export default function UserManagement() {
           placeholder="Search users..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
+          className="border border-blue-300 rounded px-2 sm:px-3 py-2 sm:py-2 w-1/2 sm:w-full text-black bg-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
       </div>
       <div className="overflow-x-auto">
