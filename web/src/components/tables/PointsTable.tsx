@@ -1,12 +1,6 @@
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
-
-export interface Customer {
-  id: number;
-  name: string;
-  email: string;
-  points: number;
-}
+import { Customer } from '../../lib/services/customerService';
 
 interface PointsTableProps {
   customers: Customer[];
