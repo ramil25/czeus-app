@@ -1,4 +1,5 @@
 import { supabase } from '../supbaseClient';
+import * as mockService from './mockCustomerService';
 
 export interface Customer {
   id: number;
@@ -20,10 +21,24 @@ export interface UpdateCustomerPointsData {
   pointsToAdd: number;
 }
 
+// Check if Supabase is properly configured
+const isSupabaseConfigured = () => {
+  try {
+    return !!supabase;
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Fetch all customers from the database
  */
 export async function getCustomers(): Promise<Customer[]> {
+  if (!isSupabaseConfigured()) {
+    console.warn('Supabase not configured, using mock data');
+    return mockService.getCustomers();
+  }
+
   const { data, error } = await supabase
     .from('customers')
     .select('*')
@@ -41,6 +56,10 @@ export async function getCustomers(): Promise<Customer[]> {
  * Create a new customer
  */
 export async function createCustomer(customerData: CreateCustomerData): Promise<Customer> {
+  if (!isSupabaseConfigured()) {
+    return mockService.createCustomer(customerData);
+  }
+
   const { data, error } = await supabase
     .from('customers')
     .insert([{
@@ -63,6 +82,10 @@ export async function createCustomer(customerData: CreateCustomerData): Promise<
  * Add points to a customer
  */
 export async function addPointsToCustomer({ id, pointsToAdd }: UpdateCustomerPointsData): Promise<Customer> {
+  if (!isSupabaseConfigured()) {
+    return mockService.addPointsToCustomer({ id, pointsToAdd });
+  }
+
   // First get the current customer data
   const { data: currentCustomer, error: fetchError } = await supabase
     .from('customers')
@@ -101,6 +124,10 @@ export async function addPointsToCustomer({ id, pointsToAdd }: UpdateCustomerPoi
  * Search customers by name or email
  */
 export async function searchCustomers(searchTerm: string): Promise<Customer[]> {
+  if (!isSupabaseConfigured()) {
+    return mockService.searchCustomers(searchTerm);
+  }
+
   const { data, error } = await supabase
     .from('customers')
     .select('*')
@@ -119,6 +146,10 @@ export async function searchCustomers(searchTerm: string): Promise<Customer[]> {
  * Initialize the customers table with sample data if it's empty
  */
 export async function initializeSampleData(): Promise<void> {
+  if (!isSupabaseConfigured()) {
+    return mockService.initializeSampleData();
+  }
+
   // Check if customers table has any data
   const { data: existingCustomers, error: checkError } = await supabase
     .from('customers')
