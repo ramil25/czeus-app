@@ -8,7 +8,6 @@ import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, User } from '../
 export default function UserManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [form, setForm] = useState({
     name: '',
     email: '',
