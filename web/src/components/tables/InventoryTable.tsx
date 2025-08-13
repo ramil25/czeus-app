@@ -2,23 +2,26 @@ import React, { useState } from 'react';
 
 export type InventoryItem = {
   id: number;
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  updatedAt: string;
+  item_name: string;
+  item_category: string;
+  item_qty: number;
+  unit_measure: string;
+  created_at: string;
+  updated_at?: string;
 };
 
 export type InventoryTableProps = {
   items: InventoryItem[];
   onEdit?: (item: InventoryItem) => void;
   onRemove?: (item: InventoryItem) => void;
+  isLoading?: boolean;
 };
 
 export function InventoryTable({
   items,
   onEdit,
   onRemove,
+  isLoading = false,
 }: InventoryTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -32,6 +35,20 @@ export function InventoryTable({
     if (newPage < 1 || newPage > totalPages) return;
     setCurrentPage(newPage);
   };
+
+  const handleRemove = (item: InventoryItem) => {
+    if (window.confirm(`Are you sure you want to delete "${item.item_name}"?`)) {
+      onRemove?.(item);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -62,31 +79,31 @@ export function InventoryTable({
           {paginatedItems.map((item) => (
             <tr key={item.id} className="hover:bg-blue-50">
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.name}
+                {item.item_name}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.category}
+                {item.item_category}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.quantity}
+                {item.item_qty}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.unit}
+                {item.unit_measure}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(item.updatedAt).toLocaleString()}
+                {new Date(item.updated_at || item.created_at).toLocaleString()}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-center">
                 <div className="flex gap-2 justify-center">
                   <button
                     className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 text-sm"
-                    onClick={() => onEdit && onEdit(item)}
+                    onClick={() => onEdit?.(item)}
                   >
                     Edit
                   </button>
                   <button
                     className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
-                    onClick={() => onRemove && onRemove(item)}
+                    onClick={() => handleRemove(item)}
                   >
                     Remove
                   </button>
