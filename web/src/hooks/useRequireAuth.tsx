@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supbaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 export function useRequireAuth() {
   const router = useRouter();

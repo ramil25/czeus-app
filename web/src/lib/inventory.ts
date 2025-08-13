@@ -1,4 +1,4 @@
-import { supabase } from './supbaseClient';
+import { supabase } from './supabaseClient';
 
 // Database schema type to match Supabase table
 export type InventoryItem = {

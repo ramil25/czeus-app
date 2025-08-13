@@ -1,32 +1,34 @@
 import React from 'react';
-import { DiscountType } from '../../lib/discounts';
+import { Discount, DiscountType } from '../../lib/discounts';
 
-export interface DiscountForm {
+export interface EditDiscountForm {
   discount_name: string;
-  discount_type: DiscountType | '';
+  discount_type: DiscountType;
   discount_value: string;
 }
 
-interface AddDiscountModalProps {
+interface EditDiscountModalProps {
   open: boolean;
-  form: DiscountForm;
-  setForm: (form: DiscountForm) => void;
+  discount: Discount | null;
+  form: EditDiscountForm;
+  setForm: (form: EditDiscountForm) => void;
   onCancel: () => void;
-  onAdd: (form: DiscountForm) => void;
+  onSave: (form: EditDiscountForm) => void;
   isLoading?: boolean;
 }
 
-const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
+const EditDiscountModal: React.FC<EditDiscountModalProps> = ({
   open,
+  discount,
   form,
   setForm,
   onCancel,
-  onAdd,
+  onSave,
   isLoading = false,
 }) => {
-  if (!open) return null;
+  if (!open || !discount) return null;
 
-  const handleInputChange = (field: keyof DiscountForm, value: string) => {
+  const handleInputChange = (field: keyof EditDiscountForm, value: string) => {
     setForm({ ...form, [field]: value });
   };
 
@@ -44,7 +46,7 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-blue-200">
         <h2 className="text-2xl font-semibold mb-6 text-blue-700">
-          Add Discount
+          Edit Discount
         </h2>
 
         <div className="grid grid-cols-1 gap-4">
@@ -77,7 +79,6 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
                 )
               }
             >
-              <option value="">Select type</option>
               <option value="percentage">Percentage</option>
               <option value="actual">Value</option>
             </select>
@@ -105,15 +106,16 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
           <button
             className="px-6 py-2 bg-white border border-blue-200 text-black rounded hover:bg-blue-100 transition-colors"
             onClick={onCancel}
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => onAdd(form)}
+            onClick={() => onSave(form)}
             disabled={!isFormValid() || isLoading}
           >
-            {isLoading ? 'Adding...' : 'Add Discount'}
+            {isLoading ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>
@@ -121,4 +123,4 @@ const AddDiscountModal: React.FC<AddDiscountModalProps> = ({
   );
 };
 
-export default AddDiscountModal;
+export default EditDiscountModal;
