@@ -1,125 +1,111 @@
 'use client';
 import { useState } from 'react';
 import { AddInventoryModal, InventoryForm } from '../../../components/modals/AddInventoryModal';
-import { InventoryTable } from '../../../components/tables/InventoryTable';
-
-// Sample inventory data for a coffee shop
-const now = new Date().toISOString();
-const sampleInventory = [
-  {
-    id: 1,
-    name: 'Espresso Beans',
-    category: 'Coffee',
-    quantity: 50,
-    unit: 'kg',
-    updatedAt: now,
-  },
-  {
-    id: 2,
-    name: 'Milk',
-    category: 'Dairy',
-    quantity: 30,
-    unit: 'L',
-    updatedAt: now,
-  },
-  {
-    id: 3,
-    name: 'Sugar',
-    category: 'Condiment',
-    quantity: 20,
-    unit: 'kg',
-    updatedAt: now,
-  },
-  {
-    id: 4,
-    name: 'Cups',
-    category: 'Supplies',
-    quantity: 200,
-    unit: 'pcs',
-    updatedAt: now,
-  },
-  {
-    id: 5,
-    name: 'Chocolate Syrup',
-    category: 'Condiment',
-    quantity: 10,
-    unit: 'L',
-    updatedAt: now,
-  },
-  {
-    id: 6,
-    name: 'Green Tea',
-    category: 'Tea',
-    quantity: 15,
-    unit: 'kg',
-    updatedAt: now,
-  },
-  {
-    id: 7,
-    name: 'Napkins',
-    category: 'Supplies',
-    quantity: 500,
-    unit: 'pcs',
-    updatedAt: now,
-  },
-  {
-    id: 8,
-    name: 'Vanilla Syrup',
-    category: 'Condiment',
-    quantity: 8,
-    unit: 'L',
-    updatedAt: now,
-  },
-  {
-    id: 9,
-    name: 'Black Tea',
-    category: 'Tea',
-    quantity: 12,
-    unit: 'kg',
-    updatedAt: now,
-  },
-  {
-    id: 10,
-    name: 'Whipped Cream',
-    category: 'Dairy',
-    quantity: 5,
-    unit: 'kg',
-    updatedAt: now,
-  },
-];
+import { InventoryTable, InventoryItem } from '../../../components/tables/InventoryTable';
+import { 
+  useInventoryItems, 
+  useCreateInventoryItem, 
+  useUpdateInventoryItem, 
+  useDeleteInventoryItem 
+} from '../../../hooks/useInventory';
+import { InventoryFormData } from '../../../lib/inventory';
 
 export default function InventoryManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [form, setForm] = useState<InventoryForm>({
     name: '',
     category: '',
     quantity: '',
     unit: '',
   });
-  const [inventory, setInventory] = useState(sampleInventory);
-  const filteredInventory = inventory.filter(
+
+  // Database hooks
+  const { data: inventoryItems = [], isLoading, error } = useInventoryItems();
+  const createMutation = useCreateInventoryItem();
+  const updateMutation = useUpdateInventoryItem();
+  const deleteMutation = useDeleteInventoryItem();
+
+  // Filter inventory items based on search
+  const filteredInventory = inventoryItems.filter(
     (item) =>
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.category.toLowerCase().includes(search.toLowerCase())
+      item.item_name.toLowerCase().includes(search.toLowerCase()) ||
+      item.item_category.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAdd = () => {
-    if (!form.name || !form.category || !form.quantity || !form.unit) return;
-    setInventory((inv) => [
-      ...inv,
-      {
-        id: inv.length + 1,
-        name: form.name,
-        category: form.category,
-        quantity: Number(form.quantity),
-        unit: form.unit,
-        updatedAt: new Date().toISOString(),
-      },
-    ]);
+  const resetForm = () => {
     setForm({ name: '', category: '', quantity: '', unit: '' });
-    setShowModal(false);
+    setEditingItem(null);
   };
+
+  const handleAdd = () => {
+    resetForm();
+    setShowModal(true);
+  };
+
+  const handleEdit = (item: InventoryItem) => {
+    setForm({
+      name: item.item_name,
+      category: item.item_category,
+      quantity: item.item_qty.toString(),
+      unit: item.unit_measure,
+    });
+    setEditingItem(item);
+    setShowModal(true);
+  };
+
+  const handleSubmit = () => {
+    if (!form.name || !form.category || !form.quantity || !form.unit) {
+      return;
+    }
+
+    const formData: InventoryFormData = {
+      item_name: form.name,
+      item_category: form.category,
+      item_qty: parseFloat(form.quantity),
+      unit_measure: form.unit,
+    };
+
+    if (editingItem) {
+      updateMutation.mutate(
+        { id: editingItem.id, data: formData },
+        {
+          onSuccess: () => {
+            setShowModal(false);
+            resetForm();
+          },
+        }
+      );
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: () => {
+          setShowModal(false);
+          resetForm();
+        },
+      });
+    }
+  };
+
+  const handleRemove = (item: InventoryItem) => {
+    deleteMutation.mutate(item.id);
+  };
+
+  const handleCancel = () => {
+    setShowModal(false);
+    resetForm();
+  };
+
+  if (error) {
+    return (
+      <div className="p-8 bg-blue-50 min-h-screen">
+        <div className="text-red-600 text-center">
+          <h2 className="text-xl font-bold mb-2">Error loading inventory</h2>
+          <p>{error.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-blue-50 min-h-screen">
@@ -128,8 +114,9 @@ export default function InventoryManagement() {
           Inventory Management
         </h1>
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-          onClick={() => setShowModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 disabled:opacity-50"
+          onClick={handleAdd}
+          disabled={isLoading}
         >
           Add Item
         </button>
@@ -139,21 +126,26 @@ export default function InventoryManagement() {
           type="text"
           placeholder="Search inventory..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
           className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
         />
       </div>
       <div className="overflow-x-auto">
-        <InventoryTable items={filteredInventory} />
+        <InventoryTable
+          items={filteredInventory}
+          onEdit={handleEdit}
+          onRemove={handleRemove}
+          isLoading={isLoading}
+        />
       </div>
       <AddInventoryModal
         open={showModal}
         form={form}
         setForm={setForm}
-        onCancel={() => setShowModal(false)}
-        onAdd={handleAdd}
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+        isEditing={!!editingItem}
+        isLoading={createMutation.isPending || updateMutation.isPending}
       />
     </div>
   );
