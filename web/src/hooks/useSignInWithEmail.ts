@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { supabase } from '@/lib/supbaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 export function useSignInWithEmail() {
   return useMutation({

@@ -1,13 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-
-export type Discount = {
-  id: number;
-  name: string;
-  value: number;
-  type: 'percentage' | 'actual';
-  createdAt: string;
-};
+import { Discount } from '../../lib/discounts';
 
 export type DiscountTableProps = {
   items: Discount[];
@@ -55,18 +48,18 @@ export function DiscountTable({ items, onEdit, onRemove }: DiscountTableProps) {
           {paginatedItems.map((item) => (
             <tr key={item.id} className="hover:bg-blue-50">
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.name}
+                {item.discount_name}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.type === 'percentage'
-                  ? `${item.value}%`
-                  : `₱${item.value.toFixed(2)}`}
+                {item.discount_type === 'percentage'
+                  ? `${item.discount_value}%`
+                  : `₱${item.discount_value.toFixed(2)}`}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.type === 'percentage' ? 'Percentage' : 'Actual Value'}
+                {item.discount_type === 'percentage' ? 'Percentage' : 'Actual Value'}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(item.createdAt).toLocaleString()}
+                {new Date(item.created_at).toLocaleString()}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-center">
                 <div className="flex gap-2 justify-center">
