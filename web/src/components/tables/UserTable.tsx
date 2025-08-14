@@ -1,20 +1,13 @@
 'use client';
 import React, { useState } from 'react';
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: string; // Add role to User type
-  createdAt: string;
-  updatedAt: string;
-};
+import { User } from '@/lib/users';
 
 type UserTableProps = {
   users: User[];
   onView: (user: User) => void;
   onEdit: (user: User) => void;
   onRemove: (user: User) => void;
+  loading?: boolean;
 };
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -22,6 +15,7 @@ const UserTable: React.FC<UserTableProps> = ({
   onView,
   onEdit,
   onRemove,
+  loading = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -35,6 +29,14 @@ const UserTable: React.FC<UserTableProps> = ({
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-blue-600">Loading users...</div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -51,10 +53,13 @@ const UserTable: React.FC<UserTableProps> = ({
               Role
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
-              Created At
+              Position
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
-              Updated At
+              Phone
+            </th>
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Created At
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Action
@@ -65,19 +70,33 @@ const UserTable: React.FC<UserTableProps> = ({
           {paginatedUsers.map((user) => (
             <tr key={user.id} className="hover:bg-blue-50">
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {user.name}
+                <div>
+                  <div className="font-medium">{user.name}</div>
+                  {user.middle_name && (
+                    <div className="text-sm text-gray-500">Middle: {user.middle_name}</div>
+                  )}
+                </div>
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
                 {user.email}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {user.role}
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  user.role === 'Admin' ? 'bg-red-100 text-red-800' :
+                  user.role === 'Staff' ? 'bg-blue-100 text-blue-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {user.role}
+                </span>
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(user.createdAt).toLocaleString()}
+                {user.position || '-'}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {new Date(user.updatedAt).toLocaleString()}
+                {user.phone || '-'}
+              </td>
+              <td className="py-2 px-4 border-b border-blue-100 text-black">
+                {new Date(user.created_at).toLocaleDateString()}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-center">
                 <div className="flex gap-2 justify-center">
@@ -105,7 +124,7 @@ const UserTable: React.FC<UserTableProps> = ({
           ))}
           {paginatedUsers.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-4 text-center text-gray-500">
+              <td colSpan={7} className="py-4 text-center text-gray-500">
                 No users found.
               </td>
             </tr>
