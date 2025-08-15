@@ -3,38 +3,119 @@ import { useState } from 'react';
 import AddTableModal, {
   TableForm,
 } from '../../../../components/modals/AddTableModal';
+import EditTableModal, {
+  EditTableForm,
+} from '../../../../components/modals/EditTableModal';
 import {
   TableTable,
   CafeTable,
 } from '../../../../components/tables/TableTable';
-
-const now = new Date().toISOString();
-const sampleTables: CafeTable[] = [
-  { id: 1, tableNumber: 'A1', numberOfSeats: 4, createdAt: now },
-  { id: 2, tableNumber: 'A2', numberOfSeats: 2, createdAt: now },
-  { id: 3, tableNumber: 'B1', numberOfSeats: 6, createdAt: now },
-  { id: 4, tableNumber: 'B2', numberOfSeats: 4, createdAt: now },
-  { id: 5, tableNumber: 'C1', numberOfSeats: 8, createdAt: now },
-  { id: 6, tableNumber: 'C2', numberOfSeats: 2, createdAt: now },
-  { id: 7, tableNumber: 'D1', numberOfSeats: 4, createdAt: now },
-  { id: 8, tableNumber: 'D2', numberOfSeats: 6, createdAt: now },
-  { id: 9, tableNumber: 'E1', numberOfSeats: 2, createdAt: now },
-  { id: 10, tableNumber: 'E2', numberOfSeats: 4, createdAt: now },
-];
+import {
+  useTables,
+  useCreateTable,
+  useUpdateTable,
+  useDeleteTable,
+} from '../../../../hooks/useTables';
+import { Table } from '../../../../lib/tables';
 
 export default function TablesManagement() {
   const [search, setSearch] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState<TableForm>({
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const [addForm, setAddForm] = useState<TableForm>({
+    tableNumber: '',
+    numberOfSeats: '',
+  });
+  const [editForm, setEditForm] = useState<EditTableForm>({
     tableNumber: '',
     numberOfSeats: '',
   });
 
-  const filteredTables = sampleTables.filter(
+  // React Query hooks
+  const { data: tables = [], isLoading, error } = useTables();
+  const createTableMutation = useCreateTable();
+  const updateTableMutation = useUpdateTable();
+  const deleteTableMutation = useDeleteTable();
+
+  const filteredTables = tables.filter(
     (t) =>
       t.tableNumber.toLowerCase().includes(search.toLowerCase()) ||
       t.numberOfSeats.toString().includes(search)
   );
+
+  // Handler functions
+  const handleAddTable = async () => {
+    if (!addForm.tableNumber.trim() || !addForm.numberOfSeats.trim()) return;
+    
+    try {
+      await createTableMutation.mutateAsync({
+        table_name: addForm.tableNumber,
+        number_of_seats: Number(addForm.numberOfSeats),
+      });
+      
+      setAddForm({ tableNumber: '', numberOfSeats: '' });
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Failed to create table:', error);
+    }
+  };
+
+  const handleEditTable = (table: CafeTable) => {
+    setSelectedTable(table);
+    setEditForm({
+      tableNumber: table.tableNumber,
+      numberOfSeats: table.numberOfSeats.toString(),
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateTable = async (form: EditTableForm) => {
+    if (!selectedTable) return;
+    
+    try {
+      await updateTableMutation.mutateAsync({
+        id: selectedTable.id,
+        input: {
+          table_name: form.tableNumber,
+          number_of_seats: Number(form.numberOfSeats),
+        },
+      });
+      
+      setShowEditModal(false);
+      setSelectedTable(null);
+      setEditForm({ tableNumber: '', numberOfSeats: '' });
+    } catch (error) {
+      console.error('Failed to update table:', error);
+    }
+  };
+
+  const handleDeleteTable = async (table: CafeTable) => {
+    if (window.confirm(`Are you sure you want to delete table ${table.tableNumber}?`)) {
+      try {
+        await deleteTableMutation.mutateAsync(table.id);
+      } catch (error) {
+        console.error('Failed to delete table:', error);
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setSelectedTable(null);
+    setEditForm({ tableNumber: '', numberOfSeats: '' });
+  };
+
+  if (error) {
+    return (
+      <div className="p-8 bg-blue-50 min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error loading tables</h1>
+          <p className="text-gray-600">Please try refreshing the page.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-blue-50 min-h-screen">
@@ -42,7 +123,7 @@ export default function TablesManagement() {
         <h1 className="text-2xl font-bold text-blue-700">Cafe Tables</h1>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowAddModal(true)}
         >
           Add Table
         </button>
@@ -56,19 +137,37 @@ export default function TablesManagement() {
           className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
         />
       </div>
-      <div className="overflow-x-auto">
-        <TableTable
-          items={filteredTables}
-          onEdit={(item) => alert(`Edit table: ${item.tableNumber}`)}
-          onRemove={(item) => alert(`Remove table: ${item.tableNumber}`)}
-        />
-      </div>
+      
+      {isLoading ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600">Loading tables...</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <TableTable
+            items={filteredTables}
+            onEdit={handleEditTable}
+            onRemove={handleDeleteTable}
+          />
+        </div>
+      )}
+
       <AddTableModal
-        open={showModal}
-        form={form}
-        setForm={setForm}
-        onCancel={() => setShowModal(false)}
-        onAdd={() => setShowModal(false)}
+        open={showAddModal}
+        form={addForm}
+        setForm={setAddForm}
+        onCancel={() => setShowAddModal(false)}
+        onAdd={handleAddTable}
+      />
+
+      <EditTableModal
+        open={showEditModal}
+        table={selectedTable}
+        form={editForm}
+        setForm={setEditForm}
+        onCancel={handleCancelEdit}
+        onSave={handleUpdateTable}
+        isLoading={updateTableMutation.isPending}
       />
     </div>
   );
