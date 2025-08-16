@@ -1,218 +1,22 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddStaffModal, {
   StaffForm,
 } from '../../../../components/modals/AddStaffModal';
-import { StaffTable, Staff } from '../../../../components/tables/StaffTable';
-
-const now = new Date().toISOString();
-const sampleStaff: Staff[] = [
-  {
-    id: 1,
-    firstName: 'Alice',
-    lastName: 'Johnson',
-    email: 'alice@email.com',
-    phone: '09171234567',
-    position: 'Manager',
-    address: '123 Main St, City',
-    createdAt: now,
-  },
-  {
-    id: 2,
-    firstName: 'Bob',
-    lastName: 'Smith',
-    email: 'bob@email.com',
-    phone: '09181234567',
-    position: 'Barista',
-    address: '456 Oak Ave, City',
-    createdAt: now,
-  },
-  {
-    id: 3,
-    firstName: 'Charlie',
-    lastName: 'Brown',
-    email: 'charlie@email.com',
-    phone: '09191234567',
-    position: 'Cashier',
-    address: '789 Pine Rd, City',
-    createdAt: now,
-  },
-  {
-    id: 4,
-    firstName: 'Diana',
-    lastName: 'Prince',
-    email: 'diana@email.com',
-    phone: '09201234567',
-    position: 'Kitchen Staff',
-    address: '321 Maple St, City',
-    createdAt: now,
-  },
-  {
-    id: 5,
-    firstName: 'Ethan',
-    lastName: 'Hunt',
-    email: 'ethan@email.com',
-    phone: '09211234567',
-    position: 'Supervisor',
-    address: '654 Cedar Ave, City',
-    createdAt: now,
-  },
-  {
-    id: 6,
-    firstName: 'Fiona',
-    lastName: 'Glenanne',
-    email: 'fiona@email.com',
-    phone: '09221234567',
-    position: 'Assistant Manager',
-    address: '987 Birch Rd, City',
-    createdAt: now,
-  },
-  {
-    id: 7,
-    firstName: 'George',
-    lastName: 'Miller',
-    email: 'george@email.com',
-    phone: '09231234567',
-    position: 'Server',
-    address: '246 Spruce St, City',
-    createdAt: now,
-  },
-  {
-    id: 8,
-    firstName: 'Hannah',
-    lastName: 'Lee',
-    email: 'hannah@email.com',
-    phone: '09241234567',
-    position: 'Cleaner',
-    address: '135 Willow Ave, City',
-    createdAt: now,
-  },
-  {
-    id: 9,
-    firstName: 'Ivan',
-    lastName: 'Petrov',
-    email: 'ivan@email.com',
-    phone: '09251234567',
-    position: 'Barista',
-    address: '864 Aspen Rd, City',
-    createdAt: now,
-  },
-  {
-    id: 10,
-    firstName: 'Julia',
-    lastName: 'Roberts',
-    email: 'julia@email.com',
-    phone: '09261234567',
-    position: 'Cashier',
-    address: '753 Elm St, City',
-    createdAt: now,
-  },
-  {
-    id: 11,
-    firstName: 'Kevin',
-    lastName: 'Durant',
-    email: 'kevin@email.com',
-    phone: '09271234567',
-    position: 'Manager',
-    address: '159 Oak Ave, City',
-    createdAt: now,
-  },
-  {
-    id: 12,
-    firstName: 'Linda',
-    lastName: 'Carter',
-    email: 'linda@email.com',
-    phone: '09281234567',
-    position: 'Kitchen Staff',
-    address: '357 Pine Rd, City',
-    createdAt: now,
-  },
-  {
-    id: 13,
-    firstName: 'Mike',
-    lastName: 'Ross',
-    email: 'mike@email.com',
-    phone: '09291234567',
-    position: 'Supervisor',
-    address: '951 Maple St, City',
-    createdAt: now,
-  },
-  {
-    id: 14,
-    firstName: 'Nina',
-    lastName: 'Simone',
-    email: 'nina@email.com',
-    phone: '09301234567',
-    position: 'Barista',
-    address: '258 Cedar Ave, City',
-    createdAt: now,
-  },
-  {
-    id: 15,
-    firstName: 'Oscar',
-    lastName: 'Wilde',
-    email: 'oscar@email.com',
-    phone: '09311234567',
-    position: 'Server',
-    address: '654 Birch Rd, City',
-    createdAt: now,
-  },
-  {
-    id: 16,
-    firstName: 'Paula',
-    lastName: 'Abdul',
-    email: 'paula@email.com',
-    phone: '09321234567',
-    position: 'Cleaner',
-    address: '357 Spruce St, City',
-    createdAt: now,
-  },
-  {
-    id: 17,
-    firstName: 'Quentin',
-    lastName: 'Tarantino',
-    email: 'quentin@email.com',
-    phone: '09331234567',
-    position: 'Cashier',
-    address: '159 Willow Ave, City',
-    createdAt: now,
-  },
-  {
-    id: 18,
-    firstName: 'Rachel',
-    lastName: 'Green',
-    email: 'rachel@email.com',
-    phone: '09341234567',
-    position: 'Manager',
-    address: '753 Aspen Rd, City',
-    createdAt: now,
-  },
-  {
-    id: 19,
-    firstName: 'Steve',
-    lastName: 'Jobs',
-    email: 'steve@email.com',
-    phone: '09351234567',
-    position: 'Barista',
-    address: '951 Elm St, City',
-    createdAt: now,
-  },
-  {
-    id: 20,
-    firstName: 'Tina',
-    lastName: 'Turner',
-    email: 'tina@email.com',
-    phone: '09361234567',
-    position: 'Kitchen Staff',
-    address: '357 Oak Ave, City',
-    createdAt: now,
-  },
-];
+import EditStaffModal, {
+  EditStaffForm,
+} from '../../../../components/modals/EditStaffModal';
+import { StaffTable } from '../../../../components/tables/StaffTable';
+import { getStaff, createStaff, updateStaff, deleteStaff, Staff, StaffFormData } from '../../../../lib/staff';
 
 export default function StaffManagement() {
-  const [staff, setStaff] = useState<Staff[]>(sampleStaff);
+  const [staff, setStaff] = useState<Staff[]>([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<StaffForm>({
     firstName: '',
     lastName: '',
@@ -221,6 +25,33 @@ export default function StaffManagement() {
     position: '',
     address: '',
   });
+  const [editForm, setEditForm] = useState<EditStaffForm>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    position: '',
+    address: '',
+  });
+
+  // Load staff data on component mount
+  useEffect(() => {
+    loadStaff();
+  }, []);
+
+  const loadStaff = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const staffData = await getStaff();
+      setStaff(staffData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load staff');
+      console.error('Error loading staff:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredStaff = staff.filter(
     (s) =>
@@ -231,7 +62,7 @@ export default function StaffManagement() {
       s.position.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddStaff = () => {
+  const handleAddStaff = async () => {
     if (
       !form.firstName ||
       !form.lastName ||
@@ -240,15 +71,100 @@ export default function StaffManagement() {
       !form.position
     )
       return;
-    setStaff((prev) => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        ...form,
-        createdAt: new Date().toISOString(),
-      },
-    ]);
-    setForm({
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const staffData: StaffFormData = {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        position: form.position,
+        address: form.address,
+      };
+      
+      await createStaff(staffData);
+      
+      // Reset form and close modal
+      setForm({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        position: '',
+        address: '',
+      });
+      setShowModal(false);
+      
+      // Reload staff list
+      await loadStaff();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add staff');
+      console.error('Error adding staff:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditStaff = async (staffMember: Staff) => {
+    setEditingStaff(staffMember);
+    setEditForm({
+      firstName: staffMember.firstName,
+      lastName: staffMember.lastName,
+      email: staffMember.email,
+      phone: staffMember.phone,
+      position: staffMember.position,
+      address: staffMember.address,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditStaff = async (editFormData: EditStaffForm) => {
+    if (!editingStaff) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const staffData: StaffFormData = {
+        firstName: editFormData.firstName,
+        lastName: editFormData.lastName,
+        email: editFormData.email,
+        phone: editFormData.phone,
+        position: editFormData.position,
+        address: editFormData.address,
+      };
+      
+      await updateStaff(editingStaff.id, staffData);
+      
+      // Reset form and close modal
+      setEditForm({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        position: '',
+        address: '',
+      });
+      setShowEditModal(false);
+      setEditingStaff(null);
+      
+      // Reload staff list
+      await loadStaff();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update staff');
+      console.error('Error updating staff:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setEditingStaff(null);
+    setEditForm({
       firstName: '',
       lastName: '',
       email: '',
@@ -256,7 +172,24 @@ export default function StaffManagement() {
       position: '',
       address: '',
     });
-    setShowModal(false);
+  };
+
+  const handleRemoveStaff = async (staffMember: Staff) => {
+    if (!confirm(`Are you sure you want to remove ${staffMember.firstName} ${staffMember.lastName}?`)) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError(null);
+      await deleteStaff(staffMember.id);
+      await loadStaff(); // Reload the list
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove staff');
+      console.error('Error removing staff:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -264,12 +197,26 @@ export default function StaffManagement() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-blue-700">Staff Management</h1>
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 disabled:opacity-50"
           onClick={() => setShowModal(true)}
+          disabled={loading}
         >
           Add Staff
         </button>
       </div>
+      
+      {error && (
+        <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded text-red-700">
+          {error}
+          <button 
+            className="ml-2 text-red-900 hover:text-red-600"
+            onClick={() => setError(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
       <div className="mb-4">
         <input
           type="text"
@@ -277,17 +224,40 @@ export default function StaffManagement() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
+          disabled={loading}
         />
       </div>
-      <div className="overflow-x-auto">
-        <StaffTable items={filteredStaff} />
-      </div>
+      
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-blue-600">Loading staff...</div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <StaffTable 
+            items={filteredStaff} 
+            onEdit={handleEditStaff}
+            onRemove={handleRemoveStaff}
+          />
+        </div>
+      )}
+      
       <AddStaffModal
         open={showModal}
         form={form}
         setForm={setForm}
         onCancel={() => setShowModal(false)}
         onAdd={handleAddStaff}
+      />
+      
+      <EditStaffModal
+        open={showEditModal}
+        staff={editingStaff}
+        form={editForm}
+        setForm={setEditForm}
+        onCancel={handleCancelEdit}
+        onSave={handleSaveEditStaff}
+        isLoading={loading}
       />
     </div>
   );
