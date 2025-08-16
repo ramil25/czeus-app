@@ -6,6 +6,7 @@ import AddStaffModal, {
 import EditStaffModal, {
   EditStaffForm,
 } from '../../../../components/modals/EditStaffModal';
+import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
 import { StaffTable } from '../../../../components/tables/StaffTable';
 import { getStaff, createStaff, updateStaff, deleteStaff, Staff, StaffFormData } from '../../../../lib/staff';
 
@@ -14,6 +15,8 @@ export default function StaffManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState<Staff | null>(null);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -175,21 +178,31 @@ export default function StaffManagement() {
   };
 
   const handleRemoveStaff = async (staffMember: Staff) => {
-    if (!confirm(`Are you sure you want to remove ${staffMember.firstName} ${staffMember.lastName}?`)) {
-      return;
+    setStaffToDelete(staffMember);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (staffToDelete) {
+      try {
+        setLoading(true);
+        setError(null);
+        await deleteStaff(staffToDelete.id);
+        await loadStaff(); // Reload the list
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to remove staff');
+        console.error('Error removing staff:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-    
-    try {
-      setLoading(true);
-      setError(null);
-      await deleteStaff(staffMember.id);
-      await loadStaff(); // Reload the list
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove staff');
-      console.error('Error removing staff:', err);
-    } finally {
-      setLoading(false);
-    }
+    setShowConfirmModal(false);
+    setStaffToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setStaffToDelete(null);
   };
 
   return (
@@ -258,6 +271,18 @@ export default function StaffManagement() {
         onCancel={handleCancelEdit}
         onSave={handleSaveEditStaff}
         isLoading={loading}
+      />
+      
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Remove Staff"
+        message={`Are you sure you want to remove ${staffToDelete?.firstName} ${staffToDelete?.lastName}? This action cannot be undone.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={loading}
+        variant="danger"
       />
     </div>
   );

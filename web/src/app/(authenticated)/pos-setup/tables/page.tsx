@@ -6,6 +6,7 @@ import AddTableModal, {
 import EditTableModal, {
   EditTableForm,
 } from '../../../../components/modals/EditTableModal';
+import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
 import {
   TableTable,
   CafeTable,
@@ -22,6 +23,8 @@ export default function TablesManagement() {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState<CafeTable | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [addForm, setAddForm] = useState<TableForm>({
     tableNumber: '',
@@ -91,13 +94,25 @@ export default function TablesManagement() {
   };
 
   const handleDeleteTable = async (table: CafeTable) => {
-    if (window.confirm(`Are you sure you want to delete table ${table.tableNumber}?`)) {
+    setTableToDelete(table);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (tableToDelete) {
       try {
-        await deleteTableMutation.mutateAsync(table.id);
+        await deleteTableMutation.mutateAsync(tableToDelete.id);
       } catch (error) {
         console.error('Failed to delete table:', error);
       }
     }
+    setShowConfirmModal(false);
+    setTableToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setTableToDelete(null);
   };
 
   const handleCancelEdit = () => {
@@ -168,6 +183,18 @@ export default function TablesManagement() {
         onCancel={handleCancelEdit}
         onSave={handleUpdateTable}
         isLoading={updateTableMutation.isPending}
+      />
+
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Delete Table"
+        message={`Are you sure you want to delete table ${tableToDelete?.tableNumber}? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteTableMutation.isPending}
+        variant="danger"
       />
     </div>
   );

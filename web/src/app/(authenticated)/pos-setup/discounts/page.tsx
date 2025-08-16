@@ -6,6 +6,7 @@ import AddDiscountModal, {
 import EditDiscountModal, {
   EditDiscountForm,
 } from '../../../../components/modals/EditDiscountModal';
+import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
 import { DiscountTable } from '../../../../components/tables/DiscountTable';
 import { 
   useDiscounts, 
@@ -19,6 +20,8 @@ export default function DiscountManagement() {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [discountToDelete, setDiscountToDelete] = useState<Discount | null>(null);
   const [editingDiscount, setEditingDiscount] = useState<Discount | null>(null);
   
   const [addForm, setAddForm] = useState<DiscountForm>({
@@ -97,13 +100,25 @@ export default function DiscountManagement() {
   };
 
   const handleDeleteDiscount = async (discount: Discount) => {
-    if (window.confirm(`Are you sure you want to delete "${discount.discount_name}"?`)) {
+    setDiscountToDelete(discount);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (discountToDelete) {
       try {
-        await deleteMutation.mutateAsync(discount.id);
+        await deleteMutation.mutateAsync(discountToDelete.id);
       } catch (error) {
         // Error is handled by the mutation hook
       }
     }
+    setShowConfirmModal(false);
+    setDiscountToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setDiscountToDelete(null);
   };
 
   const handleCancelAdd = () => {
@@ -187,6 +202,18 @@ export default function DiscountManagement() {
         onCancel={handleCancelEdit}
         onSave={handleSaveEdit}
         isLoading={updateMutation.isPending}
+      />
+      
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Delete Discount"
+        message={`Are you sure you want to delete "${discountToDelete?.discount_name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteMutation.isPending}
+        variant="danger"
       />
     </div>
   );

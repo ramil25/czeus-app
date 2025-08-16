@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { InviteUserModal } from '../../../components/modals/InviteUserModal';
 import EditUserModal, { EditUserForm } from '../../../components/modals/EditUserModal';
+import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import UserTable from '../../../components/tables/UserTable';
 import {
   useUsers,
@@ -15,6 +16,8 @@ export default function UserManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [form, setForm] = useState<UserFormData>({
     first_name: '',
@@ -148,13 +151,25 @@ export default function UserManagement() {
   };
 
   const handleRemove = async (user: User) => {
-    if (confirm(`Are you sure you want to remove ${user.name}?`)) {
+    setUserToDelete(user);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (userToDelete) {
       try {
-        await deleteUserMutation.mutateAsync(user.id);
+        await deleteUserMutation.mutateAsync(userToDelete.id);
       } catch (error) {
         console.error('Failed to delete user:', error);
       }
     }
+    setShowConfirmModal(false);
+    setUserToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setUserToDelete(null);
   };
 
   return (
@@ -213,6 +228,18 @@ export default function UserManagement() {
         onCancel={handleCancelEdit}
         onSave={handleSaveEdit}
         isLoading={updateUserMutation.isPending}
+      />
+
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Remove User"
+        message={`Are you sure you want to remove ${userToDelete?.name}? This action cannot be undone.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteUserMutation.isPending}
+        variant="danger"
       />
     </div>
   );
