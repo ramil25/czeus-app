@@ -73,7 +73,9 @@ const UserTable: React.FC<UserTableProps> = ({
                 <div>
                   <div className="font-medium">{user.name}</div>
                   {user.middle_name && (
-                    <div className="text-sm text-gray-500">Middle: {user.middle_name}</div>
+                    <div className="text-sm text-gray-500">
+                      Middle: {user.middle_name}
+                    </div>
                   )}
                 </div>
               </td>
@@ -81,11 +83,15 @@ const UserTable: React.FC<UserTableProps> = ({
                 {user.email}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  user.role === 'Admin' ? 'bg-red-100 text-red-800' :
-                  user.role === 'Staff' ? 'bg-blue-100 text-blue-800' :
-                  'bg-green-100 text-green-800'
-                }`}>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    user.role === 'admin'
+                      ? 'bg-red-100 text-red-800'
+                      : user.role === 'staff'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}
+                >
                   {user.role}
                 </span>
               </td>

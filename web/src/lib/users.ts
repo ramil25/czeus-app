@@ -12,7 +12,7 @@ export type Profile = {
   birth_day?: string;
   profile_picture?: string;
   email: string;
-  role: 'Admin' | 'Staff' | 'Customer';
+  role: 'admin' | 'staff' | 'customer';
   phone?: string;
   position?: string;
   address?: string;
@@ -24,7 +24,7 @@ export type UserFormData = {
   middle_name?: string;
   last_name: string;
   email: string;
-  role: 'Admin' | 'Staff' | 'Customer';
+  role: 'admin' | 'staff' | 'customer';
   phone?: string;
   position?: string;
   address?: string;
@@ -35,7 +35,7 @@ export type User = Profile & {
   name: string; // computed from first_name + last_name
 };
 
-const DEFAULT_PASSWORD = "ILoveCoffee@01";
+const DEFAULT_PASSWORD = 'ILoveCoffee@01';
 
 // Sample data for fallback when database is not available
 const sampleUsers: User[] = [
@@ -45,7 +45,7 @@ const sampleUsers: User[] = [
     first_name: 'John',
     last_name: 'Doe',
     email: 'john@example.com',
-    role: 'Admin',
+    role: 'admin',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -55,7 +55,7 @@ const sampleUsers: User[] = [
     first_name: 'Jane',
     last_name: 'Smith',
     email: 'jane@example.com',
-    role: 'Staff',
+    role: 'staff',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
@@ -65,13 +65,13 @@ const sampleUsers: User[] = [
     first_name: 'Alice',
     last_name: 'Johnson',
     email: 'alice@example.com',
-    role: 'Customer',
+    role: 'customer',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
 ];
 
-// Local storage for demo mode  
+// Local storage for demo mode
 const initialUsers = [...sampleUsers];
 // eslint-disable-next-line prefer-const
 let localUsersStore = initialUsers;
@@ -100,11 +100,11 @@ async function isDemoMode(): Promise<boolean> {
 export async function getUsers(): Promise<User[]> {
   try {
     const demoMode = await isDemoMode();
-    
+
     if (demoMode) {
       // Use local data when database is not accessible
       console.log('Using demo mode - Supabase not accessible');
-      return localUsersStore.filter(user => !user.deleted_at);
+      return localUsersStore.filter((user) => !user.deleted_at);
     }
 
     const { data, error } = await supabase
@@ -121,7 +121,7 @@ export async function getUsers(): Promise<User[]> {
   } catch {
     // Fallback to demo mode if there's any error
     console.log('Falling back to demo mode due to error');
-    return localUsersStore.filter(user => !user.deleted_at);
+    return localUsersStore.filter((user) => !user.deleted_at);
   }
 }
 
@@ -129,7 +129,7 @@ export async function getUsers(): Promise<User[]> {
 export async function createUser(userData: UserFormData): Promise<User> {
   try {
     const demoMode = await isDemoMode();
-    
+
     if (demoMode) {
       // Use local data when database is not accessible
       const newUser: User = {
@@ -206,17 +206,20 @@ export async function createUser(userData: UserFormData): Promise<User> {
 }
 
 // Update an existing user
-export async function updateUser(id: number, userData: UserFormData): Promise<User> {
+export async function updateUser(
+  id: number,
+  userData: UserFormData
+): Promise<User> {
   try {
     const demoMode = await isDemoMode();
-    
+
     if (demoMode) {
       // Use local data when database is not accessible
-      const index = localUsersStore.findIndex(u => u.id === id);
+      const index = localUsersStore.findIndex((u) => u.id === id);
       if (index === -1) {
         throw new Error('User not found');
       }
-      
+
       const updatedUser = {
         ...localUsersStore[index],
         first_name: userData.first_name,
@@ -230,7 +233,7 @@ export async function updateUser(id: number, userData: UserFormData): Promise<Us
         address: userData.address,
         updated_at: new Date().toISOString(),
       };
-      
+
       localUsersStore[index] = updatedUser;
       return updatedUser;
     }
@@ -260,11 +263,11 @@ export async function updateUser(id: number, userData: UserFormData): Promise<Us
   } catch (error) {
     // Fallback to demo mode if there's any error
     console.log('Falling back to demo mode due to error:', error);
-    const index = localUsersStore.findIndex(u => u.id === id);
+    const index = localUsersStore.findIndex((u) => u.id === id);
     if (index === -1) {
       throw new Error('User not found');
     }
-    
+
     const updatedUser = {
       ...localUsersStore[index],
       first_name: userData.first_name,
@@ -278,7 +281,7 @@ export async function updateUser(id: number, userData: UserFormData): Promise<Us
       address: userData.address,
       updated_at: new Date().toISOString(),
     };
-    
+
     localUsersStore[index] = updatedUser;
     return updatedUser;
   }
@@ -288,14 +291,14 @@ export async function updateUser(id: number, userData: UserFormData): Promise<Us
 export async function deleteUser(id: number): Promise<void> {
   try {
     const demoMode = await isDemoMode();
-    
+
     if (demoMode) {
       // Use local data when database is not accessible
-      const index = localUsersStore.findIndex(u => u.id === id);
+      const index = localUsersStore.findIndex((u) => u.id === id);
       if (index === -1) {
         throw new Error('User not found');
       }
-      
+
       localUsersStore[index] = {
         ...localUsersStore[index],
         deleted_at: new Date().toISOString(),
@@ -316,11 +319,11 @@ export async function deleteUser(id: number): Promise<void> {
   } catch (error) {
     // Fallback to demo mode if there's any error
     console.log('Falling back to demo mode due to error:', error);
-    const index = localUsersStore.findIndex(u => u.id === id);
+    const index = localUsersStore.findIndex((u) => u.id === id);
     if (index === -1) {
       throw new Error('User not found');
     }
-    
+
     localUsersStore[index] = {
       ...localUsersStore[index],
       deleted_at: new Date().toISOString(),
