@@ -2,7 +2,11 @@
 import { useState } from 'react';
 import { InviteUserModal } from '../../../components/modals/InviteUserModal';
 import UserTable from '../../../components/tables/UserTable';
-import { useUsers, useCreateUser, useDeleteUser } from '../../../hooks/useUsers';
+import {
+  useUsers,
+  useCreateUser,
+  useDeleteUser,
+} from '../../../hooks/useUsers';
 import { UserFormData, User } from '../../../lib/users';
 
 export default function UserManagement() {
@@ -12,7 +16,7 @@ export default function UserManagement() {
     first_name: '',
     last_name: '',
     email: '',
-    role: 'Staff',
+    role: 'staff',
   });
 
   // Hooks for data management
@@ -30,7 +34,11 @@ export default function UserManagement() {
 
   // Handle form submission
   const handleInvite = async () => {
-    if (!form.first_name.trim() || !form.last_name.trim() || !form.email.trim()) {
+    if (
+      !form.first_name.trim() ||
+      !form.last_name.trim() ||
+      !form.email.trim()
+    ) {
       alert('Please fill in all required fields');
       return;
     }
@@ -42,7 +50,7 @@ export default function UserManagement() {
         first_name: '',
         last_name: '',
         email: '',
-        role: 'Staff',
+        role: 'staff',
       });
     } catch (error) {
       console.error('Failed to create user:', error);
@@ -51,7 +59,13 @@ export default function UserManagement() {
 
   // Handle user actions
   const handleView = (user: User) => {
-    alert(`View user: ${user.name}\nEmail: ${user.email}\nRole: ${user.role}${user.position ? `\nPosition: ${user.position}` : ''}${user.phone ? `\nPhone: ${user.phone}` : ''}${user.address ? `\nAddress: ${user.address}` : ''}`);
+    alert(
+      `View user: ${user.name}\nEmail: ${user.email}\nRole: ${user.role}${
+        user.position ? `\nPosition: ${user.position}` : ''
+      }${user.phone ? `\nPhone: ${user.phone}` : ''}${
+        user.address ? `\nAddress: ${user.address}` : ''
+      }`
+    );
   };
 
   const handleEdit = (user: User) => {
@@ -80,13 +94,13 @@ export default function UserManagement() {
           Add User
         </button>
       </div>
-      
+
       {error && (
         <div className="mb-4 p-4 bg-red-100 border border-red-300 rounded text-red-700">
           Error loading users: {error.message}
         </div>
       )}
-      
+
       <div className="mb-4">
         <input
           type="text"
@@ -96,7 +110,7 @@ export default function UserManagement() {
           className="border border-blue-300 rounded px-2 sm:px-3 py-2 sm:py-2 w-1/2 sm:w-full text-black bg-white text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
       </div>
-      
+
       <div className="overflow-x-auto">
         <UserTable
           users={filteredUsers}
@@ -106,7 +120,7 @@ export default function UserManagement() {
           loading={isLoading}
         />
       </div>
-      
+
       <InviteUserModal
         open={showModal}
         form={form}
