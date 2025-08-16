@@ -2,8 +2,9 @@
 import React from 'react';
 import { useCategories } from '../../hooks/useCategories';
 import { useSizes } from '../../hooks/useSizes';
+import { ProductDisplay } from '../../lib/products';
 
-export interface ProductForm {
+export interface EditProductForm {
   name: string;
   categoryId: number | '';
   sizeId: number | '';
@@ -11,21 +12,23 @@ export interface ProductForm {
   status: 'Available' | 'Not Available';
 }
 
-interface AddProductModalProps {
+interface EditProductModalProps {
   open: boolean;
-  form: ProductForm;
-  setForm: (form: ProductForm) => void;
+  product: ProductDisplay | null;
+  form: EditProductForm;
+  setForm: (form: EditProductForm) => void;
   onCancel: () => void;
-  onAdd: () => void;
+  onSubmit: () => void;
   isLoading?: boolean;
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({
+const EditProductModal: React.FC<EditProductModalProps> = ({
   open,
+  product,
   form,
   setForm,
   onCancel,
-  onAdd,
+  onSubmit,
   isLoading = false,
 }) => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
@@ -35,12 +38,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   const availableSizes = form.categoryId 
     ? allSizes.filter(size => size.categoryId === form.categoryId)
     : [];
-  if (!open) return null;
+  
+  if (!open || !product) return null;
 
-  const handleInputChange = (
-    field: keyof ProductForm,
-    value: string | number | ProductForm['status']
-  ) => {
+  const handleInputChange = (field: keyof EditProductForm, value: string | number | EditProductForm['status']) => {
     const newForm = { ...form, [field]: value };
     
     // If category changed, clear the size selection
@@ -63,12 +64,16 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
     );
   };
 
+  const handleSubmit = () => {
+    if (isFormValid()) {
+      onSubmit();
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-blue-200">
-        <h2 className="text-2xl font-semibold mb-6 text-blue-700">
-          Add Product
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6 text-blue-700">Edit Product</h2>
 
         <div className="grid grid-cols-1 gap-4">
           {/* Product Name */}
@@ -212,10 +217,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
           </button>
           <button
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={onAdd}
+            onClick={handleSubmit}
             disabled={!isFormValid() || isLoading}
           >
-            {isLoading ? 'Adding...' : 'Add Product'}
+            {isLoading ? 'Updating...' : 'Update Product'}
           </button>
         </div>
       </div>
@@ -223,4 +228,4 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   );
 };
 
-export default AddProductModal;
+export default EditProductModal;

@@ -1,14 +1,8 @@
 'use client';
 import React, { useState } from 'react';
+import { ProductDisplay } from '../../lib/products';
 
-export type Product = {
-  id: number;
-  name: string;
-  category: string;
-  size: string;
-  price: number;
-  status: 'Available' | 'Not Available';
-};
+export type Product = ProductDisplay;
 
 export type ProductsTableProps = {
   items: Product[];

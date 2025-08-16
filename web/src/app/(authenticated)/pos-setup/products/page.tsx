@@ -1,31 +1,132 @@
 "use client";
 import { useState } from "react";
 import AddProductModal, { ProductForm } from "../../../../components/modals/AddProductModal";
+import EditProductModal, { EditProductForm } from "../../../../components/modals/EditProductModal";
 import { ProductsTable, Product } from "../../../../components/tables/ProductsTable";
-
-const sampleProducts: Product[] = [
-	{ id: 1, name: "Cappuccino", category: "Coffee", size: "Small", price: 120, status: "Available" },
-	{ id: 2, name: "Latte", category: "Coffee", size: "Medium", price: 130, status: "Available" },
-	{ id: 3, name: "Green Tea", category: "Tea", size: "Large", price: 110, status: "Available" },
-	{ id: 4, name: "Blueberry Muffin", category: "Pastries", size: "Single", price: 70, status: "Available" },
-	{ id: 5, name: "Ham Sandwich", category: "Sandwiches", size: "Double", price: 180, status: "Available" },
-	{ id: 6, name: "Caesar Salad", category: "Salads", size: "Bowl", price: 150, status: "Not Available" },
-	{ id: 7, name: "Mango Smoothie", category: "Smoothies", size: "Regular", price: 120, status: "Available" },
-	{ id: 8, name: "Pancakes", category: "Breakfast", size: "Double", price: 160, status: "Available" },
-	{ id: 9, name: "Chocolate Cake", category: "Desserts", size: "Whole", price: 600, status: "Available" },
-	{ id: 10, name: "Orange Juice", category: "Juices", size: "Regular", price: 70, status: "Available" },
-];
+import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "../../../../hooks/useProducts";
+import { CreateProductInput, UpdateProductInput } from "../../../../lib/products";
 
 export default function ProductsManagement() {
 	const [search, setSearch] = useState("");
-	const [showModal, setShowModal] = useState(false);
-	const [form, setForm] = useState<ProductForm>({ name: "", category: "", size: "", price: "", status: "Available" });
+	const [showAddModal, setShowAddModal] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+	
+	const [addForm, setAddForm] = useState<ProductForm>({ 
+		name: "", 
+		categoryId: "", 
+		sizeId: "", 
+		price: "", 
+		status: "Available" 
+	});
+	
+	const [editForm, setEditForm] = useState<EditProductForm>({ 
+		name: "", 
+		categoryId: "", 
+		sizeId: "", 
+		price: "", 
+		status: "Available" 
+	});
 
-	const filteredProducts = sampleProducts.filter((p) =>
+	// React Query hooks
+	const { data: products = [], isLoading, error } = useProducts();
+	const createProductMutation = useCreateProduct();
+	const updateProductMutation = useUpdateProduct();
+	const deleteProductMutation = useDeleteProduct();
+
+	const filteredProducts = products.filter((p) =>
 		p.name.toLowerCase().includes(search.toLowerCase()) ||
 		p.category.toLowerCase().includes(search.toLowerCase()) ||
 		p.size.toLowerCase().includes(search.toLowerCase())
 	);
+
+	const handleAddProduct = async () => {
+		if (!addForm.name.trim() || !addForm.categoryId || !addForm.sizeId || !addForm.price.trim()) {
+			return;
+		}
+
+		const input: CreateProductInput = {
+			product_name: addForm.name.trim(),
+			category_id: Number(addForm.categoryId),
+			size_id: Number(addForm.sizeId),
+			price: Number(addForm.price),
+			status: addForm.status === 'Available' ? 'available' : 'not available',
+		};
+
+		try {
+			await createProductMutation.mutateAsync(input);
+			setShowAddModal(false);
+			setAddForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available" });
+		} catch (error) {
+			// Error handling is done in the mutation
+		}
+	};
+
+	const handleEditProduct = (product: Product) => {
+		setSelectedProduct(product);
+		setEditForm({
+			name: product.name,
+			categoryId: product.categoryId,
+			sizeId: product.sizeId,
+			price: product.price.toString(),
+			status: product.status,
+		});
+		setShowEditModal(true);
+	};
+
+	const handleUpdateProduct = async () => {
+		if (!selectedProduct || !editForm.name.trim() || !editForm.categoryId || !editForm.sizeId || !editForm.price.trim()) {
+			return;
+		}
+
+		const input: UpdateProductInput = {
+			product_name: editForm.name.trim(),
+			category_id: Number(editForm.categoryId),
+			size_id: Number(editForm.sizeId),
+			price: Number(editForm.price),
+			status: editForm.status === 'Available' ? 'available' : 'not available',
+		};
+
+		try {
+			await updateProductMutation.mutateAsync({ id: selectedProduct.id, input });
+			setShowEditModal(false);
+			setSelectedProduct(null);
+			setEditForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available" });
+		} catch (error) {
+			// Error handling is done in the mutation
+		}
+	};
+
+	const handleDeleteProduct = async (product: Product) => {
+		if (window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
+			try {
+				await deleteProductMutation.mutateAsync(product.id);
+			} catch (error) {
+				// Error handling is done in the mutation
+			}
+		}
+	};
+
+	const handleCancelAdd = () => {
+		setShowAddModal(false);
+		setAddForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available" });
+	};
+
+	const handleCancelEdit = () => {
+		setShowEditModal(false);
+		setSelectedProduct(null);
+		setEditForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available" });
+	};
+
+	if (error) {
+		return (
+			<div className="p-8 bg-blue-50 min-h-screen">
+				<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+					Error loading products: {error.message}
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="p-8 bg-blue-50 min-h-screen">
@@ -33,7 +134,7 @@ export default function ProductsManagement() {
 				<h1 className="text-2xl font-bold text-blue-700">Products</h1>
 				<button
 					className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-					onClick={() => setShowModal(true)}
+					onClick={() => setShowAddModal(true)}
 				>
 					Add Product
 				</button>
@@ -47,19 +148,38 @@ export default function ProductsManagement() {
 					className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
 				/>
 			</div>
-			<div className="overflow-x-auto">
-				<ProductsTable
-					items={filteredProducts}
-					onEdit={(item) => alert(`Edit product: ${item.name}`)}
-					onRemove={(item) => alert(`Remove product: ${item.name}`)}
-				/>
-			</div>
+			
+			{isLoading ? (
+				<div className="text-center py-8">
+					<div className="text-blue-600">Loading products...</div>
+				</div>
+			) : (
+				<div className="overflow-x-auto">
+					<ProductsTable
+						items={filteredProducts}
+						onEdit={handleEditProduct}
+						onRemove={handleDeleteProduct}
+					/>
+				</div>
+			)}
+			
 			<AddProductModal
-				open={showModal}
-				form={form}
-				setForm={setForm}
-				onCancel={() => setShowModal(false)}
-				onAdd={() => setShowModal(false)}
+				open={showAddModal}
+				form={addForm}
+				setForm={setAddForm}
+				onCancel={handleCancelAdd}
+				onAdd={handleAddProduct}
+				isLoading={createProductMutation.isPending}
+			/>
+			
+			<EditProductModal
+				open={showEditModal}
+				product={selectedProduct}
+				form={editForm}
+				setForm={setEditForm}
+				onCancel={handleCancelEdit}
+				onSubmit={handleUpdateProduct}
+				isLoading={updateProductMutation.isPending}
 			/>
 		</div>
 	);
