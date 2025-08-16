@@ -36,12 +36,6 @@ export function InventoryTable({
     setCurrentPage(newPage);
   };
 
-  const handleRemove = (item: InventoryItem) => {
-    if (window.confirm(`Are you sure you want to delete "${item.item_name}"?`)) {
-      onRemove?.(item);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-8">
@@ -103,7 +97,7 @@ export function InventoryTable({
                   </button>
                   <button
                     className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
-                    onClick={() => handleRemove(item)}
+                    onClick={() => onRemove?.(item)}
                   >
                     Remove
                   </button>

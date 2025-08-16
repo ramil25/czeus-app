@@ -6,6 +6,7 @@ import AddSizeModal, {
 import EditSizeModal, {
   EditSizeForm,
 } from '../../../../components/modals/EditSizeModal';
+import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
 import { SizeTable, Size } from '../../../../components/tables/SizeTable';
 import { useSizes, useCreateSize, useUpdateSize, useDeleteSize } from '../../../../hooks/useSizes';
 
@@ -13,6 +14,8 @@ export default function SizeManagement() {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [sizeToDelete, setSizeToDelete] = useState<Size | null>(null);
   const [addForm, setAddForm] = useState<SizeForm>({ sizeName: '', categoryId: '' });
   const [editForm, setEditForm] = useState<EditSizeForm>({ sizeName: '', categoryId: '' });
   const [selectedSize, setSelectedSize] = useState<Size | null>(null);
@@ -77,9 +80,21 @@ export default function SizeManagement() {
   };
 
   const handleDeleteSize = (size: Size) => {
-    if (window.confirm(`Are you sure you want to delete "${size.sizeName}"?`)) {
-      deleteSizeMutation.mutate(size.id);
+    setSizeToDelete(size);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (sizeToDelete) {
+      deleteSizeMutation.mutate(sizeToDelete.id);
     }
+    setShowConfirmModal(false);
+    setSizeToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setSizeToDelete(null);
   };
 
   const handleCancelAdd = () => {
@@ -154,6 +169,18 @@ export default function SizeManagement() {
         onCancel={handleCancelEdit}
         onSubmit={handleUpdateSize}
         isLoading={updateSizeMutation.isPending}
+      />
+
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Delete Size"
+        message={`Are you sure you want to delete "${sizeToDelete?.sizeName}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteSizeMutation.isPending}
+        variant="danger"
       />
     </div>
   );

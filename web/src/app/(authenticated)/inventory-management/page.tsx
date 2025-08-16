@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { AddInventoryModal, InventoryForm } from '../../../components/modals/AddInventoryModal';
+import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import { InventoryTable, InventoryItem } from '../../../components/tables/InventoryTable';
 import { 
   useInventoryItems, 
@@ -13,6 +14,8 @@ import { InventoryFormData } from '../../../lib/inventory';
 export default function InventoryManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [form, setForm] = useState<InventoryForm>({
     name: '',
@@ -88,7 +91,21 @@ export default function InventoryManagement() {
   };
 
   const handleRemove = (item: InventoryItem) => {
-    deleteMutation.mutate(item.id);
+    setItemToDelete(item);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (itemToDelete) {
+      deleteMutation.mutate(itemToDelete.id);
+    }
+    setShowConfirmModal(false);
+    setItemToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setItemToDelete(null);
   };
 
   const handleCancel = () => {
@@ -146,6 +163,18 @@ export default function InventoryManagement() {
         onSubmit={handleSubmit}
         isEditing={!!editingItem}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+      
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Remove Inventory Item"
+        message={`Are you sure you want to remove "${itemToDelete?.item_name}"? This action cannot be undone.`}
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteMutation.isPending}
+        variant="danger"
       />
     </div>
   );

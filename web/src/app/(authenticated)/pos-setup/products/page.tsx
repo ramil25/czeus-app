@@ -2,6 +2,7 @@
 import { useState } from "react";
 import AddProductModal, { ProductForm } from "../../../../components/modals/AddProductModal";
 import EditProductModal, { EditProductForm } from "../../../../components/modals/EditProductModal";
+import ConfirmationModal from "../../../../components/modals/ConfirmationModal";
 import { ProductsTable, Product } from "../../../../components/tables/ProductsTable";
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "../../../../hooks/useProducts";
 import { CreateProductInput, UpdateProductInput } from "../../../../lib/products";
@@ -10,6 +11,8 @@ export default function ProductsManagement() {
 	const [search, setSearch] = useState("");
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [showEditModal, setShowEditModal] = useState(false);
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 	
 	const [addForm, setAddForm] = useState<ProductForm>({ 
@@ -98,13 +101,25 @@ export default function ProductsManagement() {
 	};
 
 	const handleDeleteProduct = async (product: Product) => {
-		if (window.confirm(`Are you sure you want to delete "${product.name}"?`)) {
+		setProductToDelete(product);
+		setShowConfirmModal(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (productToDelete) {
 			try {
-				await deleteProductMutation.mutateAsync(product.id);
+				await deleteProductMutation.mutateAsync(productToDelete.id);
 			} catch (error) {
 				// Error handling is done in the mutation
 			}
 		}
+		setShowConfirmModal(false);
+		setProductToDelete(null);
+	};
+
+	const handleCancelDelete = () => {
+		setShowConfirmModal(false);
+		setProductToDelete(null);
 	};
 
 	const handleCancelAdd = () => {
@@ -180,6 +195,18 @@ export default function ProductsManagement() {
 				onCancel={handleCancelEdit}
 				onSubmit={handleUpdateProduct}
 				isLoading={updateProductMutation.isPending}
+			/>
+			
+			<ConfirmationModal
+				open={showConfirmModal}
+				title="Delete Product"
+				message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+				confirmText="Delete"
+				cancelText="Cancel"
+				onConfirm={handleConfirmDelete}
+				onCancel={handleCancelDelete}
+				isLoading={deleteProductMutation.isPending}
+				variant="danger"
 			/>
 		</div>
 	);

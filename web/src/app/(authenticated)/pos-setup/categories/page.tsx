@@ -2,6 +2,7 @@
 import { useState } from "react";
 import AddCategoryModal, { CategoryForm } from "../../../../components/modals/AddCategoryModal";
 import EditCategoryModal, { EditCategoryForm } from "../../../../components/modals/EditCategoryModal";
+import ConfirmationModal from "../../../../components/modals/ConfirmationModal";
 import { CategoryTable } from "../../../../components/tables/CategoryTable";
 import { 
   useCategories, 
@@ -15,6 +16,8 @@ export default function CategoryManagement() {
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [addForm, setAddForm] = useState<CategoryForm>({ name: "", description: "" });
   const [editForm, setEditForm] = useState<EditCategoryForm>({ name: "", description: "" });
@@ -74,14 +77,26 @@ export default function CategoryManagement() {
   };
 
   const handleDeleteCategory = async (category: Category) => {
-    if (window.confirm(`Are you sure you want to delete "${category.name}"?`)) {
+    setCategoryToDelete(category);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (categoryToDelete) {
       try {
-        await deleteCategoryMutation.mutateAsync(category.id);
+        await deleteCategoryMutation.mutateAsync(categoryToDelete.id);
       } catch (error) {
         // Error is handled by the mutation's onError callback
         console.error('Failed to delete category:', error);
       }
     }
+    setShowConfirmModal(false);
+    setCategoryToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setCategoryToDelete(null);
   };
 
   const handleCancelAdd = () => {
@@ -147,6 +162,18 @@ export default function CategoryManagement() {
         onCancel={handleCancelEdit}
         onSave={handleSaveCategory}
         isLoading={updateCategoryMutation.isPending}
+      />
+      
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Delete Category"
+        message={`Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isLoading={deleteCategoryMutation.isPending}
+        variant="danger"
       />
     </div>
   );
