@@ -3,16 +3,29 @@ import { useState, useEffect } from 'react';
 import AddStaffModal, {
   StaffForm,
 } from '../../../../components/modals/AddStaffModal';
+import EditStaffModal, {
+  EditStaffForm,
+} from '../../../../components/modals/EditStaffModal';
 import { StaffTable } from '../../../../components/tables/StaffTable';
-import { getStaff, createStaff, deleteStaff, Staff, StaffFormData } from '../../../../lib/staff';
+import { getStaff, createStaff, updateStaff, deleteStaff, Staff, StaffFormData } from '../../../../lib/staff';
 
 export default function StaffManagement() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<StaffForm>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    position: '',
+    address: '',
+  });
+  const [editForm, setEditForm] = useState<EditStaffForm>({
     firstName: '',
     lastName: '',
     email: '',
@@ -96,8 +109,69 @@ export default function StaffManagement() {
   };
 
   const handleEditStaff = async (staffMember: Staff) => {
-    // For now, we'll implement this later if needed
-    console.log('Edit staff:', staffMember);
+    setEditingStaff(staffMember);
+    setEditForm({
+      firstName: staffMember.firstName,
+      lastName: staffMember.lastName,
+      email: staffMember.email,
+      phone: staffMember.phone,
+      position: staffMember.position,
+      address: staffMember.address,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditStaff = async (editFormData: EditStaffForm) => {
+    if (!editingStaff) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const staffData: StaffFormData = {
+        firstName: editFormData.firstName,
+        lastName: editFormData.lastName,
+        email: editFormData.email,
+        phone: editFormData.phone,
+        position: editFormData.position,
+        address: editFormData.address,
+      };
+      
+      await updateStaff(editingStaff.id, staffData);
+      
+      // Reset form and close modal
+      setEditForm({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        position: '',
+        address: '',
+      });
+      setShowEditModal(false);
+      setEditingStaff(null);
+      
+      // Reload staff list
+      await loadStaff();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update staff');
+      console.error('Error updating staff:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setEditingStaff(null);
+    setEditForm({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      position: '',
+      address: '',
+    });
   };
 
   const handleRemoveStaff = async (staffMember: Staff) => {
@@ -174,6 +248,16 @@ export default function StaffManagement() {
         setForm={setForm}
         onCancel={() => setShowModal(false)}
         onAdd={handleAddStaff}
+      />
+      
+      <EditStaffModal
+        open={showEditModal}
+        staff={editingStaff}
+        form={editForm}
+        setForm={setEditForm}
+        onCancel={handleCancelEdit}
+        onSave={handleSaveEditStaff}
+        isLoading={loading}
       />
     </div>
   );
