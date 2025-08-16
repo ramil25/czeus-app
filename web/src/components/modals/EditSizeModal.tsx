@@ -1,23 +1,26 @@
 'use client';
 import React from 'react';
 import { useCategories } from '../../hooks/useCategories';
+import { Size } from '../tables/SizeTable';
 
-export interface SizeForm {
+export interface EditSizeForm {
   sizeName: string;
   categoryId: number | '';
 }
 
-interface AddSizeModalProps {
+interface EditSizeModalProps {
   open: boolean;
-  form: SizeForm;
-  setForm: (form: SizeForm) => void;
+  size: Size | null;
+  form: EditSizeForm;
+  setForm: (form: EditSizeForm) => void;
   onCancel: () => void;
   onSubmit: () => void;
   isLoading?: boolean;
 }
 
-const AddSizeModal: React.FC<AddSizeModalProps> = ({
+const EditSizeModal: React.FC<EditSizeModalProps> = ({
   open,
+  size,
   form,
   setForm,
   onCancel,
@@ -26,9 +29,9 @@ const AddSizeModal: React.FC<AddSizeModalProps> = ({
 }) => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   
-  if (!open) return null;
+  if (!open || !size) return null;
 
-  const handleInputChange = (field: keyof SizeForm, value: string | number) => {
+  const handleInputChange = (field: keyof EditSizeForm, value: string | number) => {
     setForm({ ...form, [field]: value });
   };
 
@@ -45,7 +48,7 @@ const AddSizeModal: React.FC<AddSizeModalProps> = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-blue-200">
-        <h2 className="text-2xl font-semibold mb-6 text-blue-700">Add Size</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-blue-700">Edit Size</h2>
 
         <div className="grid grid-cols-1 gap-4">
           {/* Size Name */}
@@ -91,6 +94,7 @@ const AddSizeModal: React.FC<AddSizeModalProps> = ({
           <button
             className="px-6 py-2 bg-white border border-blue-200 text-black rounded hover:bg-blue-100 transition-colors"
             onClick={onCancel}
+            disabled={isLoading}
           >
             Cancel
           </button>
@@ -99,7 +103,7 @@ const AddSizeModal: React.FC<AddSizeModalProps> = ({
             onClick={handleSubmit}
             disabled={!isFormValid() || isLoading}
           >
-            {isLoading ? 'Adding...' : 'Add Size'}
+            {isLoading ? 'Updating...' : 'Update Size'}
           </button>
         </div>
       </div>
@@ -107,4 +111,4 @@ const AddSizeModal: React.FC<AddSizeModalProps> = ({
   );
 };
 
-export default AddSizeModal;
+export default EditSizeModal;

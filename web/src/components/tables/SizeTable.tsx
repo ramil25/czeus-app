@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 export type Size = {
   id: number;
   sizeName: string;
-  category: string; // Food category
+  categoryId: number;
+  categoryName: string;
   createdAt: string;
 };
 
@@ -54,7 +55,7 @@ export function SizeTable({ items, onEdit, onRemove }: SizeTableProps) {
                 {item.sizeName}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
-                {item.category}
+                {item.categoryName}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
                 {new Date(item.createdAt).toLocaleString()}

@@ -3,45 +3,95 @@ import { useState } from 'react';
 import AddSizeModal, {
   SizeForm,
 } from '../../../../components/modals/AddSizeModal';
+import EditSizeModal, {
+  EditSizeForm,
+} from '../../../../components/modals/EditSizeModal';
 import { SizeTable, Size } from '../../../../components/tables/SizeTable';
-
-const now = new Date().toISOString();
-const foodCategories = [
-  'Coffee',
-  'Tea',
-  'Pastries',
-  'Sandwiches',
-  'Salads',
-  'Smoothies',
-  'Breakfast',
-  'Desserts',
-  'Juices',
-  'Snacks',
-];
-
-const sampleSizes: Size[] = [
-  { id: 1, sizeName: 'Small', category: 'Coffee', createdAt: now },
-  { id: 2, sizeName: 'Medium', category: 'Coffee', createdAt: now },
-  { id: 3, sizeName: 'Large', category: 'Coffee', createdAt: now },
-  { id: 4, sizeName: 'Regular', category: 'Tea', createdAt: now },
-  { id: 5, sizeName: 'Large', category: 'Tea', createdAt: now },
-  { id: 6, sizeName: 'Slice', category: 'Pastries', createdAt: now },
-  { id: 7, sizeName: 'Whole', category: 'Pastries', createdAt: now },
-  { id: 8, sizeName: 'Single', category: 'Sandwiches', createdAt: now },
-  { id: 9, sizeName: 'Double', category: 'Sandwiches', createdAt: now },
-  { id: 10, sizeName: 'Bowl', category: 'Salads', createdAt: now },
-];
+import { useSizes, useCreateSize, useUpdateSize, useDeleteSize } from '../../../../hooks/useSizes';
 
 export default function SizeManagement() {
   const [search, setSearch] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState<SizeForm>({ sizeName: '', category: '' });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [addForm, setAddForm] = useState<SizeForm>({ sizeName: '', categoryId: '' });
+  const [editForm, setEditForm] = useState<EditSizeForm>({ sizeName: '', categoryId: '' });
+  const [selectedSize, setSelectedSize] = useState<Size | null>(null);
 
-  const filteredSizes = sampleSizes.filter(
+  // Hooks for data management
+  const { data: sizes = [], isLoading, error } = useSizes();
+  const createSizeMutation = useCreateSize();
+  const updateSizeMutation = useUpdateSize();
+  const deleteSizeMutation = useDeleteSize();
+
+  const filteredSizes = sizes.filter(
     (s) =>
       s.sizeName.toLowerCase().includes(search.toLowerCase()) ||
-      s.category.toLowerCase().includes(search.toLowerCase())
+      s.categoryName.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleAddSize = () => {
+    if (addForm.sizeName.trim() && addForm.categoryId !== '') {
+      createSizeMutation.mutate(
+        {
+          size_name: addForm.sizeName.trim(),
+          category_id: Number(addForm.categoryId),
+        },
+        {
+          onSuccess: () => {
+            setAddForm({ sizeName: '', categoryId: '' });
+            setShowAddModal(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleEditSize = (size: Size) => {
+    setSelectedSize(size);
+    setEditForm({
+      sizeName: size.sizeName,
+      categoryId: size.categoryId,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateSize = () => {
+    if (selectedSize && editForm.sizeName.trim() && editForm.categoryId !== '') {
+      updateSizeMutation.mutate(
+        {
+          id: selectedSize.id,
+          input: {
+            size_name: editForm.sizeName.trim(),
+            category_id: Number(editForm.categoryId),
+          },
+        },
+        {
+          onSuccess: () => {
+            setEditForm({ sizeName: '', categoryId: '' });
+            setSelectedSize(null);
+            setShowEditModal(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleDeleteSize = (size: Size) => {
+    if (window.confirm(`Are you sure you want to delete "${size.sizeName}"?`)) {
+      deleteSizeMutation.mutate(size.id);
+    }
+  };
+
+  const handleCancelAdd = () => {
+    setAddForm({ sizeName: '', categoryId: '' });
+    setShowAddModal(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditForm({ sizeName: '', categoryId: '' });
+    setSelectedSize(null);
+    setShowEditModal(false);
+  };
 
   return (
     <div className="p-8 bg-blue-50 min-h-screen">
@@ -49,7 +99,7 @@ export default function SizeManagement() {
         <h1 className="text-2xl font-bold text-blue-700">Sizes</h1>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowAddModal(true)}
         >
           Add Size
         </button>
@@ -63,20 +113,47 @@ export default function SizeManagement() {
           className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
         />
       </div>
-      <div className="overflow-x-auto">
-        <SizeTable
-          items={filteredSizes}
-          onEdit={(item) => alert(`Edit size: ${item.sizeName}`)}
-          onRemove={(item) => alert(`Remove size: ${item.sizeName}`)}
-        />
-      </div>
+      
+      {/* Loading and Error States */}
+      {isLoading && (
+        <div className="text-center py-8">
+          <p className="text-gray-600">Loading sizes...</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          Error loading sizes. Please try again.
+        </div>
+      )}
+
+      {!isLoading && !error && (
+        <div className="overflow-x-auto">
+          <SizeTable
+            items={filteredSizes}
+            onEdit={handleEditSize}
+            onRemove={handleDeleteSize}
+          />
+        </div>
+      )}
+
       <AddSizeModal
-        open={showModal}
-        form={form}
-        setForm={setForm}
-        onCancel={() => setShowModal(false)}
-        onAdd={() => setShowModal(false)}
-        categories={foodCategories}
+        open={showAddModal}
+        form={addForm}
+        setForm={setAddForm}
+        onCancel={handleCancelAdd}
+        onSubmit={handleAddSize}
+        isLoading={createSizeMutation.isPending}
+      />
+
+      <EditSizeModal
+        open={showEditModal}
+        size={selectedSize}
+        form={editForm}
+        setForm={setEditForm}
+        onCancel={handleCancelEdit}
+        onSubmit={handleUpdateSize}
+        isLoading={updateSizeMutation.isPending}
       />
     </div>
   );
