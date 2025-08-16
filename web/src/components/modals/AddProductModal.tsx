@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+import React from 'react';
 import { useCategories } from '../../hooks/useCategories';
 import { useSizes } from '../../hooks/useSizes';
 
@@ -31,29 +32,23 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   const { data: allSizes = [], isLoading: sizesLoading } = useSizes();
   
   // Filter sizes based on selected category
-  const [availableSizes, setAvailableSizes] = useState(allSizes);
-  
-  useEffect(() => {
-    if (form.categoryId) {
-      const filtered = allSizes.filter(size => size.categoryId === form.categoryId);
-      setAvailableSizes(filtered);
-      
-      // If current size doesn't belong to selected category, clear it
-      if (form.sizeId && !filtered.find(size => size.id === form.sizeId)) {
-        setForm({ ...form, sizeId: '' });
-      }
-    } else {
-      setAvailableSizes([]);
-      setForm({ ...form, sizeId: '' });
-    }
-  }, [form.categoryId, allSizes, form, setForm]);
+  const availableSizes = form.categoryId 
+    ? allSizes.filter(size => size.categoryId === form.categoryId)
+    : [];
   if (!open) return null;
 
   const handleInputChange = (
     field: keyof ProductForm,
     value: string | number | ProductForm['status']
   ) => {
-    setForm({ ...form, [field]: value });
+    const newForm = { ...form, [field]: value };
+    
+    // If category changed, clear the size selection
+    if (field === 'categoryId') {
+      newForm.sizeId = '';
+    }
+    
+    setForm(newForm);
   };
 
   const isFormValid = () => {
