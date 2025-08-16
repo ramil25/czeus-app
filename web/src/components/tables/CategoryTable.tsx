@@ -1,12 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-
-export type Category = {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-};
+import { Category } from '../../lib/categories';
 
 export type CategoryTableProps = {
   items: Category[];
