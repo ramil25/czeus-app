@@ -1,31 +1,99 @@
 "use client";
 import { useState } from "react";
 import AddCategoryModal, { CategoryForm } from "../../../../components/modals/AddCategoryModal";
-import { CategoryTable, Category } from "../../../../components/tables/CategoryTable";
-
-const now = new Date().toISOString();
-const sampleCategories: Category[] = [
-  { id: 1, name: "Coffee", description: "All coffee-based drinks", createdAt: now },
-  { id: 2, name: "Tea", description: "Hot and cold teas", createdAt: now },
-  { id: 3, name: "Pastries", description: "Freshly baked pastries", createdAt: now },
-  { id: 4, name: "Sandwiches", description: "Various sandwiches", createdAt: now },
-  { id: 5, name: "Salads", description: "Healthy salads", createdAt: now },
-  { id: 6, name: "Smoothies", description: "Fruit and veggie smoothies", createdAt: now },
-  { id: 7, name: "Breakfast", description: "Breakfast menu items", createdAt: now },
-  { id: 8, name: "Desserts", description: "Sweet treats and desserts", createdAt: now },
-  { id: 9, name: "Juices", description: "Fresh juices", createdAt: now },
-  { id: 10, name: "Snacks", description: "Light snacks", createdAt: now },
-];
+import EditCategoryModal, { EditCategoryForm } from "../../../../components/modals/EditCategoryModal";
+import { CategoryTable } from "../../../../components/tables/CategoryTable";
+import { 
+  useCategories, 
+  useCreateCategory, 
+  useUpdateCategory, 
+  useDeleteCategory 
+} from "../../../../hooks/useCategories";
+import { Category } from "../../../../lib/categories";
 
 export default function CategoryManagement() {
   const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState<CategoryForm>({ name: "", description: "" });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [addForm, setAddForm] = useState<CategoryForm>({ name: "", description: "" });
+  const [editForm, setEditForm] = useState<EditCategoryForm>({ name: "", description: "" });
 
-  const filteredCategories = sampleCategories.filter((c) =>
+  // React Query hooks
+  const { data: categories = [], isLoading } = useCategories();
+  const createCategoryMutation = useCreateCategory();
+  const updateCategoryMutation = useUpdateCategory();
+  const deleteCategoryMutation = useDeleteCategory();
+
+  const filteredCategories = categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.description.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleAddCategory = async (form: CategoryForm) => {
+    try {
+      await createCategoryMutation.mutateAsync({
+        category_name: form.name,
+        category_description: form.description,
+      });
+      setAddForm({ name: "", description: "" });
+      setShowAddModal(false);
+    } catch (error) {
+      // Error is handled by the mutation's onError callback
+      console.error('Failed to create category:', error);
+    }
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setSelectedCategory(category);
+    setEditForm({
+      name: category.name,
+      description: category.description,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveCategory = async (form: EditCategoryForm) => {
+    if (!selectedCategory) return;
+
+    try {
+      await updateCategoryMutation.mutateAsync({
+        id: selectedCategory.id,
+        input: {
+          category_name: form.name,
+          category_description: form.description,
+        },
+      });
+      setShowEditModal(false);
+      setSelectedCategory(null);
+      setEditForm({ name: "", description: "" });
+    } catch (error) {
+      // Error is handled by the mutation's onError callback
+      console.error('Failed to update category:', error);
+    }
+  };
+
+  const handleDeleteCategory = async (category: Category) => {
+    if (window.confirm(`Are you sure you want to delete "${category.name}"?`)) {
+      try {
+        await deleteCategoryMutation.mutateAsync(category.id);
+      } catch (error) {
+        // Error is handled by the mutation's onError callback
+        console.error('Failed to delete category:', error);
+      }
+    }
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddModal(false);
+    setAddForm({ name: "", description: "" });
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setSelectedCategory(null);
+    setEditForm({ name: "", description: "" });
+  };
 
   return (
     <div className="p-8 bg-blue-50 min-h-screen">
@@ -33,7 +101,7 @@ export default function CategoryManagement() {
         <h1 className="text-2xl font-bold text-blue-700">Food Categories</h1>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-          onClick={() => setShowModal(true)}
+          onClick={() => setShowAddModal(true)}
         >
           Add Category
         </button>
@@ -47,19 +115,38 @@ export default function CategoryManagement() {
           className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
         />
       </div>
-      <div className="overflow-x-auto">
-        <CategoryTable
-          items={filteredCategories}
-          onEdit={(item) => alert(`Edit category: ${item.name}`)}
-          onRemove={(item) => alert(`Remove category: ${item.name}`)}
-        />
-      </div>
+      
+      {isLoading ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-blue-600">Loading categories...</div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <CategoryTable
+            items={filteredCategories}
+            onEdit={handleEditCategory}
+            onRemove={handleDeleteCategory}
+          />
+        </div>
+      )}
+      
       <AddCategoryModal
-        open={showModal}
-        form={form}
-        setForm={setForm}
-        onCancel={() => setShowModal(false)}
-        onAdd={() => setShowModal(false)}
+        open={showAddModal}
+        form={addForm}
+        setForm={setAddForm}
+        onCancel={handleCancelAdd}
+        onAdd={handleAddCategory}
+        isLoading={createCategoryMutation.isPending}
+      />
+      
+      <EditCategoryModal
+        open={showEditModal}
+        category={selectedCategory}
+        form={editForm}
+        setForm={setEditForm}
+        onCancel={handleCancelEdit}
+        onSave={handleSaveCategory}
+        isLoading={updateCategoryMutation.isPending}
       />
     </div>
   );
