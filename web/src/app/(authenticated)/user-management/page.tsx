@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { InviteUserModal } from '../../../components/modals/InviteUserModal';
+import EditUserModal, { EditUserForm } from '../../../components/modals/EditUserModal';
 import UserTable from '../../../components/tables/UserTable';
 import {
   useUsers,
   useCreateUser,
+  useUpdateUser,
   useDeleteUser,
 } from '../../../hooks/useUsers';
 import { UserFormData, User } from '../../../lib/users';
@@ -12,7 +14,15 @@ import { UserFormData, User } from '../../../lib/users';
 export default function UserManagement() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [form, setForm] = useState<UserFormData>({
+    first_name: '',
+    last_name: '',
+    email: '',
+    role: 'staff',
+  });
+  const [editForm, setEditForm] = useState<EditUserForm>({
     first_name: '',
     last_name: '',
     email: '',
@@ -22,6 +32,7 @@ export default function UserManagement() {
   // Hooks for data management
   const { data: users = [], isLoading, error } = useUsers();
   const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
 
   // Filter users based on search
@@ -69,7 +80,71 @@ export default function UserManagement() {
   };
 
   const handleEdit = (user: User) => {
-    alert(`Edit functionality for ${user.name} will be implemented soon.`);
+    setSelectedUser(user);
+    setEditForm({
+      first_name: user.first_name,
+      middle_name: user.middle_name,
+      last_name: user.last_name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      position: user.position,
+      address: user.address,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedUser) return;
+
+    if (
+      !editForm.first_name.trim() ||
+      !editForm.last_name.trim() ||
+      !editForm.email.trim()
+    ) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const userFormData: UserFormData = {
+        first_name: editForm.first_name,
+        middle_name: editForm.middle_name,
+        last_name: editForm.last_name,
+        email: editForm.email,
+        role: editForm.role,
+        phone: editForm.phone,
+        position: editForm.position,
+        address: editForm.address,
+      };
+
+      await updateUserMutation.mutateAsync({
+        id: selectedUser.id,
+        data: userFormData,
+      });
+
+      setShowEditModal(false);
+      setSelectedUser(null);
+      setEditForm({
+        first_name: '',
+        last_name: '',
+        email: '',
+        role: 'staff',
+      });
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setSelectedUser(null);
+    setEditForm({
+      first_name: '',
+      last_name: '',
+      email: '',
+      role: 'staff',
+    });
   };
 
   const handleRemove = async (user: User) => {
@@ -128,6 +203,16 @@ export default function UserManagement() {
         onCancel={() => setShowModal(false)}
         onInvite={handleInvite}
         loading={createUserMutation.isPending}
+      />
+
+      <EditUserModal
+        open={showEditModal}
+        user={selectedUser}
+        form={editForm}
+        setForm={setEditForm}
+        onCancel={handleCancelEdit}
+        onSave={handleSaveEdit}
+        isLoading={updateUserMutation.isPending}
       />
     </div>
   );
