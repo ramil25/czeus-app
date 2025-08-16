@@ -1,15 +1,5 @@
 import React, { useState } from 'react';
-
-export type Staff = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  position: string;
-  address: string;
-  createdAt: string;
-};
+import { Staff } from '../../lib/staff';
 
 export type StaffTableProps = {
   items: Staff[];
