@@ -1,75 +1,93 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { StatCard } from '@/components/StatCard';
+import { TrendCard } from '@/components/TrendCard';
 
-export default function HomeScreen() {
+export default function DashboardScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Dashboard</ThemedText>
+        <ThemedText>Welcome to CZEUS POS System</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.statsContainer}>
+        <View style={styles.statsRow}>
+          <StatCard
+            title="Total Sales"
+            value="₱0.00"
+            subtitle="Today"
+            color="#10b981"
+          />
+          <StatCard
+            title="Orders"
+            value="0"
+            subtitle="Today"
+            color="#3b82f6"
+          />
+        </View>
+        <View style={styles.statsRow}>
+          <StatCard
+            title="Products"
+            value="0"
+            subtitle="In Stock"
+            color="#f59e0b"
+          />
+          <StatCard
+            title="Users"
+            value="0"
+            subtitle="Active"
+            color="#8b5cf6"
+          />
+        </View>
+      </ThemedView>
+
+      <ThemedView style={styles.trendsContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Recent Activity
+        </ThemedText>
+        <TrendCard
+          title="Sales Trend"
+          value="↗ +0%"
+          description="No sales data available"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <TrendCard
+          title="Inventory Status"
+          value="📦 0 items"
+          description="No products in inventory"
+        />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    padding: 20,
+    paddingTop: 60,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  statsContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  statsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    gap: 16,
   },
-  stepContainer: {
-    gap: 8,
+  trendsContainer: {
+    padding: 16,
+    gap: 12,
+  },
+  sectionTitle: {
     marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
   },
 });
