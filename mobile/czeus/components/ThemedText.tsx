@@ -15,12 +15,36 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  // Call all hooks unconditionally at the top level
+  const defaultTextColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const titleTextColor = useThemeColor({ light: '#000000', dark: '#ECEDEE' }, 'text');
+  const subtitleTextColor = useThemeColor({ light: '#6b7280', dark: '#9ca3af' }, 'subtitle');
+  const linkTextColor = useThemeColor({ light: '#2362c7', dark: '#fff' }, 'tint');
+  
+  // Select the appropriate color based on type and provided colors
+  let textColor = lightColor || darkColor;
+  
+  if (!textColor) {
+    switch (type) {
+      case 'title':
+        textColor = titleTextColor;
+        break;
+      case 'subtitle':
+        textColor = subtitleTextColor;
+        break;
+      case 'link':
+        textColor = linkTextColor;
+        break;
+      default:
+        textColor = defaultTextColor;
+        break;
+    }
+  }
 
   return (
     <Text
       style={[
-        { color },
+        { color: textColor },
         type === 'default' ? styles.default : undefined,
         type === 'title' ? styles.title : undefined,
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
@@ -55,6 +79,6 @@ const styles = StyleSheet.create({
   link: {
     lineHeight: 30,
     fontSize: 16,
-    color: '#0a7ea4',
+    color: '#2362c7',
   },
 });

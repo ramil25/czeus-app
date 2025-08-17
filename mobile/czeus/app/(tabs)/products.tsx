@@ -13,7 +13,7 @@ export default function ProductsScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#3b82f6" />
+        <ActivityIndicator size="large" color="#2362c7" />
         <ThemedText style={styles.loadingText}>Loading products...</ThemedText>
       </ThemedView>
     );
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2362c7',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2362c7',
   },
   saveButtonText: {
     color: '#fff',
