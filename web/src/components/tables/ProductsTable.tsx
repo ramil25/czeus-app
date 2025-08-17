@@ -63,9 +63,11 @@ export function ProductsTable({ items, onEdit, onRemove }: ProductsTableProps) {
                     className="w-12 h-12 object-cover rounded border border-blue-200"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-gray-200 rounded border border-blue-200 flex items-center justify-center">
-                    <span className="text-gray-500 text-xs">No image</span>
-                  </div>
+                  <img
+                    src="/images/dummy-product.svg"
+                    alt="No image"
+                    className="w-12 h-12 object-cover rounded border border-blue-200 bg-gray-100"
+                  />
                 )}
               </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
