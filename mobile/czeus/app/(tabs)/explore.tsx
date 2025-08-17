@@ -1,110 +1,284 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, ScrollView, View, TouchableOpacity, Alert } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function TabTwoScreen() {
+interface MenuOption {
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  onPress: () => void;
+}
+
+export default function MoreScreen() {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (signOutError) {
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              console.error('Sign out error:', signOutError);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const menuOptions: MenuOption[] = [
+    {
+      title: 'User Management',
+      description: 'Manage users and permissions',
+      icon: 'person.3.fill',
+      color: '#3b82f6',
+      onPress: () => console.log('User Management'),
+    },
+    {
+      title: 'Points Management',
+      description: 'Customer loyalty points',
+      icon: 'star.fill',
+      color: '#f59e0b',
+      onPress: () => console.log('Points Management'),
+    },
+    {
+      title: 'POS Setup',
+      description: 'Categories, discounts, staff',
+      icon: 'gearshape.fill',
+      color: '#8b5cf6',
+      onPress: () => console.log('POS Setup'),
+    },
+    {
+      title: 'Table Management',
+      description: 'Restaurant table management',
+      icon: 'table.furniture.fill',
+      color: '#10b981',
+      onPress: () => console.log('Table Management'),
+    },
+    {
+      title: 'Reports',
+      description: 'Sales and analytics reports',
+      icon: 'chart.bar.fill',
+      color: '#ef4444',
+      onPress: () => console.log('Reports'),
+    },
+    {
+      title: 'Settings',
+      description: 'App preferences and configuration',
+      icon: 'gear',
+      color: '#6b7280',
+      onPress: () => console.log('Settings'),
+    },
+  ];
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <View style={styles.userInfo}>
+          <View style={styles.avatarContainer}>
+            <IconSymbol size={32} name="person.fill" color="#fff" />
+          </View>
+          <View style={styles.userDetails}>
+            <ThemedText type="defaultSemiBold" style={styles.userName}>
+              {user?.full_name || 'User'}
             </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+            <ThemedText style={styles.userEmail}>
+              {user?.email}
+            </ThemedText>
+          </View>
+        </View>
+        <ThemedText type="title">More</ThemedText>
+        <ThemedText>Additional features and settings</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.menuContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Features
+        </ThemedText>
+        
+        {menuOptions.map((option, index) => (
+          <TouchableOpacity 
+            key={index} 
+            style={styles.menuItem}
+            onPress={option.onPress}
+          >
+            <View style={[styles.iconContainer, { backgroundColor: option.color }]}>
+              <IconSymbol size={24} name={option.icon as any} color="#fff" />
+            </View>
+            <View style={styles.menuContent}>
+              <ThemedText type="defaultSemiBold">{option.title}</ThemedText>
+              <ThemedText style={styles.menuDescription}>
+                {option.description}
+              </ThemedText>
+            </View>
+            <IconSymbol size={20} name="chevron.right" color="#9ca3af" />
+          </TouchableOpacity>
+        ))}
+
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { marginTop: 24 }]}>
+          Account
+        </ThemedText>
+
+        <TouchableOpacity 
+          style={[styles.menuItem, styles.signOutItem]}
+          onPress={handleSignOut}
+        >
+          <View style={[styles.iconContainer, { backgroundColor: '#ef4444' }]}>
+            <IconSymbol size={24} name="power" color="#fff" />
+          </View>
+          <View style={styles.menuContent}>
+            <ThemedText type="defaultSemiBold" style={styles.signOutText}>
+              Sign Out
+            </ThemedText>
+            <ThemedText style={styles.menuDescription}>
+              Sign out of your account
+            </ThemedText>
+          </View>
+          <IconSymbol size={20} name="chevron.right" color="#9ca3af" />
+        </TouchableOpacity>
+      </ThemedView>
+
+      <ThemedView style={styles.aboutContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          About
+        </ThemedText>
+        
+        <View style={styles.aboutCard}>
+          <ThemedText type="defaultSemiBold" style={styles.appName}>
+            CZEUS POS Mobile
+          </ThemedText>
+          <ThemedText style={styles.appVersion}>Version 1.0.0</ThemedText>
+          <ThemedText style={styles.appDescription}>
+            Mobile point-of-sale system for managing products, sales, and inventory on the go.
+          </ThemedText>
+        </View>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
   },
-  titleContainer: {
+  header: {
+    padding: 20,
+    paddingTop: 60,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  userInfo: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+  },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  userDetails: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 16,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  menuContainer: {
+    padding: 16,
+    gap: 12,
+  },
+  sectionTitle: {
+    marginBottom: 12,
+  },
+  menuItem: {
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  signOutItem: {
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
+  iconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  menuContent: {
+    flex: 1,
+  },
+  menuDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  signOutText: {
+    color: '#dc2626',
+  },
+  aboutContainer: {
+    padding: 16,
+    gap: 12,
+  },
+  aboutCard: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  appName: {
+    fontSize: 18,
+    marginBottom: 4,
+  },
+  appVersion: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 12,
+  },
+  appDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

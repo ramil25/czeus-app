@@ -1,75 +1,110 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, ScrollView, View } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { StatCard } from '@/components/StatCard';
+import { TrendCard } from '@/components/TrendCard';
+import { useProducts } from '@/hooks/useProducts';
 
-export default function HomeScreen() {
+export default function DashboardScreen() {
+  const { data: products = [], isLoading } = useProducts();
+
+  // Calculate stats from products
+  const totalProducts = products.length;
+  const availableProducts = products.filter(p => p.status === 'Available').length;
+  const outOfStockProducts = products.filter(p => p.status === 'Out of Stock').length;
+  const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 10).length;
+  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Dashboard</ThemedText>
+        <ThemedText>Welcome to CZEUS POS System</ThemedText>
+      </ThemedView>
+
+      <ThemedView style={styles.statsContainer}>
+        <View style={styles.statsRow}>
+          <StatCard
+            title="Total Sales"
+            value="₱0.00"
+            subtitle="Today"
+            color="#10b981"
+          />
+          <StatCard
+            title="Orders"
+            value="0"
+            subtitle="Today"
+            color="#3b82f6"
+          />
+        </View>
+        <View style={styles.statsRow}>
+          <StatCard
+            title="Products"
+            value={isLoading ? '...' : totalProducts.toString()}
+            subtitle={`${availableProducts} Available`}
+            color="#f59e0b"
+          />
+          <StatCard
+            title="Inventory Value"
+            value={isLoading ? '...' : `₱${totalValue.toFixed(0)}`}
+            subtitle="Total Stock"
+            color="#8b5cf6"
+          />
+        </View>
+      </ThemedView>
+
+      <ThemedView style={styles.trendsContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Inventory Overview
+        </ThemedText>
+        <TrendCard
+          title="Available Products"
+          value={`📦 ${availableProducts} items`}
+          description={`${outOfStockProducts} out of stock`}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        {lowStockProducts > 0 && (
+          <TrendCard
+            title="Low Stock Alert"
+            value={`⚠️ ${lowStockProducts} items`}
+            description="Items with stock ≤ 10"
+          />
+        )}
+        <TrendCard
+          title="Product Categories"
+          value={`📂 ${[...new Set(products.map(p => p.category))].length} categories`}
+          description="Coffee, Tea, Pastries, etc."
+        />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  header: {
+    padding: 20,
+    paddingTop: 60,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  statsContainer: {
+    padding: 16,
+    gap: 16,
+  },
+  statsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    gap: 16,
   },
-  stepContainer: {
-    gap: 8,
+  trendsContainer: {
+    padding: 16,
+    gap: 12,
+  },
+  sectionTitle: {
     marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
   },
 });
