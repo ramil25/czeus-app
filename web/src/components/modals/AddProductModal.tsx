@@ -34,6 +34,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: allSizes = [], isLoading: sizesLoading } = useSizes();
   const [imagePreview, setImagePreview] = useState<string | null>(form.imageUrl || null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   
   // Filter sizes based on selected category
   const availableSizes = form.categoryId 
@@ -71,16 +72,24 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       return;
     }
 
+    setIsImageUploading(true);
+
     // Create preview
     const previewUrl = createImagePreview(file);
     setImagePreview(previewUrl);
 
     // Update form
     handleInputChange('imageFile', file);
+    
+    // Simulate image upload processing time for better UX
+    setTimeout(() => {
+      setIsImageUploading(false);
+    }, 1000);
   };
 
   const removeImage = () => {
     setImagePreview(null);
+    setIsImageUploading(false);
     setForm({ ...form, imageFile: undefined, imageUrl: undefined });
   };
 
@@ -129,12 +138,21 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
                   <img
                     src={imagePreview}
                     alt="Product preview"
-                    className="w-32 h-32 object-cover rounded-lg border border-blue-200"
+                    className={`w-32 h-32 object-cover rounded-lg border border-blue-200 ${isImageUploading ? 'opacity-50' : ''}`}
                   />
+                  {isImageUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+                      <div className="flex flex-col items-center text-white">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-2"></div>
+                        <span className="text-sm">Processing...</span>
+                      </div>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={removeImage}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                    disabled={isImageUploading}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ×
                   </button>
@@ -148,7 +166,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                disabled={isImageUploading}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <p className="text-xs text-gray-500">
                 Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
@@ -275,18 +294,18 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 mt-6">
           <button
-            className="px-6 py-2 bg-white border border-blue-200 text-black rounded hover:bg-blue-100 transition-colors"
+            className="px-6 py-2 bg-white border border-blue-200 text-black rounded hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onCancel}
-            disabled={isLoading}
+            disabled={isLoading || isImageUploading}
           >
             Cancel
           </button>
           <button
             className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onAdd}
-            disabled={!isFormValid() || isLoading}
+            disabled={!isFormValid() || isLoading || isImageUploading}
           >
-            {isLoading ? 'Adding...' : 'Add Product'}
+            {isImageUploading ? 'Processing Image...' : isLoading ? 'Adding...' : 'Add Product'}
           </button>
         </div>
       </div>

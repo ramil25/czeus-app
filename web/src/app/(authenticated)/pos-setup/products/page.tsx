@@ -15,6 +15,7 @@ export default function ProductsManagement() {
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+	const [isUploadingImage, setIsUploadingImage] = useState(false);
 	
 	const [addForm, setAddForm] = useState<ProductForm>({ 
 		name: "", 
@@ -58,10 +59,13 @@ export default function ProductsManagement() {
 		// Upload image if provided
 		if (addForm.imageFile) {
 			try {
+				setIsUploadingImage(true);
 				imageUrl = await uploadImageToPublic(addForm.imageFile, 'products');
 			} catch (error) {
 				console.error('Failed to upload image:', error);
 				alert('Failed to upload image. Product will be created without an image.');
+			} finally {
+				setIsUploadingImage(false);
 			}
 		}
 
@@ -107,12 +111,15 @@ export default function ProductsManagement() {
 		// Upload new image if provided
 		if (editForm.imageFile) {
 			try {
+				setIsUploadingImage(true);
 				imageUrl = await uploadImageToPublic(editForm.imageFile, 'products');
 			} catch (error) {
 				console.error('Failed to upload image:', error);
 				alert('Failed to upload image. Product will be updated without changing the image.');
 				// Continue with update without changing the image
 				imageUrl = editForm.imageUrl;
+			} finally {
+				setIsUploadingImage(false);
 			}
 		}
 
@@ -219,7 +226,7 @@ export default function ProductsManagement() {
 				setForm={setAddForm}
 				onCancel={handleCancelAdd}
 				onAdd={handleAddProduct}
-				isLoading={createProductMutation.isPending}
+				isLoading={createProductMutation.isPending || isUploadingImage}
 			/>
 			
 			<EditProductModal
@@ -229,7 +236,7 @@ export default function ProductsManagement() {
 				setForm={setEditForm}
 				onCancel={handleCancelEdit}
 				onSubmit={handleUpdateProduct}
-				isLoading={updateProductMutation.isPending}
+				isLoading={updateProductMutation.isPending || isUploadingImage}
 			/>
 			
 			<ConfirmationModal
