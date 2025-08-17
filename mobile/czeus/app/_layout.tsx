@@ -1,11 +1,14 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -16,6 +19,38 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function AppNavigator() {
+  const { user, loading, initialized } = useAuth();
+
+  useEffect(() => {
+    if (initialized) {
+      if (user) {
+        // User is authenticated, redirect to main app
+        router.replace('/(tabs)');
+      } else {
+        // User is not authenticated, redirect to login
+        router.replace('/(auth)/login');
+      }
+    }
+  }, [user, initialized]);
+
+  if (!initialized || loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+      </View>
+    );
+  }
+
+  return (
+    <Stack>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -30,13 +65,12 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AppNavigator />
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

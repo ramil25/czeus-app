@@ -5,7 +5,7 @@ export interface Product {
   price: number;
   stock: number;
   category: string;
-  status: 'Available' | 'Out of Stock';
+  status: 'Available' | 'Out of Stock' | 'Deleted';
   image?: string;
   createdAt: string;
   updatedAt: string;

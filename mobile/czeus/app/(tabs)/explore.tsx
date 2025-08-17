@@ -1,8 +1,9 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, View, TouchableOpacity, Alert } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MenuOption {
   title: string;
@@ -13,6 +14,30 @@ interface MenuOption {
 }
 
 export default function MoreScreen() {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (signOutError) {
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              console.error('Sign out error:', signOutError);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const menuOptions: MenuOption[] = [
     {
       title: 'User Management',
@@ -61,6 +86,19 @@ export default function MoreScreen() {
   return (
     <ScrollView style={styles.container}>
       <ThemedView style={styles.header}>
+        <View style={styles.userInfo}>
+          <View style={styles.avatarContainer}>
+            <IconSymbol size={32} name="person.fill" color="#fff" />
+          </View>
+          <View style={styles.userDetails}>
+            <ThemedText type="defaultSemiBold" style={styles.userName}>
+              {user?.full_name || 'User'}
+            </ThemedText>
+            <ThemedText style={styles.userEmail}>
+              {user?.email}
+            </ThemedText>
+          </View>
+        </View>
         <ThemedText type="title">More</ThemedText>
         <ThemedText>Additional features and settings</ThemedText>
       </ThemedView>
@@ -77,7 +115,7 @@ export default function MoreScreen() {
             onPress={option.onPress}
           >
             <View style={[styles.iconContainer, { backgroundColor: option.color }]}>
-              <IconSymbol size={24} name={option.icon} color="#fff" />
+              <IconSymbol size={24} name={option.icon as any} color="#fff" />
             </View>
             <View style={styles.menuContent}>
               <ThemedText type="defaultSemiBold">{option.title}</ThemedText>
@@ -88,6 +126,28 @@ export default function MoreScreen() {
             <IconSymbol size={20} name="chevron.right" color="#9ca3af" />
           </TouchableOpacity>
         ))}
+
+        <ThemedText type="subtitle" style={[styles.sectionTitle, { marginTop: 24 }]}>
+          Account
+        </ThemedText>
+
+        <TouchableOpacity 
+          style={[styles.menuItem, styles.signOutItem]}
+          onPress={handleSignOut}
+        >
+          <View style={[styles.iconContainer, { backgroundColor: '#ef4444' }]}>
+            <IconSymbol size={24} name="power" color="#fff" />
+          </View>
+          <View style={styles.menuContent}>
+            <ThemedText type="defaultSemiBold" style={styles.signOutText}>
+              Sign Out
+            </ThemedText>
+            <ThemedText style={styles.menuDescription}>
+              Sign out of your account
+            </ThemedText>
+          </View>
+          <IconSymbol size={20} name="chevron.right" color="#9ca3af" />
+        </TouchableOpacity>
       </ThemedView>
 
       <ThemedView style={styles.aboutContainer}>
@@ -121,6 +181,34 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+  },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#3b82f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  userDetails: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 16,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 2,
+  },
   menuContainer: {
     padding: 16,
     gap: 12,
@@ -140,6 +228,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  signOutItem: {
+    borderWidth: 1,
+    borderColor: '#fecaca',
+  },
   iconContainer: {
     width: 48,
     height: 48,
@@ -155,6 +247,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     marginTop: 2,
+  },
+  signOutText: {
+    color: '#dc2626',
   },
   aboutContainer: {
     padding: 16,
