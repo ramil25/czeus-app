@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryValue: {
-    color: '#3b82f6',
+    color: '#2362c7',
     fontSize: 20,
   },
   lowStockWarning: {

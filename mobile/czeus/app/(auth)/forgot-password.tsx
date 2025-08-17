@@ -59,11 +59,11 @@ export default function ForgotPasswordScreen() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <ThemedView style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
-            <IconSymbol size={24} name="chevron.left" color="#3b82f6" />
+            <IconSymbol size={24} name="chevron.left" color="#2362c7" />
           </TouchableOpacity>
           
           <View style={styles.logoContainer}>
-            <IconSymbol size={64} name="cube.box.fill" color="#3b82f6" />
+            <IconSymbol size={64} name="cube.box.fill" color="#2362c7" />
             <ThemedText type="title" style={styles.title}>CZEUS POS</ThemedText>
             <ThemedText style={styles.subtitle}>Reset Your Password</ThemedText>
           </View>
@@ -129,7 +129,7 @@ export default function ForgotPasswordScreen() {
           </View>
 
           <View style={styles.demoContainer}>
-            <IconSymbol size={20} name="info.circle.fill" color="#3b82f6" />
+            <IconSymbol size={20} name="info.circle.fill" color="#2362c7" />
             <ThemedText style={styles.demoText}>
               This is a demo app. Password reset functionality is simulated and no actual email will be sent.
             </ThemedText>
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#3b82f6',
+    color: '#2362c7',
   },
   subtitle: {
     fontSize: 16,
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   resetButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2362c7',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginLink: {
-    color: '#3b82f6',
+    color: '#2362c7',
     fontSize: 14,
     fontWeight: '600',
   },

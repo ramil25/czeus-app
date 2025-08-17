@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { CzeusLogo } from '@/components/ui/CzeusLogo';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginScreen() {
@@ -52,9 +53,8 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <ThemedView style={styles.header}>
           <View style={styles.logoContainer}>
-            <IconSymbol size={64} name="cube.box.fill" color="#3b82f6" />
-            <ThemedText type="title" style={styles.title}>CZEUS POS</ThemedText>
-            <ThemedText style={styles.subtitle}>Mobile Point of Sale</ThemedText>
+            <CzeusLogo width={120} height={42} />
+            <ThemedText type="subtitle" style={styles.subtitle}>Mobile Point of Sale</ThemedText>
           </View>
         </ThemedView>
 
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#3b82f6',
+    color: '#2362c7',
   },
   subtitle: {
     fontSize: 16,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   loginButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2362c7',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     textAlign: 'center',
-    color: '#3b82f6',
+    color: '#2362c7',
     fontSize: 14,
   },
   divider: {
@@ -253,13 +253,13 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     borderWidth: 1,
-    borderColor: '#3b82f6',
+    borderColor: '#2362c7',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
   signUpButtonText: {
-    color: '#3b82f6',
+    color: '#2362c7',
     fontSize: 16,
     fontWeight: '600',
   },

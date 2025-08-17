@@ -43,7 +43,7 @@ export default function MoreScreen() {
       title: 'User Management',
       description: 'Manage users and permissions',
       icon: 'person.3.fill',
-      color: '#3b82f6',
+      color: '#2362c7',
       onPress: () => console.log('User Management'),
     },
     {
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2362c7',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,

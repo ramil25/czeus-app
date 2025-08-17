@@ -35,7 +35,7 @@ export default function DashboardScreen() {
             title="Orders"
             value="0"
             subtitle="Today"
-            color="#3b82f6"
+            color="#2362c7"
           />
         </View>
         <View style={styles.statsRow}>
