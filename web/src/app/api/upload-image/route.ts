@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: NextRequest) {
   try {
+    // Initialize Supabase client with environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase configuration is missing. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const folder = formData.get('folder') as string || 'products';
@@ -39,37 +51,54 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const filename = `${timestamp}_${randomStr}.${extension}`;
 
-    // Create target directory if it doesn't exist
-    const publicPath = join(process.cwd(), 'public');
-    const imagesPath = join(publicPath, 'images');
-    const folderPath = join(imagesPath, folder);
-    
-    try {
-      await mkdir(folderPath, { recursive: true });
-    } catch (error) {
-      // Directory might already exist, which is fine
-    }
-
-    // Write file to disk
-    const filePath = join(folderPath, filename);
+    // Convert file to buffer for Supabase Storage
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    await writeFile(filePath, buffer);
+    // Upload to Supabase Storage
+    const storagePath = `${folder}/${filename}`;
+    const { error: uploadError } = await supabase.storage
+      .from('images')
+      .upload(storagePath, buffer, {
+        contentType: file.type,
+        cacheControl: '3600',
+        upsert: false
+      });
 
-    // Return the public URL path
-    const imageUrl = `/images/${folder}/${filename}`;
-    
+    if (uploadError) {
+      console.error('Supabase upload error:', uploadError);
+      return NextResponse.json(
+        { error: `Failed to upload file: ${uploadError.message}` },
+        { status: 500 }
+      );
+    }
+
+    // Get public URL for the uploaded image
+    const { data: { publicUrl } } = supabase.storage
+      .from('images')
+      .getPublicUrl(storagePath);
+
     return NextResponse.json({
       success: true,
-      url: imageUrl,
+      url: publicUrl,
       filename: filename
     });
 
   } catch (error) {
     console.error('Error uploading file:', error);
+    
+    // Provide helpful error message for common Supabase Storage issues
+    let errorMessage = 'Failed to upload file';
+    if (error instanceof Error) {
+      if (error.message.includes('bucket') || error.message.includes('storage')) {
+        errorMessage = 'Image storage not configured. Please set up Supabase Storage with an "images" bucket.';
+      } else if (error.message.includes('SUPABASE')) {
+        errorMessage = 'Database connection error. Please check Supabase configuration.';
+      }
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
