@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { CzeusLogo } from '@/components/ui/CzeusLogo';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ForgotPasswordScreen() {
@@ -63,9 +64,7 @@ export default function ForgotPasswordScreen() {
           </TouchableOpacity>
           
           <View style={styles.logoContainer}>
-            <IconSymbol size={64} name="cube.box.fill" color="#2362c7" />
-            <ThemedText type="title" style={styles.title}>CZEUS POS</ThemedText>
-            <ThemedText style={styles.subtitle}>Reset Your Password</ThemedText>
+            <CzeusLogo width={120} height={42} />
           </View>
         </ThemedView>
 
