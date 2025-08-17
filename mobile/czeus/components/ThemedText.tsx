@@ -15,22 +15,28 @@ export function ThemedText({
   type = 'default',
   ...rest
 }: ThemedTextProps) {
+  // Call all hooks unconditionally at the top level
+  const defaultTextColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const titleTextColor = useThemeColor({ light: '#000000', dark: '#ECEDEE' }, 'text');
+  const subtitleTextColor = useThemeColor({ light: '#6b7280', dark: '#9ca3af' }, 'subtitle');
+  const linkTextColor = useThemeColor({ light: '#2362c7', dark: '#fff' }, 'tint');
+  
+  // Select the appropriate color based on type and provided colors
   let textColor = lightColor || darkColor;
   
-  // Use specific colors for different text types
   if (!textColor) {
     switch (type) {
       case 'title':
-        textColor = useThemeColor({ light: '#000000', dark: '#ECEDEE' }, 'text');
+        textColor = titleTextColor;
         break;
       case 'subtitle':
-        textColor = useThemeColor({ light: '#6b7280', dark: '#9ca3af' }, 'subtitle');
+        textColor = subtitleTextColor;
         break;
       case 'link':
-        textColor = useThemeColor({ light: '#2362c7', dark: '#fff' }, 'tint');
+        textColor = linkTextColor;
         break;
       default:
-        textColor = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+        textColor = defaultTextColor;
         break;
     }
   }
