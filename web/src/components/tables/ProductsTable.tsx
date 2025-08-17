@@ -30,6 +30,9 @@ export function ProductsTable({ items, onEdit, onRemove }: ProductsTableProps) {
         <thead className="bg-blue-100">
           <tr>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
+              Image
+            </th>
+            <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
               Product Name
             </th>
             <th className="py-2 px-4 border-b border-blue-200 text-black text-left">
@@ -52,6 +55,19 @@ export function ProductsTable({ items, onEdit, onRemove }: ProductsTableProps) {
         <tbody>
           {paginatedItems.map((item) => (
             <tr key={item.id} className="hover:bg-blue-50">
+              <td className="py-2 px-4 border-b border-blue-100 text-black">
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.name}
+                    className="w-12 h-12 object-cover rounded border border-blue-200"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-200 rounded border border-blue-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-xs">No image</span>
+                  </div>
+                )}
+              </td>
               <td className="py-2 px-4 border-b border-blue-100 text-black">
                 {item.name}
               </td>
@@ -91,7 +107,7 @@ export function ProductsTable({ items, onEdit, onRemove }: ProductsTableProps) {
           ))}
           {paginatedItems.length === 0 && (
             <tr>
-              <td colSpan={6} className="py-4 text-center text-gray-500">
+              <td colSpan={7} className="py-4 text-center text-gray-500">
                 No products found.
               </td>
             </tr>

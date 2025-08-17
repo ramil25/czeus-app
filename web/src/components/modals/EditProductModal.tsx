@@ -1,8 +1,9 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCategories } from '../../hooks/useCategories';
 import { useSizes } from '../../hooks/useSizes';
 import { ProductDisplay } from '../../lib/products';
+import { isValidImageFile, isValidFileSize, createImagePreview } from '../../utils/fileUpload';
 
 export interface EditProductForm {
   name: string;
@@ -10,6 +11,8 @@ export interface EditProductForm {
   sizeId: number | '';
   price: string;
   status: 'Available' | 'Not Available';
+  imageFile?: File;
+  imageUrl?: string;
 }
 
 interface EditProductModalProps {
@@ -33,6 +36,18 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 }) => {
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: allSizes = [], isLoading: sizesLoading } = useSizes();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  // Update image preview when product or form changes
+  useEffect(() => {
+    if (form.imageUrl) {
+      setImagePreview(form.imageUrl);
+    } else if (product?.imageUrl) {
+      setImagePreview(product.imageUrl);
+    } else {
+      setImagePreview(null);
+    }
+  }, [form.imageUrl, product?.imageUrl]);
   
   // Filter sizes based on selected category
   const availableSizes = form.categoryId 
@@ -41,7 +56,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   
   if (!open || !product) return null;
 
-  const handleInputChange = (field: keyof EditProductForm, value: string | number | EditProductForm['status']) => {
+  const handleInputChange = (field: keyof EditProductForm, value: string | number | EditProductForm['status'] | File) => {
     const newForm = { ...form, [field]: value };
     
     // If category changed, clear the size selection
@@ -50,6 +65,35 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     }
     
     setForm(newForm);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!isValidImageFile(file)) {
+      alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size
+    if (!isValidFileSize(file)) {
+      alert('File size too large. Maximum size is 5MB.');
+      return;
+    }
+
+    // Create preview
+    const previewUrl = createImagePreview(file);
+    setImagePreview(previewUrl);
+
+    // Update form
+    handleInputChange('imageFile', file);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setForm({ ...form, imageFile: undefined, imageUrl: undefined });
   };
 
   const isFormValid = () => {
@@ -88,6 +132,44 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
               value={form.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
             />
+          </div>
+
+          {/* Product Image */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Product Image
+            </label>
+            <div className="space-y-3">
+              {imagePreview ? (
+                <div className="relative">
+                  <img
+                    src={imagePreview}
+                    alt="Product preview"
+                    className="w-32 h-32 object-cover rounded-lg border border-blue-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div className="w-32 h-32 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center bg-blue-50">
+                  <span className="text-gray-500 text-sm">No image</span>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="text-xs text-gray-500">
+                Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
+              </p>
+            </div>
           </div>
 
           {/* Category Dropdown */}

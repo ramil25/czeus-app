@@ -6,6 +6,7 @@ import ConfirmationModal from "../../../../components/modals/ConfirmationModal";
 import { ProductsTable, Product } from "../../../../components/tables/ProductsTable";
 import { useProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "../../../../hooks/useProducts";
 import { CreateProductInput, UpdateProductInput } from "../../../../lib/products";
+import { uploadImageToPublic } from "../../../../utils/fileUpload";
 
 export default function ProductsManagement() {
 	const [search, setSearch] = useState("");
@@ -20,7 +21,9 @@ export default function ProductsManagement() {
 		categoryId: "", 
 		sizeId: "", 
 		price: "", 
-		status: "Available" 
+		status: "Available",
+		imageFile: undefined,
+		imageUrl: undefined
 	});
 	
 	const [editForm, setEditForm] = useState<EditProductForm>({ 
@@ -28,7 +31,9 @@ export default function ProductsManagement() {
 		categoryId: "", 
 		sizeId: "", 
 		price: "", 
-		status: "Available" 
+		status: "Available",
+		imageFile: undefined,
+		imageUrl: undefined
 	});
 
 	// React Query hooks
@@ -48,18 +53,31 @@ export default function ProductsManagement() {
 			return;
 		}
 
+		let imageUrl: string | undefined = undefined;
+
+		// Upload image if provided
+		if (addForm.imageFile) {
+			try {
+				imageUrl = await uploadImageToPublic(addForm.imageFile, 'products');
+			} catch (error) {
+				console.error('Failed to upload image:', error);
+				alert('Failed to upload image. Product will be created without an image.');
+			}
+		}
+
 		const input: CreateProductInput = {
 			product_name: addForm.name.trim(),
 			category_id: Number(addForm.categoryId),
 			size_id: Number(addForm.sizeId),
 			price: Number(addForm.price),
 			status: addForm.status === 'Available' ? 'available' : 'not available',
+			image_url: imageUrl,
 		};
 
 		try {
 			await createProductMutation.mutateAsync(input);
 			setShowAddModal(false);
-			setAddForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available" });
+			setAddForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available", imageFile: undefined, imageUrl: undefined });
 		} catch (error) {
 			// Error handling is done in the mutation
 		}
@@ -73,6 +91,8 @@ export default function ProductsManagement() {
 			sizeId: product.sizeId,
 			price: product.price.toString(),
 			status: product.status,
+			imageFile: undefined,
+			imageUrl: product.imageUrl,
 		});
 		setShowEditModal(true);
 	};
@@ -82,19 +102,34 @@ export default function ProductsManagement() {
 			return;
 		}
 
+		let imageUrl: string | undefined = editForm.imageUrl;
+
+		// Upload new image if provided
+		if (editForm.imageFile) {
+			try {
+				imageUrl = await uploadImageToPublic(editForm.imageFile, 'products');
+			} catch (error) {
+				console.error('Failed to upload image:', error);
+				alert('Failed to upload image. Product will be updated without changing the image.');
+				// Continue with update without changing the image
+				imageUrl = editForm.imageUrl;
+			}
+		}
+
 		const input: UpdateProductInput = {
 			product_name: editForm.name.trim(),
 			category_id: Number(editForm.categoryId),
 			size_id: Number(editForm.sizeId),
 			price: Number(editForm.price),
 			status: editForm.status === 'Available' ? 'available' : 'not available',
+			image_url: imageUrl,
 		};
 
 		try {
 			await updateProductMutation.mutateAsync({ id: selectedProduct.id, input });
 			setShowEditModal(false);
 			setSelectedProduct(null);
-			setEditForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available" });
+			setEditForm({ name: "", categoryId: "", sizeId: "", price: "", status: "Available", imageFile: undefined, imageUrl: undefined });
 		} catch (error) {
 			// Error handling is done in the mutation
 		}
