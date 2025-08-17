@@ -1,24 +1,33 @@
-import { StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  category: string;
-}
+import { useProducts } from '@/hooks/useProducts';
 
 export default function ProductsScreen() {
-  const [products] = useState<Product[]>([
-    { id: 1, name: "Sample Product", price: 100, stock: 50, category: "General" }
-  ]);
-
+  const { data: products = [], isLoading, error } = useProducts();
   const [showAddForm, setShowAddForm] = useState(false);
+
+  if (isLoading) {
+    return (
+      <ThemedView style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <ThemedText style={styles.loadingText}>Loading products...</ThemedText>
+      </ThemedView>
+    );
+  }
+
+  if (error) {
+    return (
+      <ThemedView style={styles.centerContainer}>
+        <IconSymbol size={64} name="exclamationmark.triangle" color="#ef4444" />
+        <ThemedText style={styles.errorText}>Failed to load products</ThemedText>
+        <ThemedText style={styles.errorSubtext}>Please try again later</ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -67,11 +76,30 @@ export default function ProductsScreen() {
           products.map((product) => (
             <View key={product.id} style={styles.productCard}>
               <View style={styles.productInfo}>
-                <ThemedText type="defaultSemiBold">{product.name}</ThemedText>
+                <View style={styles.productHeader}>
+                  <ThemedText type="defaultSemiBold">{product.name}</ThemedText>
+                  <View style={[
+                    styles.statusBadge,
+                    product.status === 'Available' ? styles.availableBadge : styles.outOfStockBadge
+                  ]}>
+                    <Text style={[
+                      styles.statusText,
+                      product.status === 'Available' ? styles.availableText : styles.outOfStockText
+                    ]}>
+                      {product.status}
+                    </Text>
+                  </View>
+                </View>
                 <ThemedText style={styles.productCategory}>{product.category}</ThemedText>
                 <View style={styles.productDetails}>
                   <ThemedText style={styles.productPrice}>₱{product.price.toFixed(2)}</ThemedText>
-                  <ThemedText style={styles.productStock}>Stock: {product.stock}</ThemedText>
+                  <ThemedText style={[
+                    styles.productStock,
+                    product.stock <= 10 && product.stock > 0 && styles.lowStock,
+                    product.stock === 0 && styles.outOfStock
+                  ]}>
+                    Stock: {product.stock}
+                  </ThemedText>
                 </View>
               </View>
               <TouchableOpacity style={styles.editButton}>
@@ -89,6 +117,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#ef4444',
+  },
+  errorSubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#6b7280',
   },
   header: {
     padding: 20,
@@ -179,7 +230,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -189,15 +240,41 @@ const styles = StyleSheet.create({
   productInfo: {
     flex: 1,
   },
+  productHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  availableBadge: {
+    backgroundColor: '#dcfce7',
+  },
+  outOfStockBadge: {
+    backgroundColor: '#fee2e2',
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  availableText: {
+    color: '#16a34a',
+  },
+  outOfStockText: {
+    color: '#dc2626',
+  },
   productCategory: {
     fontSize: 12,
     color: '#6b7280',
-    marginTop: 2,
+    marginBottom: 8,
   },
   productDetails: {
     flexDirection: 'row',
     gap: 16,
-    marginTop: 8,
   },
   productPrice: {
     fontWeight: '600',
@@ -206,6 +283,14 @@ const styles = StyleSheet.create({
   productStock: {
     fontSize: 14,
     color: '#6b7280',
+  },
+  lowStock: {
+    color: '#f59e0b',
+    fontWeight: '600',
+  },
+  outOfStock: {
+    color: '#dc2626',
+    fontWeight: '600',
   },
   editButton: {
     padding: 8,

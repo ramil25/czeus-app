@@ -4,8 +4,18 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { StatCard } from '@/components/StatCard';
 import { TrendCard } from '@/components/TrendCard';
+import { useProducts } from '@/hooks/useProducts';
 
 export default function DashboardScreen() {
+  const { data: products = [], isLoading } = useProducts();
+
+  // Calculate stats from products
+  const totalProducts = products.length;
+  const availableProducts = products.filter(p => p.status === 'Available').length;
+  const outOfStockProducts = products.filter(p => p.status === 'Out of Stock').length;
+  const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 10).length;
+  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+
   return (
     <ScrollView style={styles.container}>
       <ThemedView style={styles.header}>
@@ -31,14 +41,14 @@ export default function DashboardScreen() {
         <View style={styles.statsRow}>
           <StatCard
             title="Products"
-            value="0"
-            subtitle="In Stock"
+            value={isLoading ? '...' : totalProducts.toString()}
+            subtitle={`${availableProducts} Available`}
             color="#f59e0b"
           />
           <StatCard
-            title="Users"
-            value="0"
-            subtitle="Active"
+            title="Inventory Value"
+            value={isLoading ? '...' : `₱${totalValue.toFixed(0)}`}
+            subtitle="Total Stock"
             color="#8b5cf6"
           />
         </View>
@@ -46,17 +56,24 @@ export default function DashboardScreen() {
 
       <ThemedView style={styles.trendsContainer}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Recent Activity
+          Inventory Overview
         </ThemedText>
         <TrendCard
-          title="Sales Trend"
-          value="↗ +0%"
-          description="No sales data available"
+          title="Available Products"
+          value={`📦 ${availableProducts} items`}
+          description={`${outOfStockProducts} out of stock`}
         />
+        {lowStockProducts > 0 && (
+          <TrendCard
+            title="Low Stock Alert"
+            value={`⚠️ ${lowStockProducts} items`}
+            description="Items with stock ≤ 10"
+          />
+        )}
         <TrendCard
-          title="Inventory Status"
-          value="📦 0 items"
-          description="No products in inventory"
+          title="Product Categories"
+          value={`📂 ${[...new Set(products.map(p => p.category))].length} categories`}
+          description="Coffee, Tea, Pastries, etc."
         />
       </ThemedView>
     </ScrollView>
