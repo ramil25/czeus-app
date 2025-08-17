@@ -11,6 +11,7 @@ export interface Product {
   size_id: number;
   price: number;
   status: 'available' | 'not available';
+  image_url?: string;
 }
 
 // Frontend type that matches existing component expectations
@@ -25,6 +26,7 @@ export interface ProductDisplay {
   sizeId: number;
   createdAt: string;
   updatedAt?: string;
+  imageUrl?: string;
 }
 
 // Form type for creating/updating products
@@ -34,6 +36,7 @@ export interface CreateProductInput {
   size_id: number;
   price: number;
   status: 'available' | 'not available';
+  image_url?: string;
 }
 
 export interface UpdateProductInput {
@@ -42,6 +45,7 @@ export interface UpdateProductInput {
   size_id?: number;
   price?: number;
   status?: 'available' | 'not available';
+  image_url?: string;
 }
 
 // Extended product type with category and size details for frontend display
@@ -71,6 +75,7 @@ function productToProductDisplay(productWithDetails: ProductWithDetails): Produc
     sizeId: productWithDetails.size_id,
     createdAt: productWithDetails.created_at,
     updatedAt: productWithDetails.updated_at,
+    imageUrl: productWithDetails.image_url,
   };
 }
 
@@ -85,6 +90,7 @@ const sampleProducts: ProductWithDetails[] = [
     status: 'available',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    image_url: undefined,
     pos_categories: { id: 1, category_name: 'Coffee', category_description: 'All coffee-based drinks' },
     pos_sizes: { id: 1, size_name: 'Small', category_id: 1 },
   },
@@ -97,6 +103,7 @@ const sampleProducts: ProductWithDetails[] = [
     status: 'available',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    image_url: undefined,
     pos_categories: { id: 1, category_name: 'Coffee', category_description: 'All coffee-based drinks' },
     pos_sizes: { id: 2, size_name: 'Medium', category_id: 1 },
   },
@@ -109,6 +116,7 @@ const sampleProducts: ProductWithDetails[] = [
     status: 'available',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    image_url: undefined,
     pos_categories: { id: 2, category_name: 'Tea', category_description: 'Hot and cold teas' },
     pos_sizes: { id: 5, size_name: 'Large', category_id: 2 },
   },
@@ -121,6 +129,7 @@ const sampleProducts: ProductWithDetails[] = [
     status: 'available',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    image_url: undefined,
     pos_categories: { id: 3, category_name: 'Pastries', category_description: 'Freshly baked pastries' },
     pos_sizes: { id: 6, size_name: 'Slice', category_id: 3 },
   },
@@ -133,6 +142,7 @@ const sampleProducts: ProductWithDetails[] = [
     status: 'available',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    image_url: undefined,
     pos_categories: { id: 4, category_name: 'Sandwiches', category_description: 'Various sandwiches' },
     pos_sizes: { id: 9, size_name: 'Double', category_id: 4 },
   },
@@ -145,6 +155,7 @@ const sampleProducts: ProductWithDetails[] = [
     status: 'not available',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    image_url: undefined,
     pos_categories: { id: 5, category_name: 'Salads', category_description: 'Healthy salads' },
     pos_sizes: { id: 10, size_name: 'Bowl', category_id: 5 },
   },
@@ -245,6 +256,7 @@ export async function createProduct(input: CreateProductInput): Promise<ProductD
         size_id: input.size_id,
         price: input.price,
         status: input.status,
+        image_url: input.image_url,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         pos_categories: categoryMap[input.category_id as keyof typeof categoryMap] || 
@@ -264,6 +276,7 @@ export async function createProduct(input: CreateProductInput): Promise<ProductD
         size_id: input.size_id,
         price: input.price,
         status: input.status,
+        image_url: input.image_url,
       })
       .select(`
         *,
@@ -316,6 +329,7 @@ export async function createProduct(input: CreateProductInput): Promise<ProductD
       size_id: input.size_id,
       price: input.price,
       status: input.status,
+      image_url: input.image_url,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       pos_categories: categoryMap[input.category_id as keyof typeof categoryMap] || 
@@ -350,6 +364,7 @@ export async function updateProduct(
         size_id: input.size_id || localProductsStore[index].size_id,
         price: input.price !== undefined ? input.price : localProductsStore[index].price,
         status: input.status || localProductsStore[index].status,
+        image_url: input.image_url !== undefined ? input.image_url : localProductsStore[index].image_url,
         updated_at: new Date().toISOString(),
       };
       
@@ -433,6 +448,7 @@ export async function updateProduct(
       size_id: input.size_id || localProductsStore[index].size_id,
       price: input.price !== undefined ? input.price : localProductsStore[index].price,
       status: input.status || localProductsStore[index].status,
+      image_url: input.image_url !== undefined ? input.image_url : localProductsStore[index].image_url,
       updated_at: new Date().toISOString(),
     };
     
