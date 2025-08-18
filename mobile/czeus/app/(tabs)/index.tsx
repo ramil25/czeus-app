@@ -83,7 +83,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#e8f2ff', // Light blue background
   },
   header: {
     padding: 20,
