@@ -33,7 +33,10 @@ export default function LoginScreen() {
       await signIn(email.trim(), password);
       // Navigation will be handled by the auth state change
     } catch (error) {
-      Alert.alert('Login Failed', error instanceof Error ? error.message : 'An error occurred');
+      Alert.alert(
+        'Login Failed',
+        error instanceof Error ? error.message : 'An error occurred'
+      );
     }
   };
 
@@ -46,7 +49,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
@@ -94,10 +97,10 @@ export default function LoginScreen() {
               onPress={() => setShowPassword(!showPassword)}
               style={styles.eyeButton}
             >
-              <IconSymbol 
-                size={20} 
-                name={showPassword ? "eye.slash.fill" : "eye.fill"} 
-                color="#6b7280" 
+              <IconSymbol
+                size={20}
+                name={showPassword ? 'eye.slash.fill' : 'eye.fill'}
+                color="#6b7280"
               />
             </TouchableOpacity>
           </View>
@@ -154,6 +157,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 40,
+    backgroundColor: `#f9fafb`,
   },
   logoContainer: {
     alignItems: 'center',
