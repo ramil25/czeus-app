@@ -1,9 +1,18 @@
 export interface User {
   id: string;
   email: string;
-  full_name?: string;
-  avatar_url?: string | null;
+  // Fields from profiles table
+  first_name: string;
+  middle_name?: string | null;
+  last_name: string;
+  birth_day?: string | null;
+  profile_picture?: string | null;
+  role: string;
+  phone?: string | null;
+  position?: string | null;
+  address?: string | null;
   created_at: string;
+  updated_at?: string | null;
 }
 
 export interface AuthState {

@@ -92,7 +92,7 @@ export default function MoreScreen() {
           </View>
           <View style={styles.userDetails}>
             <ThemedText type="defaultSemiBold" style={styles.userName}>
-              {user?.full_name || 'User'}
+              {user ? `${user.first_name} ${user.last_name}`.trim() || 'User' : 'User'}
             </ThemedText>
             <ThemedText style={styles.userEmail}>
               {user?.email}

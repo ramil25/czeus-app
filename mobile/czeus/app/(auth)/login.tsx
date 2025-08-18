@@ -54,7 +54,6 @@ export default function LoginScreen() {
         <ThemedView style={styles.header}>
           <View style={styles.logoContainer}>
             <CzeusLogo width={120} height={42} />
-            <ThemedText type="subtitle" style={styles.subtitle}>Mobile Point of Sale</ThemedText>
           </View>
         </ThemedView>
 
@@ -136,18 +135,6 @@ export default function LoginScreen() {
               Create New Account
             </ThemedText>
           </TouchableOpacity>
-
-          <View style={styles.demoContainer}>
-            <ThemedText style={styles.demoText}>
-              Demo Credentials:
-            </ThemedText>
-            <ThemedText style={styles.demoCredentials}>
-              Email: demo@czeus.com
-            </ThemedText>
-            <ThemedText style={styles.demoCredentials}>
-              Password: demo123
-            </ThemedText>
-          </View>
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -262,23 +249,5 @@ const styles = StyleSheet.create({
     color: '#2362c7',
     fontSize: 16,
     fontWeight: '600',
-  },
-  demoContainer: {
-    marginTop: 24,
-    padding: 16,
-    backgroundColor: '#f0f9ff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#bfdbfe',
-  },
-  demoText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1d4ed8',
-    marginBottom: 4,
-  },
-  demoCredentials: {
-    fontSize: 12,
-    color: '#3730a3',
   },
 });

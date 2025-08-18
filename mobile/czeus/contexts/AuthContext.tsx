@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { AuthContextType, AuthState, User } from '@/types/auth';
-import { demoAuth } from '@/lib/supabaseClient';
+import { supabaseAuth } from '@/lib/supabaseClient';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -21,7 +21,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const initializeAuth = async () => {
     try {
-      const { user } = await demoAuth.getSession();
+      const { user } = await supabaseAuth.getSession();
       setAuthState({
         user,
         loading: false,
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signIn = async (email: string, password: string) => {
     setAuthState(prev => ({ ...prev, loading: true }));
     try {
-      const { user } = await demoAuth.signIn(email, password);
+      const { user } = await supabaseAuth.signIn(email, password);
       setAuthState({
         user,
         loading: false,
@@ -55,7 +55,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signUp = async (email: string, password: string, fullName?: string) => {
     setAuthState(prev => ({ ...prev, loading: true }));
     try {
-      const { user } = await demoAuth.signUp(email, password, fullName);
+      // Split fullName into first and last name
+      const names = fullName?.split(' ') || ['New', 'User'];
+      const firstName = names[0] || 'New';
+      const lastName = names.slice(1).join(' ') || 'User';
+      
+      const { user } = await supabaseAuth.signUp(email, password, firstName, lastName);
       setAuthState({
         user,
         loading: false,
@@ -70,7 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signOut = async () => {
     setAuthState(prev => ({ ...prev, loading: true }));
     try {
-      await demoAuth.signOut();
+      await supabaseAuth.signOut();
       setAuthState({
         user: null,
         loading: false,
@@ -83,7 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const resetPassword = async (email: string) => {
-    await demoAuth.resetPassword(email);
+    await supabaseAuth.resetPassword(email);
   };
 
   const value: AuthContextType = {

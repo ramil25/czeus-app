@@ -67,7 +67,6 @@ export default function SignUpScreen() {
           
           <View style={styles.logoContainer}>
             <CzeusLogo width={120} height={42} />
-            <ThemedText type="subtitle" style={styles.subtitle}>Create Your Account</ThemedText>
           </View>
         </ThemedView>
 
