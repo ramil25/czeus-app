@@ -1,7 +1,6 @@
 import { StyleSheet, ScrollView, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { StatCard } from '@/components/StatCard';
 import { TrendCard } from '@/components/TrendCard';
 import { useProducts } from '@/hooks/useProducts';
@@ -18,12 +17,12 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Dashboard</ThemedText>
-        <ThemedText>Welcome to CZEUS POS System</ThemedText>
-      </ThemedView>
+      <View style={styles.header}>
+        <ThemedText type="title" lightColor="#000000">Dashboard</ThemedText>
+        <ThemedText lightColor="#000000">Welcome to CZEUS POS System</ThemedText>
+      </View>
 
-      <ThemedView style={styles.statsContainer}>
+      <View style={styles.statsContainer}>
         <View style={styles.statsRow}>
           <StatCard
             title="Total Sales"
@@ -52,10 +51,10 @@ export default function DashboardScreen() {
             color="#8b5cf6"
           />
         </View>
-      </ThemedView>
+      </View>
 
-      <ThemedView style={styles.trendsContainer}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
+      <View style={styles.trendsContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle} lightColor="#000000">
           Inventory Overview
         </ThemedText>
         <TrendCard
@@ -75,7 +74,7 @@ export default function DashboardScreen() {
           value={`📂 ${[...new Set(products.map(p => p.category))].length} categories`}
           description="Coffee, Tea, Pastries, etc."
         />
-      </ThemedView>
+      </View>
     </ScrollView>
   );
 }
@@ -88,13 +87,12 @@ const styles = StyleSheet.create({
   header: {
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    backgroundColor: 'transparent', // Transparent to show light blue background
   },
   statsContainer: {
     padding: 16,
     gap: 16,
+    backgroundColor: 'transparent', // Transparent to show light blue background
   },
   statsRow: {
     flexDirection: 'row',
@@ -103,6 +101,7 @@ const styles = StyleSheet.create({
   trendsContainer: {
     padding: 16,
     gap: 12,
+    backgroundColor: 'transparent', // Transparent to show light blue background
   },
   sectionTitle: {
     marginBottom: 8,
