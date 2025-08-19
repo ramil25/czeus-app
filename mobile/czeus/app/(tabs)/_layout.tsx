@@ -13,86 +13,21 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user } = useAuth();
 
-  // Role-based tab configuration
-  const getTabsForRole = () => {
-    switch (user?.role) {
+  // Helper function to check if a tab should be visible for the current user role
+  const isTabVisible = (tabName: string) => {
+    if (!user?.role) return false;
+
+    switch (user.role) {
       case 'admin':
-        return [
-          {
-            name: 'index',
-            title: 'Dashboard',
-            icon: 'chart.bar.fill' as const,
-          },
-          {
-            name: 'users',
-            title: 'Users',
-            icon: 'person.3.fill' as const,
-          },
-          {
-            name: 'pos-setup',
-            title: 'POS Setup',
-            icon: 'gearshape.fill' as const,
-          },
-          {
-            name: 'explore',
-            title: 'More',
-            icon: 'ellipsis.circle.fill' as const,
-          },
-        ];
+        return ['index', 'users', 'pos-setup', 'explore'].includes(tabName);
       case 'staff':
-        return [
-          {
-            name: 'pos',
-            title: 'POS',
-            icon: 'creditcard.fill' as const,
-          },
-          {
-            name: 'profile',
-            title: 'Profile',
-            icon: 'person.fill' as const,
-          },
-        ];
+        return ['pos', 'profile'].includes(tabName);
       case 'customer':
-        return [
-          {
-            name: 'foods',
-            title: 'Foods',
-            icon: 'cup.and.saucer.fill' as const,
-          },
-          {
-            name: 'points',
-            title: 'Points',
-            icon: 'star.fill' as const,
-          },
-          {
-            name: 'profile',
-            title: 'Profile',
-            icon: 'person.fill' as const,
-          },
-        ];
+        return ['foods', 'points', 'profile'].includes(tabName);
       default:
-        // Fallback to customer tabs
-        return [
-          {
-            name: 'foods',
-            title: 'Foods',
-            icon: 'cup.and.saucer.fill' as const,
-          },
-          {
-            name: 'points',
-            title: 'Points',
-            icon: 'star.fill' as const,
-          },
-          {
-            name: 'profile',
-            title: 'Profile',
-            icon: 'person.fill' as const,
-          },
-        ];
+        return false;
     }
   };
-
-  const tabs = getTabsForRole();
 
   return (
     <Tabs
@@ -109,16 +44,107 @@ export default function TabLayout() {
           default: {},
         }),
       }}>
-      {tabs.map((tab) => (
-        <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            title: tab.title,
-            tabBarIcon: ({ color }) => <IconSymbol size={28} name={tab.icon} color={color} />,
-          }}
-        />
-      ))}
+      {/* Dashboard - Admin only */}
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar.fill" color={color} />,
+          href: isTabVisible('index') ? '/' : null,
+        }}
+      />
+      
+      {/* Users - Admin only */}
+      <Tabs.Screen
+        name="users"
+        options={{
+          title: 'Users',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.3.fill" color={color} />,
+          href: isTabVisible('users') ? '/users' : null,
+        }}
+      />
+      
+      {/* POS Setup - Admin only */}
+      <Tabs.Screen
+        name="pos-setup"
+        options={{
+          title: 'POS Setup',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="gearshape.fill" color={color} />,
+          href: isTabVisible('pos-setup') ? '/pos-setup' : null,
+        }}
+      />
+      
+      {/* More - Admin only */}
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'More',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="ellipsis.circle.fill" color={color} />,
+          href: isTabVisible('explore') ? '/explore' : null,
+        }}
+      />
+      
+      {/* POS - Staff only */}
+      <Tabs.Screen
+        name="pos"
+        options={{
+          title: 'POS',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="creditcard.fill" color={color} />,
+          href: isTabVisible('pos') ? '/pos' : null,
+        }}
+      />
+      
+      {/* Foods - Customer only */}
+      <Tabs.Screen
+        name="foods"
+        options={{
+          title: 'Foods',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="cup.and.saucer.fill" color={color} />,
+          href: isTabVisible('foods') ? '/foods' : null,
+        }}
+      />
+      
+      {/* Points - Customer only */}
+      <Tabs.Screen
+        name="points"
+        options={{
+          title: 'Points',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="star.fill" color={color} />,
+          href: isTabVisible('points') ? '/points' : null,
+        }}
+      />
+      
+      {/* Profile - Staff & Customer */}
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+          href: isTabVisible('profile') ? '/profile' : null,
+        }}
+      />
+      
+      {/* Hide other tabs that aren't part of the role-based navigation */}
+      <Tabs.Screen
+        name="products"
+        options={{
+          href: null, // Hide this tab
+        }}
+      />
+      
+      <Tabs.Screen
+        name="sales"
+        options={{
+          href: null, // Hide this tab
+        }}
+      />
+      
+      <Tabs.Screen
+        name="inventory"
+        options={{
+          href: null, // Hide this tab
+        }}
+      />
     </Tabs>
   );
 }
