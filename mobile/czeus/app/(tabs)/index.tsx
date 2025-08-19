@@ -1,12 +1,38 @@
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Alert, TouchableOpacity } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { StatCard } from '@/components/StatCard';
 import { TrendCard } from '@/components/TrendCard';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useProducts } from '@/hooks/useProducts';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardScreen() {
   const { data: products = [], isLoading } = useProducts();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+            } catch (signOutError) {
+              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              console.error('Sign out error:', signOutError);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   // Calculate stats from products
   const totalProducts = products.length;
@@ -17,10 +43,28 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title" lightColor="#000000">Dashboard</ThemedText>
-        <ThemedText lightColor="#000000">Welcome to CZEUS POS System</ThemedText>
-      </View>
+      <ThemedView style={styles.header}>
+        <View style={styles.headerTop}>
+          <View style={styles.userInfo}>
+            <View style={styles.avatarContainer}>
+              <IconSymbol size={32} name="person.fill" color="#fff" />
+            </View>
+            <View style={styles.userDetails}>
+              <ThemedText type="defaultSemiBold" style={styles.userName}>
+                {user ? `${user.first_name} ${user.last_name}`.trim() || 'Admin' : 'Admin'}
+              </ThemedText>
+              <ThemedText style={styles.userEmail}>
+                {user?.email}
+              </ThemedText>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
+            <IconSymbol size={24} name="arrow.right.square" color="#ef4444" />
+          </TouchableOpacity>
+        </View>
+        <ThemedText type="title" style={styles.title}>Dashboard</ThemedText>
+        <ThemedText style={styles.subtitle}>Welcome to CZEUS POS System</ThemedText>
+      </ThemedView>
 
       <View style={styles.statsContainer}>
         <View style={styles.statsRow}>
@@ -54,7 +98,7 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.trendsContainer}>
-        <ThemedText type="subtitle" style={styles.sectionTitle} lightColor="#000000">
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
           Inventory Overview
         </ThemedText>
         <TrendCard
@@ -82,17 +126,62 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e8f2ff', // Light blue background
+    backgroundColor: '#f9fafb',
   },
   header: {
     padding: 20,
     paddingTop: 60,
-    backgroundColor: 'transparent', // Transparent to show light blue background
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#2362c7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  userDetails: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 16,
+    marginBottom: 2,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  logoutButton: {
+    padding: 8,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6b7280',
   },
   statsContainer: {
     padding: 16,
     gap: 16,
-    backgroundColor: 'transparent', // Transparent to show light blue background
+    backgroundColor: 'transparent',
   },
   statsRow: {
     flexDirection: 'row',
@@ -101,7 +190,7 @@ const styles = StyleSheet.create({
   trendsContainer: {
     padding: 16,
     gap: 12,
-    backgroundColor: 'transparent', // Transparent to show light blue background
+    backgroundColor: 'transparent',
   },
   sectionTitle: {
     marginBottom: 8,

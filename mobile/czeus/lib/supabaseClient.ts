@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UserRole } from '@/types/auth';
 
 // Get environment variables from Expo's public environment variables
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -54,7 +55,7 @@ export const supabaseAuth = {
             email: data.user.email || '',
             first_name: '',
             last_name: '',
-            role: 'user',
+            role: 'customer' as UserRole,
             created_at: data.user.created_at || new Date().toISOString(),
           },
           error: null
@@ -70,7 +71,7 @@ export const supabaseAuth = {
           last_name: profile.last_name,
           birth_day: profile.birth_day,
           profile_picture: profile.profile_picture,
-          role: profile.role,
+          role: profile.role as UserRole,
           phone: profile.phone,
           position: profile.position,
           address: profile.address,
@@ -104,7 +105,7 @@ export const supabaseAuth = {
             email: data.user.email,
             first_name: firstName || 'New',
             last_name: lastName || 'User',
-            role: 'user',
+            role: 'customer',
           }
         ]);
       
@@ -118,7 +119,7 @@ export const supabaseAuth = {
           email: data.user.email || '',
           first_name: firstName || 'New',
           last_name: lastName || 'User',
-          role: 'user',
+          role: 'customer' as UserRole,
           created_at: data.user.created_at || new Date().toISOString(),
         },
         error: null
@@ -170,7 +171,7 @@ export const supabaseAuth = {
               email: session.user.email || '',
               first_name: '',
               last_name: '',
-              role: 'user',
+              role: 'customer' as UserRole,
               created_at: session.user.created_at || new Date().toISOString(),
             },
             error: null
@@ -186,7 +187,7 @@ export const supabaseAuth = {
             last_name: profile.last_name,
             birth_day: profile.birth_day,
             profile_picture: profile.profile_picture,
-            role: profile.role,
+            role: profile.role as UserRole,
             phone: profile.phone,
             position: profile.position,
             address: profile.address,
