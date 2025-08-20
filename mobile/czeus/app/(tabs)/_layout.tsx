@@ -8,6 +8,7 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
+import { getTabsForRole } from '@/utils/navigation';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -16,17 +17,9 @@ export default function TabLayout() {
   // Helper function to check if a tab should be visible for the current user role
   const isTabVisible = (tabName: string) => {
     if (!user?.role) return false;
-
-    switch (user.role) {
-      case 'admin':
-        return ['index', 'users', 'pos-setup', 'explore'].includes(tabName);
-      case 'staff':
-        return ['pos', 'profile'].includes(tabName);
-      case 'customer':
-        return ['foods', 'points', 'profile'].includes(tabName);
-      default:
-        return false;
-    }
+    
+    const allowedTabs = getTabsForRole(user.role);
+    return allowedTabs.includes(tabName);
   };
 
   return (

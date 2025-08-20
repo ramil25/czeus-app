@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { getInitialRouteForRole } from '@/utils/navigation';
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -26,8 +27,9 @@ function AppNavigator() {
   useEffect(() => {
     if (initialized) {
       if (user) {
-        // User is authenticated, redirect to main app
-        router.replace('/(tabs)');
+        // User is authenticated, redirect based on role
+        const initialRoute = getInitialRouteForRole(user.role);
+        router.replace(initialRoute);
       } else {
         // User is not authenticated, redirect to login
         router.replace('/(auth)/login');
