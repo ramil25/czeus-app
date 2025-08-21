@@ -68,7 +68,8 @@ export default function UserDetailsScreen() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Not provided';
     try {
-      return new Date(dateString).toLocaleDateString();
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? 'Invalid date' : date.toLocaleDateString();
     } catch {
       return 'Invalid date';
     }
