@@ -71,6 +71,9 @@ const MAPPING = {
   'arrow.clockwise': 'refresh',
   'exclamationmark.triangle.fill': 'warning',
   'archivebox': 'archive',
+  'magnifyingglass': 'search',
+  'trash': 'delete',
+  'trash.fill': 'delete-forever',
 } as const;
 
 /**

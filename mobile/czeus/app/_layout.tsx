@@ -29,7 +29,7 @@ function AppNavigator() {
       if (user) {
         // User is authenticated, redirect based on role
         const initialRoute = getInitialRouteForRole(user.role);
-        router.replace(initialRoute);
+        router.replace(initialRoute as any);
       } else {
         // User is not authenticated, redirect to login
         router.replace('/(auth)/login');
