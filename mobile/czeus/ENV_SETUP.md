@@ -73,17 +73,56 @@ The mobile app now supports:
 ### App Falls Back to Demo Mode
 If the user management system shows demo data instead of connecting to Supabase:
 
-1. Verify the `.env` file exists in `mobile/czeus/`
-2. Check that environment variables are correctly set
-3. Ensure Supabase URL and keys are valid
-4. Test database connectivity
+1. **Environment Setup**: Verify the `.env` file exists in `mobile/czeus/`
+   ```bash
+   cd mobile/czeus
+   ls -la .env  # Should show the .env file
+   ```
+
+2. **Copy Environment File**: If missing, copy from the example:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Restart the App**: After creating `.env`, restart the Expo development server:
+   ```bash
+   # Stop the current server (Ctrl+C)
+   npx expo start
+   ```
+
+### Invalid Email Address Errors
+If you see "Email address invalid" errors when creating users:
+
+1. **Check Email Format**: Ensure the email follows standard format (user@domain.com)
+2. **Supabase Auth Settings**: Verify your Supabase project auth settings:
+   - Go to Authentication > Settings in Supabase dashboard
+   - Check if there are domain restrictions or email validation rules
+   - Ensure the anon key has proper permissions
+
+3. **Test with Different Email**: Try with a different email domain (gmail.com, etc.)
+
+### Connection Issues
+If you see connection-related errors:
+
+1. **Check Supabase Status**: Verify your Supabase project is active
+2. **Test API Keys**: Ensure the anon key in `.env` matches your Supabase project
+3. **Network Issues**: Check your internet connection and firewall settings
 
 ### Environment File Missing
 ```bash
 # If you see "Missing Supabase environment variables" error:
 cd mobile/czeus
 cp .env.example .env
+# Then restart the app
+npx expo start
 ```
+
+### User Creation Fails
+If user creation fails but the app doesn't fall back to demo mode:
+
+1. **Email Validation**: The app now includes client-side email validation
+2. **Duplicate Email**: Check if the email is already registered
+3. **Auth Permissions**: Verify Supabase auth settings allow user registration
 
 ## Security Notes
 

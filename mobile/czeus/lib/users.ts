@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { UserRole } from '@/types/auth';
+import { validateUserData, isValidEmail } from '@/utils/validation';
 
 // Default password for new users
 const DEFAULT_PASSWORD = 'ILoveCoffee@01';
@@ -128,6 +129,20 @@ export async function getUsers(): Promise<UserProfile[]> {
 
 // Create a new user (both in auth and profiles table)
 export async function createUser(userData: UserFormData): Promise<UserProfile> {
+  // Client-side validation first
+  const validation = validateUserData({
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    email: userData.email,
+    phone: userData.phone,
+    middle_name: userData.middle_name,
+  });
+  
+  if (!validation.isValid) {
+    const firstError = Object.values(validation.errors)[0];
+    throw new Error(`Validation error: ${firstError}`);
+  }
+  
   try {
     const demoMode = await isDemoMode();
 
@@ -159,6 +174,14 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
     });
 
     if (authError) {
+      // Check if this is an auth-specific error that shouldn't fallback to demo mode
+      if (authError.message.includes('Email address') && authError.message.includes('invalid')) {
+        // This is a validation error, throw it directly instead of falling back to demo
+        throw new Error(`Invalid email address: ${userData.email}. Please check the email format and try again.`);
+      }
+      if (authError.message.includes('already registered')) {
+        throw new Error(`User with email ${userData.email} already exists.`);
+      }
       throw new Error(`Failed to create user auth: ${authError.message}`);
     }
 
@@ -187,8 +210,19 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
 
     return profileToUser(profileData);
   } catch (error) {
-    // Fallback to demo mode if there's any error
-    console.log('Falling back to demo mode due to error:', error);
+    // Only fallback to demo mode for connection/infrastructure errors
+    // Don't fallback for validation or user errors
+    if (error instanceof Error && 
+        (error.message.includes('Invalid email address') || 
+         error.message.includes('already exists') ||
+         error.message.includes('Validation error') ||
+         error.message.includes('Failed to create user'))) {
+      // Re-throw user/validation errors directly
+      throw error;
+    }
+    
+    // Fallback to demo mode for connection/infrastructure errors
+    console.log('Falling back to demo mode due to connection error:', error);
     const newUser: UserProfile = {
       id: nextId++,
       first_name: userData.first_name,
@@ -214,6 +248,20 @@ export async function updateUser(
   id: number,
   userData: UserFormData
 ): Promise<UserProfile> {
+  // Client-side validation first
+  const validation = validateUserData({
+    first_name: userData.first_name,
+    last_name: userData.last_name,
+    email: userData.email,
+    phone: userData.phone,
+    middle_name: userData.middle_name,
+  });
+  
+  if (!validation.isValid) {
+    const firstError = Object.values(validation.errors)[0];
+    throw new Error(`Validation error: ${firstError}`);
+  }
+  
   try {
     const demoMode = await isDemoMode();
 
@@ -265,6 +313,11 @@ export async function updateUser(
 
     return profileToUser(data);
   } catch (error) {
+    // Don't fallback for validation errors
+    if (error instanceof Error && error.message.includes('Validation error')) {
+      throw error;
+    }
+    
     // Fallback to demo mode if there's any error
     console.log('Falling back to demo mode due to error:', error);
     const index = localUsersStore.findIndex((u) => u.id === id);
