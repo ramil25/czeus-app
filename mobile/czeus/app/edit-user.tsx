@@ -4,6 +4,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { DatePicker } from '@/components/DatePicker';
 import { useUser, useUpdateUser } from '@/hooks/useUsers';
 import { UserFormData } from '@/lib/users';
 import { UserRole } from '@/types/auth';
@@ -274,12 +275,10 @@ export default function EditUserScreen() {
 
             <View style={styles.field}>
               <ThemedText style={styles.label}>Birth Date</ThemedText>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DD (optional)"
-                placeholderTextColor="#9ca3af"
+              <DatePicker
                 value={form.birth_day}
-                onChangeText={(value) => updateForm('birth_day', value)}
+                onChange={(date) => updateForm('birth_day', date)}
+                placeholder="Select birth date (optional)"
               />
             </View>
           </View>

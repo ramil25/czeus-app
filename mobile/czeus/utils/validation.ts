@@ -92,6 +92,55 @@ export function isValidPhone(phone?: string): boolean {
 }
 
 /**
+ * Validates date format (YYYY-MM-DD) and ensures it's a valid date (optional field)
+ * @param dateString - Date string to validate
+ * @returns boolean indicating if date is valid or empty
+ */
+export function isValidDate(dateString?: string): boolean {
+  if (!dateString || dateString.trim() === '') {
+    return true; // Optional field
+  }
+  
+  // Check YYYY-MM-DD format
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(dateString.trim())) {
+    return false;
+  }
+  
+  // Parse and validate the date
+  const date = new Date(dateString.trim());
+  if (isNaN(date.getTime())) {
+    return false;
+  }
+  
+  // Check if the date components match the input (catches invalid dates like 2023-02-30)
+  const [year, month, day] = dateString.trim().split('-').map(Number);
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 && // Month is 0-indexed
+    date.getDate() === day
+  );
+}
+
+/**
+ * Formats a date string to YYYY-MM-DD format, returns null for empty values
+ * @param dateString - Date string to format
+ * @returns formatted date string or null
+ */
+export function formatDateForDatabase(dateString?: string): string | null {
+  if (!dateString || dateString.trim() === '') {
+    return null;
+  }
+  
+  const trimmed = dateString.trim();
+  if (!isValidDate(trimmed)) {
+    return null;
+  }
+  
+  return trimmed;
+}
+
+/**
  * Validates user form data comprehensively
  * @param userData - User data to validate
  * @returns object with validation results
@@ -102,6 +151,7 @@ export function validateUserData(userData: {
   email: string;
   phone?: string;
   middle_name?: string;
+  birth_day?: string;
 }) {
   const errors: Record<string, string> = {};
   
@@ -125,6 +175,10 @@ export function validateUserData(userData: {
   
   if (!isValidPhone(userData.phone)) {
     errors.phone = 'Phone number must be 10-15 digits';
+  }
+  
+  if (!isValidDate(userData.birth_day)) {
+    errors.birth_day = 'Birth date must be in YYYY-MM-DD format (e.g., 1990-12-25)';
   }
   
   return {

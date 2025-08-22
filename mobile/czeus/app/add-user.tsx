@@ -4,8 +4,9 @@ import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { DatePicker } from '@/components/DatePicker';
 import { useCreateUser } from '@/hooks/useUsers';
-import { UserFormData, UserProfile } from '@/lib/users';
+import { UserFormData } from '@/lib/users';
 import { UserRole } from '@/types/auth';
 
 export default function AddUserScreen() {
@@ -220,12 +221,10 @@ export default function AddUserScreen() {
 
             <View style={styles.field}>
               <ThemedText style={styles.label}>Birth Date</ThemedText>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DD (optional)"
-                placeholderTextColor="#9ca3af"
+              <DatePicker
                 value={form.birth_day}
-                onChangeText={(value) => updateForm('birth_day', value)}
+                onChange={(date) => updateForm('birth_day', date)}
+                placeholder="Select birth date (optional)"
               />
             </View>
           </View>
@@ -234,7 +233,7 @@ export default function AddUserScreen() {
           <View style={styles.infoBox}>
             <IconSymbol size={20} name="info.circle.fill" color="#2362c7" />
             <ThemedText style={styles.infoText}>
-              New users will be created with the default password: "ILoveCoffee@01"
+              New users will be created with the default password: &ldquo;ILoveCoffee@01&rdquo;
             </ThemedText>
           </View>
 

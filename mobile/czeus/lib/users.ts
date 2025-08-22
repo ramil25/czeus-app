@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { UserRole } from '@/types/auth';
-import { validateUserData, isValidEmail } from '@/utils/validation';
+import { validateUserData, isValidEmail, formatDateForDatabase } from '@/utils/validation';
 
 // Default password for new users (used when auth is created separately)
 const DEFAULT_PASSWORD = 'ILoveCoffee@01';
@@ -136,12 +136,16 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
     email: userData.email,
     phone: userData.phone,
     middle_name: userData.middle_name,
+    birth_day: userData.birth_day,
   });
   
   if (!validation.isValid) {
     const firstError = Object.values(validation.errors)[0];
     throw new Error(`Validation error: ${firstError}`);
   }
+  
+  // Format birth_day for database (convert empty string to null)
+  const formattedBirthDay = formatDateForDatabase(userData.birth_day);
   
   try {
     // Check if we can connect to Supabase by testing a simple query
@@ -164,7 +168,7 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
         phone: userData.phone,
         position: userData.position,
         address: userData.address,
-        birth_day: userData.birth_day,
+        birth_day: formattedBirthDay,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -201,7 +205,7 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
         phone: userData.phone,
         position: userData.position,
         address: userData.address,
-        birth_day: userData.birth_day,
+        birth_day: formattedBirthDay,
       })
       .select()
       .single();
@@ -240,7 +244,7 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
       phone: userData.phone,
       position: userData.position,
       address: userData.address,
-      birth_day: userData.birth_day,
+      birth_day: formattedBirthDay,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -261,12 +265,16 @@ export async function updateUser(
     email: userData.email,
     phone: userData.phone,
     middle_name: userData.middle_name,
+    birth_day: userData.birth_day,
   });
   
   if (!validation.isValid) {
     const firstError = Object.values(validation.errors)[0];
     throw new Error(`Validation error: ${firstError}`);
   }
+  
+  // Format birth_day for database (convert empty string to null)
+  const formattedBirthDay = formatDateForDatabase(userData.birth_day);
   
   try {
     const demoMode = await isDemoMode();
@@ -288,7 +296,7 @@ export async function updateUser(
         phone: userData.phone,
         position: userData.position,
         address: userData.address,
-        birth_day: userData.birth_day,
+        birth_day: formattedBirthDay,
         updated_at: new Date().toISOString(),
       };
 
@@ -306,7 +314,7 @@ export async function updateUser(
         phone: userData.phone,
         position: userData.position,
         address: userData.address,
-        birth_day: userData.birth_day,
+        birth_day: formattedBirthDay,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -341,7 +349,7 @@ export async function updateUser(
       phone: userData.phone,
       position: userData.position,
       address: userData.address,
-      birth_day: userData.birth_day,
+      birth_day: formattedBirthDay,
       updated_at: new Date().toISOString(),
     };
 
