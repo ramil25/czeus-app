@@ -2,6 +2,58 @@
 
 This is an Expo React Native project created with create-expo-app.
 
+## 🚀 Quick Start
+
+### 1. Setup Environment Variables (Required)
+
+⚠️ **Important**: Copy the environment file before running the app to avoid demo mode fallback.
+
+```bash
+# Copy the environment configuration
+cp .env.example .env
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the App
+
+```bash
+npx expo start
+```
+
+In the output, you'll find options to open the app in a
+
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+
+## 📱 Features
+
+This app includes a complete user management system with:
+
+- **Users List**: Browse all users with search and filtering
+- **Add User**: Create new users with role assignment  
+- **User Details**: View detailed user information
+- **Edit User**: Update user profiles
+- **Supabase Integration**: Real-time database connectivity
+
+## 🔧 Configuration
+
+See [ENV_SETUP.md](./ENV_SETUP.md) for detailed environment configuration instructions.
+
+## 🧪 Testing
+
+Run the test suite to verify functionality:
+
+```bash
+node test/test-user-management.js
+```
+
 ---
 
 ## Get started

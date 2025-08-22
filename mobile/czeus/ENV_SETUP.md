@@ -1,8 +1,23 @@
 # Mobile App Environment Setup
 
+## Quick Setup (Required)
+
+⚠️ **Important**: The mobile app will fall back to demo mode if environment variables are not configured!
+
+### Step 1: Copy Environment File
+```bash
+# Navigate to the mobile app directory
+cd mobile/czeus
+
+# Copy the example environment file
+cp .env.example .env
+```
+
+The `.env.example` file contains the correct Supabase credentials for this project.
+
 ## Required Environment Variables
 
-Create a `.env` file in the `mobile/czeus` directory with the following variables:
+The `.env` file should contain the following variables:
 
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://zrzljtoctzpvrkbckthr.supabase.co
@@ -48,10 +63,27 @@ The mobile app now supports:
 
 ## Setup Instructions
 
-1. Create the `.env` file with the variables above
+1. **Copy the environment file**: `cp .env.example .env`
 2. Ensure your Supabase database has the `profiles` table created
 3. Configure Row Level Security (RLS) policies as needed
 4. Test authentication by registering a new user or signing in
+
+## Troubleshooting
+
+### App Falls Back to Demo Mode
+If the user management system shows demo data instead of connecting to Supabase:
+
+1. Verify the `.env` file exists in `mobile/czeus/`
+2. Check that environment variables are correctly set
+3. Ensure Supabase URL and keys are valid
+4. Test database connectivity
+
+### Environment File Missing
+```bash
+# If you see "Missing Supabase environment variables" error:
+cd mobile/czeus
+cp .env.example .env
+```
 
 ## Security Notes
 
