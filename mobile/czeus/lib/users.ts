@@ -2,7 +2,7 @@ import { supabase } from './supabaseClient';
 import { UserRole } from '@/types/auth';
 import { validateUserData, isValidEmail } from '@/utils/validation';
 
-// Default password for new users
+// Default password for new users (used when auth is created separately)
 const DEFAULT_PASSWORD = 'ILoveCoffee@01';
 
 // Database schema type to match Supabase profiles table
@@ -127,7 +127,7 @@ export async function getUsers(): Promise<UserProfile[]> {
   }
 }
 
-// Create a new user (both in auth and profiles table)
+// Create a new user (in profiles table - auth will be handled separately)
 export async function createUser(userData: UserFormData): Promise<UserProfile> {
   // Client-side validation first
   const validation = validateUserData({
@@ -144,9 +144,14 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
   }
   
   try {
-    const demoMode = await isDemoMode();
-
-    if (demoMode) {
+    // Check if we can connect to Supabase by testing a simple query
+    const { error: connectionError } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+    
+    if (connectionError) {
+      console.log('Connection error detected, using demo mode:', connectionError);
       // Use local data when database is not accessible
       const newUser: UserProfile = {
         id: nextId++,
@@ -167,25 +172,24 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
       return newUser;
     }
 
-    // First create user in auth
-    const { error: authError } = await supabase.auth.signUp({
-      email: userData.email,
-      password: DEFAULT_PASSWORD,
-    });
+    // Check if email already exists in profiles
+    const { data: existingUser, error: checkError } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', userData.email)
+      .is('deleted_at', null)
+      .single();
 
-    if (authError) {
-      // Check if this is an auth-specific error that shouldn't fallback to demo mode
-      if (authError.message.includes('Email address') && authError.message.includes('invalid')) {
-        // This is a validation error, throw it directly instead of falling back to demo
-        throw new Error(`Invalid email address: ${userData.email}. Please check the email format and try again.`);
-      }
-      if (authError.message.includes('already registered')) {
-        throw new Error(`User with email ${userData.email} already exists.`);
-      }
-      throw new Error(`Failed to create user auth: ${authError.message}`);
+    if (checkError && checkError.code !== 'PGRST116') {
+      // PGRST116 means no rows returned (user doesn't exist), which is what we want
+      throw new Error(`Error checking existing user: ${checkError.message}`);
     }
 
-    // Then create profile
+    if (existingUser) {
+      throw new Error(`User with email ${userData.email} already exists.`);
+    }
+
+    // Create profile directly (skip auth creation for now)
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .insert({
@@ -203,26 +207,28 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
       .single();
 
     if (profileError) {
-      // If profile creation fails, we should ideally clean up the auth user
-      // but for now we'll just throw the error
-      throw new Error(`Failed to create user profile: ${profileError.message}`);
+      // Check for specific database errors
+      if (profileError.code === '23505') {
+        // Unique constraint violation (duplicate email)
+        throw new Error(`User with email ${userData.email} already exists.`);
+      }
+      throw new Error(`Failed to create user: ${profileError.message}`);
     }
 
+    console.log('User created successfully in database:', profileData);
     return profileToUser(profileData);
   } catch (error) {
-    // Only fallback to demo mode for connection/infrastructure errors
-    // Don't fallback for validation or user errors
+    // Don't fallback for specific user/validation errors
     if (error instanceof Error && 
-        (error.message.includes('Invalid email address') || 
+        (error.message.includes('Validation error') || 
          error.message.includes('already exists') ||
-         error.message.includes('Validation error') ||
          error.message.includes('Failed to create user'))) {
-      // Re-throw user/validation errors directly
+      console.log('Re-throwing user error:', error.message);
       throw error;
     }
     
-    // Fallback to demo mode for connection/infrastructure errors
-    console.log('Falling back to demo mode due to connection error:', error);
+    // For any other errors, fallback to demo mode
+    console.log('Unexpected error, falling back to demo mode:', error);
     const newUser: UserProfile = {
       id: nextId++,
       first_name: userData.first_name,

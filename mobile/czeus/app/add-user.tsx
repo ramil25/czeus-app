@@ -60,7 +60,7 @@ export default function AddUserScreen() {
       await createUserMutation.mutateAsync(form);
       Alert.alert(
         'Success',
-        'User created successfully with default password "ILoveCoffee@01"',
+        'User profile created successfully. Authentication setup will be handled separately.',
         [
           {
             text: 'OK',
