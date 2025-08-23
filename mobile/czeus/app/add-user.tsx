@@ -1,4 +1,13 @@
-import { StyleSheet, ScrollView, View, Alert, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Alert,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -29,7 +38,7 @@ export default function AddUserScreen() {
   };
 
   const updateForm = (field: keyof UserFormData, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateForm = (): boolean => {
@@ -59,18 +68,17 @@ export default function AddUserScreen() {
 
     try {
       await createUserMutation.mutateAsync(form);
-      Alert.alert(
-        'Success',
-        'User profile created successfully. Authentication setup will be handled separately.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.back(),
-          },
-        ]
-      );
+      Alert.alert('Success', 'User profile created successfully.', [
+        {
+          text: 'OK',
+          onPress: () => router.back(),
+        },
+      ]);
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to create user');
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Failed to create user'
+      );
     }
   };
 
@@ -81,7 +89,7 @@ export default function AddUserScreen() {
   ];
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
@@ -90,7 +98,9 @@ export default function AddUserScreen() {
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <IconSymbol size={24} name="chevron.left" color="#2362c7" />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Add User</ThemedText>
+          <ThemedText type="title" style={styles.title}>
+            Add User
+          </ThemedText>
           <View style={styles.placeholder} />
         </View>
       </ThemedView>
@@ -99,8 +109,10 @@ export default function AddUserScreen() {
         <ThemedView style={styles.form}>
           {/* Required Fields */}
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>Required Information</ThemedText>
-            
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Required Information
+            </ThemedText>
+
             <View style={styles.field}>
               <ThemedText style={styles.label}>First Name *</ThemedText>
               <TextInput
@@ -154,7 +166,8 @@ export default function AddUserScreen() {
                     <ThemedText
                       style={[
                         styles.roleOptionText,
-                        form.role === option.value && styles.roleOptionTextSelected,
+                        form.role === option.value &&
+                          styles.roleOptionTextSelected,
                       ]}
                     >
                       {option.label}
@@ -167,8 +180,10 @@ export default function AddUserScreen() {
 
           {/* Optional Fields */}
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>Additional Information</ThemedText>
-            
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Additional Information
+            </ThemedText>
+
             <View style={styles.field}>
               <ThemedText style={styles.label}>Middle Name</ThemedText>
               <TextInput
@@ -233,18 +248,24 @@ export default function AddUserScreen() {
           <View style={styles.infoBox}>
             <IconSymbol size={20} name="info.circle.fill" color="#2362c7" />
             <ThemedText style={styles.infoText}>
-              New users will be created with the default password: &ldquo;ILoveCoffee@01&rdquo;
+              New users will be created with the default password:
+              &ldquo;ILoveCoffee@01&rdquo;
             </ThemedText>
           </View>
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={[styles.submitButton, createUserMutation.isPending && styles.submitButtonDisabled]}
+            style={[
+              styles.submitButton,
+              createUserMutation.isPending && styles.submitButtonDisabled,
+            ]}
             onPress={handleSubmit}
             disabled={createUserMutation.isPending}
           >
             <ThemedText style={styles.submitButtonText}>
-              {createUserMutation.isPending ? 'Creating User...' : 'Create User'}
+              {createUserMutation.isPending
+                ? 'Creating User...'
+                : 'Create User'}
             </ThemedText>
           </TouchableOpacity>
         </ThemedView>

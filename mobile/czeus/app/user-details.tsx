@@ -1,4 +1,11 @@
-import { StyleSheet, ScrollView, View, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -18,7 +25,7 @@ export default function UserDetailsScreen() {
     if (user) {
       router.push({
         pathname: '/edit-user',
-        params: { userId: user.id.toString() }
+        params: { userId: user.id.toString() },
       });
     }
   };
@@ -37,18 +44,17 @@ export default function UserDetailsScreen() {
           onPress: async () => {
             try {
               await deleteUserMutation.mutateAsync(user.id);
-              Alert.alert(
-                'Success',
-                'User deleted successfully',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => router.back(),
-                  },
-                ]
-              );
+              Alert.alert('Success', 'User deleted successfully', [
+                {
+                  text: 'OK',
+                  onPress: () => router.back(),
+                },
+              ]);
             } catch (error) {
-              Alert.alert('Error', error instanceof Error ? error.message : 'Failed to delete user');
+              Alert.alert(
+                'Error',
+                error instanceof Error ? error.message : 'Failed to delete user'
+              );
             }
           },
         },
@@ -58,10 +64,14 @@ export default function UserDetailsScreen() {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return '#ef4444';
-      case 'staff': return '#2362c7';
-      case 'customer': return '#10b981';
-      default: return '#6b7280';
+      case 'admin':
+        return '#ef4444';
+      case 'staff':
+        return '#2362c7';
+      case 'customer':
+        return '#10b981';
+      default:
+        return '#6b7280';
     }
   };
 
@@ -78,18 +88,13 @@ export default function UserDetailsScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.container}>
-        <ThemedView style={styles.header}>
-          <View style={styles.headerTop}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <IconSymbol size={24} name="chevron.left" color="#2362c7" />
-            </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>User Details</ThemedText>
-            <View style={styles.placeholder} />
-          </View>
-        </ThemedView>
+        {/* <ThemedView style={styles.header}>
+        </ThemedView> */}
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2362c7" />
-          <ThemedText style={styles.loadingText}>Loading user details...</ThemedText>
+          <ThemedText style={styles.loadingText}>
+            Loading user details...
+          </ThemedText>
         </View>
       </ThemedView>
     );
@@ -103,12 +108,18 @@ export default function UserDetailsScreen() {
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <IconSymbol size={24} name="chevron.left" color="#2362c7" />
             </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>User Details</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              User Details
+            </ThemedText>
             <View style={styles.placeholder} />
           </View>
         </ThemedView>
         <View style={styles.errorContainer}>
-          <IconSymbol size={48} name="exclamationmark.triangle" color="#ef4444" />
+          <IconSymbol
+            size={48}
+            name="exclamationmark.triangle"
+            color="#ef4444"
+          />
           <ThemedText style={styles.errorText}>User not found</ThemedText>
           <TouchableOpacity style={styles.errorButton} onPress={handleBack}>
             <ThemedText style={styles.errorButtonText}>Go Back</ThemedText>
@@ -120,16 +131,6 @@ export default function UserDetailsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <IconSymbol size={24} name="chevron.left" color="#2362c7" />
-          </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>User Details</ThemedText>
-          <View style={styles.placeholder} />
-        </View>
-      </ThemedView>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* User Profile Section */}
         <ThemedView style={styles.profileSection}>
@@ -142,7 +143,12 @@ export default function UserDetailsScreen() {
                 {user.name}
               </ThemedText>
               <View style={styles.roleContainer}>
-                <View style={[styles.roleBadge, { backgroundColor: getRoleColor(user.role) }]}>
+                <View
+                  style={[
+                    styles.roleBadge,
+                    { backgroundColor: getRoleColor(user.role) },
+                  ]}
+                >
                   <ThemedText style={styles.roleText}>
                     {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                   </ThemedText>
@@ -154,8 +160,10 @@ export default function UserDetailsScreen() {
 
         {/* Details Section */}
         <ThemedView style={styles.detailsSection}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Contact Information</ThemedText>
-          
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Contact Information
+          </ThemedText>
+
           <View style={styles.detailItem}>
             <View style={styles.detailIconContainer}>
               <IconSymbol size={20} name="envelope.fill" color="#6b7280" />
@@ -172,7 +180,9 @@ export default function UserDetailsScreen() {
             </View>
             <View style={styles.detailContent}>
               <ThemedText style={styles.detailLabel}>Phone</ThemedText>
-              <ThemedText style={styles.detailValue}>{user.phone || 'Not provided'}</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {user.phone || 'Not provided'}
+              </ThemedText>
             </View>
           </View>
 
@@ -182,22 +192,28 @@ export default function UserDetailsScreen() {
             </View>
             <View style={styles.detailContent}>
               <ThemedText style={styles.detailLabel}>Address</ThemedText>
-              <ThemedText style={styles.detailValue}>{user.address || 'Not provided'}</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {user.address || 'Not provided'}
+              </ThemedText>
             </View>
           </View>
         </ThemedView>
 
         {/* Additional Information */}
         <ThemedView style={styles.detailsSection}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>Additional Information</ThemedText>
-          
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Additional Information
+          </ThemedText>
+
           <View style={styles.detailItem}>
             <View style={styles.detailIconContainer}>
               <IconSymbol size={20} name="briefcase.fill" color="#6b7280" />
             </View>
             <View style={styles.detailContent}>
               <ThemedText style={styles.detailLabel}>Position</ThemedText>
-              <ThemedText style={styles.detailValue}>{user.position || 'Not provided'}</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {user.position || 'Not provided'}
+              </ThemedText>
             </View>
           </View>
 
@@ -207,7 +223,9 @@ export default function UserDetailsScreen() {
             </View>
             <View style={styles.detailContent}>
               <ThemedText style={styles.detailLabel}>Birth Date</ThemedText>
-              <ThemedText style={styles.detailValue}>{formatDate(user.birth_day)}</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {formatDate(user.birth_day || undefined)}
+              </ThemedText>
             </View>
           </View>
 
@@ -217,7 +235,9 @@ export default function UserDetailsScreen() {
             </View>
             <View style={styles.detailContent}>
               <ThemedText style={styles.detailLabel}>Created</ThemedText>
-              <ThemedText style={styles.detailValue}>{formatDate(user.created_at)}</ThemedText>
+              <ThemedText style={styles.detailValue}>
+                {formatDate(user.created_at || undefined)}
+              </ThemedText>
             </View>
           </View>
 
@@ -228,7 +248,9 @@ export default function UserDetailsScreen() {
               </View>
               <View style={styles.detailContent}>
                 <ThemedText style={styles.detailLabel}>Last Updated</ThemedText>
-                <ThemedText style={styles.detailValue}>{formatDate(user.updated_at)}</ThemedText>
+                <ThemedText style={styles.detailValue}>
+                  {formatDate(user.updated_at || undefined)}
+                </ThemedText>
               </View>
             </View>
           )}
@@ -236,16 +258,16 @@ export default function UserDetailsScreen() {
 
         {/* Action Buttons */}
         <ThemedView style={styles.actionsSection}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={handleEdit}
-          >
+          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
             <IconSymbol size={20} name="pencil" color="#fff" />
             <ThemedText style={styles.editButtonText}>Edit User</ThemedText>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.deleteButton, deleteUserMutation.isPending && styles.deleteButtonDisabled]}
+            style={[
+              styles.deleteButton,
+              deleteUserMutation.isPending && styles.deleteButtonDisabled,
+            ]}
             onPress={handleDelete}
             disabled={deleteUserMutation.isPending}
           >

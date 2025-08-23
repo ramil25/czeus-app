@@ -1,6 +1,10 @@
 import { supabase } from './supabaseClient';
 import { UserRole } from '@/types/auth';
-import { validateUserData, isValidEmail, formatDateForDatabase } from '@/utils/validation';
+import {
+  validateUserData,
+  isValidEmail,
+  formatDateForDatabase,
+} from '@/utils/validation';
 
 // Default password for new users (used when auth is created separately)
 const DEFAULT_PASSWORD = 'ILoveCoffee@01';
@@ -14,7 +18,7 @@ export type Profile = {
   first_name: string;
   middle_name?: string;
   last_name: string;
-  birth_day?: string;
+  birth_day?: string | null;
   profile_picture?: string;
   email: string;
   role: UserRole;
@@ -138,24 +142,27 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
     middle_name: userData.middle_name,
     birth_day: userData.birth_day,
   });
-  
+
   if (!validation.isValid) {
     const firstError = Object.values(validation.errors)[0];
     throw new Error(`Validation error: ${firstError}`);
   }
-  
+
   // Format birth_day for database (convert empty string to null)
   const formattedBirthDay = formatDateForDatabase(userData.birth_day);
-  
+
   try {
     // Check if we can connect to Supabase by testing a simple query
     const { error: connectionError } = await supabase
       .from('profiles')
       .select('id')
       .limit(1);
-    
+
     if (connectionError) {
-      console.log('Connection error detected, using demo mode:', connectionError);
+      console.log(
+        'Connection error detected, using demo mode:',
+        connectionError
+      );
       // Use local data when database is not accessible
       const newUser: UserProfile = {
         id: nextId++,
@@ -168,7 +175,7 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
         phone: userData.phone,
         position: userData.position,
         address: userData.address,
-        birth_day: formattedBirthDay,
+        birth_day: formattedBirthDay ?? null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -209,6 +216,14 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
       })
       .select()
       .single();
+    if (isValidEmail(profileData.email)) {
+      await supabase.auth.signUp({
+        email: profileData.email,
+        password: DEFAULT_PASSWORD,
+      });
+    } else {
+      console.log('Invalid email format, user not signed in automatically.');
+    }
 
     if (profileError) {
       // Check for specific database errors
@@ -223,14 +238,16 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
     return profileToUser(profileData);
   } catch (error) {
     // Don't fallback for specific user/validation errors
-    if (error instanceof Error && 
-        (error.message.includes('Validation error') || 
-         error.message.includes('already exists') ||
-         error.message.includes('Failed to create user'))) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('Validation error') ||
+        error.message.includes('already exists') ||
+        error.message.includes('Failed to create user'))
+    ) {
       console.log('Re-throwing user error:', error.message);
       throw error;
     }
-    
+
     // For any other errors, fallback to demo mode
     console.log('Unexpected error, falling back to demo mode:', error);
     const newUser: UserProfile = {
@@ -267,15 +284,15 @@ export async function updateUser(
     middle_name: userData.middle_name,
     birth_day: userData.birth_day,
   });
-  
+
   if (!validation.isValid) {
     const firstError = Object.values(validation.errors)[0];
     throw new Error(`Validation error: ${firstError}`);
   }
-  
+
   // Format birth_day for database (convert empty string to null)
   const formattedBirthDay = formatDateForDatabase(userData.birth_day);
-  
+
   try {
     const demoMode = await isDemoMode();
 
@@ -331,7 +348,7 @@ export async function updateUser(
     if (error instanceof Error && error.message.includes('Validation error')) {
       throw error;
     }
-    
+
     // Fallback to demo mode if there's any error
     console.log('Falling back to demo mode due to error:', error);
     const index = localUsersStore.findIndex((u) => u.id === id);
@@ -403,7 +420,9 @@ export async function deleteUser(id: number): Promise<void> {
     // Note: Disabling auth user requires admin privileges
     // This would typically be done through a server-side function
     // For now, we'll just log this operation
-    console.log(`User ${userData.email} profile deleted. Auth should be disabled separately.`);
+    console.log(
+      `User ${userData.email} profile deleted. Auth should be disabled separately.`
+    );
   } catch (error) {
     // Fallback to demo mode if there's any error
     console.log('Falling back to demo mode due to error:', error);
