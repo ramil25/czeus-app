@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile User Management UI Preview</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+            margin: 0 auto 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #f9fafb;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: #fff;
+            padding: 60px 20px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: #2362c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .user-details h3 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        
+        .user-details p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .logout {
+            color: #ef4444;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #6b7280;
+        }
+        
+        .content {
+            padding: 20px;
+            height: calc(100% - 200px);
+            overflow-y: auto;
+        }
+        
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .search-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .add-button {
+            display: flex;
+            align-items: center;
+            background: #2362c7;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            gap: 8px;
+            font-weight: 600;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .user-list {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-item:hover {
+            background: #f9fafb;
+        }
+        
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        .user-content {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .user-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .role-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .role-admin { background: #ef4444; }
+        .role-staff { background: #2362c7; }
+        .role-customer { background: #10b981; }
+        
+        .user-email {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .chevron {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .screen-collection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+        }
+        
+        .screen-label {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-bottom: 40px; color: #374151;">Mobile User Management UI</h1>
+    
+    <div class="screen-collection">
+        <!-- Users List Screen -->
+        <div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="header">
+                        <div class="header-top">
+                            <div class="user-info">
+                                <div class="avatar">👤</div>
+                                <div class="user-details">
+                                    <h3>Admin User</h3>
+                                    <p>admin@czeus.com</p>
+                                </div>
+                            </div>
+                            <div class="logout">⤴️</div>
+                        </div>
+                        <h1 class="title">User Management</h1>
+                        <p class="subtitle">Manage staff and customer accounts</p>
+                    </div>
+                    
+                    <div class="content">
+                        <div class="search-section">
+                            <div class="search-container">
+                                <span>🔍</span>
+                                <input type="text" class="search-input" placeholder="Search users..." />
+                            </div>
+                            <a href="#" class="add-button">
+                                <span>➕</span>
+                                Add
+                            </a>
+                        </div>
+                        
+                        <div class="section">
+                            <h2 class="section-title">Users (3)</h2>
+                            <div class="user-list">
+                                <div class="user-item">
+                                    <div class="user-icon" style="color: #ef4444;">👤</div>
+                                    <div class="user-content">
+                                        <div class="user-name">John Doe</div>
+                                        <div class="user-meta">
+                                            <span class="role-badge role-admin">Admin</span>
+                                            <span class="user-email">john@example.com</span>
+                                        </div>
+                                    </div>
+                                    <span class="chevron">›</span>
+                                </div>
+                                
+                                <div class="user-item">
+                                    <div class="user-icon" style="color: #2362c7;">👤</div>
+                                    <div class="user-content">
+                                        <div class="user-name">Jane Smith</div>
+                                        <div class="user-meta">
+                                            <span class="role-badge role-staff">Staff</span>
+                                            <span class="user-email">jane@example.com</span>
+                                        </div>
+                                    </div>
+                                    <span class="chevron">›</span>
+                                </div>
+                                
+                                <div class="user-item">
+                                    <div class="user-icon" style="color: #10b981;">👤</div>
+                                    <div class="user-content">
+                                        <div class="user-name">Alice Johnson</div>
+                                        <div class="user-meta">
+                                            <span class="role-badge role-customer">Customer</span>
+                                            <span class="user-email">alice@example.com</span>
+                                        </div>
+                                    </div>
+                                    <span class="chevron">›</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">Users List Screen</div>
+        </div>
+
+        <!-- Add User Screen -->
+        <div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="header">
+                        <div class="header-top">
+                            <span style="color: #2362c7; font-size: 24px; cursor: pointer;">‹</span>
+                            <h1 class="title">Add User</h1>
+                            <div style="width: 40px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="content">
+                        <div style="margin-bottom: 32px;">
+                            <h2 class="section-title">Required Information</h2>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">First Name *</label>
+                                <input type="text" style="width: 100%; border: 1px solid #d1d5db; border-radius: 12px; padding: 12px 16px; font-size: 16px;" placeholder="Enter first name" />
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Last Name *</label>
+                                <input type="text" style="width: 100%; border: 1px solid #d1d5db; border-radius: 12px; padding: 12px 16px; font-size: 16px;" placeholder="Enter last name" />
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Email *</label>
+                                <input type="email" style="width: 100%; border: 1px solid #d1d5db; border-radius: 12px; padding: 12px 16px; font-size: 16px;" placeholder="Enter email address" />
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: 500; margin-bottom: 8px; color: #374151;">Role *</label>
+                                <div style="display: flex; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid #d1d5db; background: #fff; text-align: center; cursor: pointer;">Admin</div>
+                                    <div style="flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid #2362c7; background: #eff6ff; text-align: center; cursor: pointer; color: #2362c7; font-weight: 600;">Staff</div>
+                                    <div style="flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid #d1d5db; background: #fff; text-align: center; cursor: pointer;">Customer</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #eff6ff; padding: 16px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+                            <span style="color: #2362c7; font-size: 20px;">ℹ️</span>
+                            <p style="color: #2362c7; font-size: 14px; line-height: 1.4;">New users will be created with the default password: "ILoveCoffee@01"</p>
+                        </div>
+                        
+                        <button style="width: 100%; background: #2362c7; color: white; padding: 16px; border-radius: 12px; border: none; font-size: 18px; font-weight: 600; cursor: pointer;">Create User</button>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">Add User Screen</div>
+        </div>
+
+        <!-- User Details Screen -->
+        <div>
+            <div class="phone">
+                <div class="screen">
+                    <div class="header">
+                        <div class="header-top">
+                            <span style="color: #2362c7; font-size: 24px; cursor: pointer;">‹</span>
+                            <h1 class="title">User Details</h1>
+                            <div style="width: 40px;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="content">
+                        <div style="background: #fff; padding: 20px; margin-bottom: 1px;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 80px; height: 80px; border-radius: 40px; background: #2362c7; display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; margin-right: 20px;">👤</div>
+                                <div>
+                                    <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">Jane Smith</h2>
+                                    <span class="role-badge role-staff">Staff</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 20px; margin-bottom: 1px;">
+                            <h3 class="section-title">Contact Information</h3>
+                            
+                            <div style="display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6;">
+                                <div style="width: 40px; height: 40px; border-radius: 20px; background: #f8fafc; display: flex; align-items: center; justify-content: center; margin-right: 16px;">📧</div>
+                                <div>
+                                    <p style="font-size: 14px; color: #6b7280; margin-bottom: 2px;">Email</p>
+                                    <p style="font-size: 16px; color: #374151; font-weight: 500;">jane@example.com</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; padding: 12px 0;">
+                                <div style="width: 40px; height: 40px; border-radius: 20px; background: #f8fafc; display: flex; align-items: center; justify-content: center; margin-right: 16px;">📞</div>
+                                <div>
+                                    <p style="font-size: 14px; color: #6b7280; margin-bottom: 2px;">Phone</p>
+                                    <p style="font-size: 16px; color: #374151; font-weight: 500;">+1 (555) 123-4567</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #fff; padding: 20px; gap: 12px; display: flex; flex-direction: column;">
+                            <button style="display: flex; align-items: center; justify-content: center; background: #2362c7; color: white; padding: 16px; border-radius: 12px; border: none; font-size: 18px; font-weight: 600; cursor: pointer; gap: 8px;">
+                                ✏️ Edit User
+                            </button>
+                            <button style="display: flex; align-items: center; justify-content: center; background: #ef4444; color: white; padding: 16px; border-radius: 12px; border: none; font-size: 18px; font-weight: 600; cursor: pointer; gap: 8px;">
+                                🗑️ Delete User
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-label">User Details Screen</div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 60px; text-align: center; color: #6b7280;">
+        <h2 style="margin-bottom: 20px;">Key Features Implemented</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; text-align: left;">
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">📱 Mobile-First Design</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>Touch-optimized UI</li>
+                    <li>Responsive cards layout</li>
+                    <li>Proper navigation flow</li>
+                    <li>Loading states & error handling</li>
+                </ul>
+            </div>
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">🔍 Search & Filter</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>Real-time search functionality</li>
+                    <li>Filter by name, email, role</li>
+                    <li>Clean, intuitive interface</li>
+                    <li>Empty state handling</li>
+                </ul>
+            </div>
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">👥 User Management</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>Create, read, update, delete users</li>
+                    <li>Role-based access (admin, staff, customer)</li>
+                    <li>Form validation & error handling</li>
+                    <li>Default password assignment</li>
+                </ul>
+            </div>
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">🗄️ Database Integration</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>Supabase integration</li>
+                    <li>Demo mode fallback</li>
+                    <li>Real-time data synchronization</li>
+                    <li>Soft delete functionality</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

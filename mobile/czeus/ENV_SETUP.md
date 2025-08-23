@@ -1,8 +1,23 @@
 # Mobile App Environment Setup
 
+## Quick Setup (Required)
+
+⚠️ **Important**: The mobile app will fall back to demo mode if environment variables are not configured!
+
+### Step 1: Copy Environment File
+```bash
+# Navigate to the mobile app directory
+cd mobile/czeus
+
+# Copy the example environment file
+cp .env.example .env
+```
+
+The `.env.example` file contains the correct Supabase credentials for this project.
+
 ## Required Environment Variables
 
-Create a `.env` file in the `mobile/czeus` directory with the following variables:
+The `.env` file should contain the following variables:
 
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://zrzljtoctzpvrkbckthr.supabase.co
@@ -48,10 +63,66 @@ The mobile app now supports:
 
 ## Setup Instructions
 
-1. Create the `.env` file with the variables above
+1. **Copy the environment file**: `cp .env.example .env`
 2. Ensure your Supabase database has the `profiles` table created
 3. Configure Row Level Security (RLS) policies as needed
 4. Test authentication by registering a new user or signing in
+
+## Troubleshooting
+
+### App Falls Back to Demo Mode
+If the user management system shows demo data instead of connecting to Supabase:
+
+1. **Environment Setup**: Verify the `.env` file exists in `mobile/czeus/`
+   ```bash
+   cd mobile/czeus
+   ls -la .env  # Should show the .env file
+   ```
+
+2. **Copy Environment File**: If missing, copy from the example:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Restart the App**: After creating `.env`, restart the Expo development server:
+   ```bash
+   # Stop the current server (Ctrl+C)
+   npx expo start
+   ```
+
+### Invalid Email Address Errors
+If you see "Email address invalid" errors when creating users:
+
+1. **Check Email Format**: Ensure the email follows standard format (user@domain.com)
+2. **Supabase Auth Settings**: Verify your Supabase project auth settings:
+   - Go to Authentication > Settings in Supabase dashboard
+   - Check if there are domain restrictions or email validation rules
+   - Ensure the anon key has proper permissions
+
+3. **Test with Different Email**: Try with a different email domain (gmail.com, etc.)
+
+### Connection Issues
+If you see connection-related errors:
+
+1. **Check Supabase Status**: Verify your Supabase project is active
+2. **Test API Keys**: Ensure the anon key in `.env` matches your Supabase project
+3. **Network Issues**: Check your internet connection and firewall settings
+
+### Environment File Missing
+```bash
+# If you see "Missing Supabase environment variables" error:
+cd mobile/czeus
+cp .env.example .env
+# Then restart the app
+npx expo start
+```
+
+### User Creation Fails
+If user creation fails but the app doesn't fall back to demo mode:
+
+1. **Email Validation**: The app now includes client-side email validation
+2. **Duplicate Email**: Check if the email is already registered
+3. **Auth Permissions**: Verify Supabase auth settings allow user registration
 
 ## Security Notes
 
