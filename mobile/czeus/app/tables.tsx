@@ -6,11 +6,22 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTables, useDeleteTable } from '@/hooks/useTables';
 import AddTableModal from '@/components/modals/AddTableModal';
+import EditTableModal from '@/components/modals/EditTableModal';
+
+interface Table {
+  id: number;
+  name: string;
+  capacity: number;
+  status: 'available' | 'occupied' | 'reserved';
+  description: string;
+}
 
 export default function TablesScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   
   // Use React Query hooks for data fetching
   const { data: tables = [], isLoading, error, refetch } = useTables();
@@ -33,6 +44,23 @@ export default function TablesScreen() {
           style: 'destructive',
           onPress: () => deleteTableMutation.mutate(tableId)
         }
+      ]
+    );
+  };
+
+  const handleEditTable = (table: Table) => {
+    setSelectedTable(table);
+    setShowEditModal(true);
+  };
+
+  const handleTablePress = (table: Table) => {
+    Alert.alert(
+      `Table: ${table.name}`,
+      `Capacity: ${table.capacity} people\nStatus: ${table.status}`,
+      [
+        { text: 'Edit', onPress: () => handleEditTable(table) },
+        { text: 'Delete', style: 'destructive', onPress: () => handleDeleteTable(table.id, table.name) },
+        { text: 'Cancel', style: 'cancel' }
       ]
     );
   };
@@ -158,6 +186,7 @@ export default function TablesScreen() {
             <TouchableOpacity 
               key={table.id} 
               style={styles.tableItem}
+              onPress={() => handleTablePress(table)}
               onLongPress={() => handleDeleteTable(table.id, table.name)}
             >
               <View style={styles.tableInfo}>
@@ -211,6 +240,15 @@ export default function TablesScreen() {
       <AddTableModal
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
+      />
+
+      <EditTableModal
+        visible={showEditModal}
+        table={selectedTable}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedTable(null);
+        }}
       />
     </View>
   );
