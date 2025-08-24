@@ -89,6 +89,9 @@ const MAPPING = {
   'takeoutbag.and.cup.and.straw.fill': 'takeout-dining',
   'carrot.fill': 'restaurant',
   'wineglass.fill': 'wine-bar',
+  'bag.fill': 'shopping-bag',
+  'drop.fill': 'water-drop',
+  'sun.max.fill': 'wb-sunny',
 } as const;
 
 /**
