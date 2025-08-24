@@ -51,6 +51,15 @@ export default function POSSetupScreen() {
       route: '/categories'
     },
     {
+      id: 'sizes',
+      title: 'Sizes',
+      description: 'Product size options',
+      icon: 'ruler.fill',
+      color: '#8b5cf6',
+      backgroundColor: '#8b5cf620',
+      route: '/sizes'
+    },
+    {
       id: 'discounts',
       title: 'Discounts',
       description: 'Promotional offers',
@@ -67,6 +76,15 @@ export default function POSSetupScreen() {
       color: '#10b981',
       backgroundColor: '#10b98120',
       route: '/staff'
+    },
+    {
+      id: 'products',
+      title: 'Products',
+      description: 'Product management',
+      icon: 'shippingbox.fill',
+      color: '#06b6d4',
+      backgroundColor: '#06b6d420',
+      route: '/products'
     }
   ];
 
@@ -101,7 +119,7 @@ export default function POSSetupScreen() {
           </View>
         </View>
         <ThemedText type="title" style={styles.title}>POS Setup</ThemedText>
-        <ThemedText style={styles.subtitle}>Configure categories, discounts, and staff settings</ThemedText>
+        <ThemedText style={styles.subtitle}>Configure tables, categories, sizes, discounts, staff, and products</ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.content}>

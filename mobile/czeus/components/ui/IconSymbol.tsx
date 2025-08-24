@@ -83,6 +83,12 @@ const MAPPING = {
   'waterbottle': 'local-drink',
   'pause.circle.fill': 'pause-circle-filled',
   'questionmark.circle.fill': 'help',
+  'ruler.fill': 'straighten',
+  'multiply.circle.fill': 'clear',
+  'shippingbox.fill': 'inventory',
+  'takeoutbag.and.cup.and.straw.fill': 'takeout-dining',
+  'carrot.fill': 'restaurant',
+  'wineglass.fill': 'wine-bar',
 } as const;
 
 /**
