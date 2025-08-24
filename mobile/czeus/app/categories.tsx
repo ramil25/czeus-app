@@ -4,83 +4,35 @@ import {
   View,
   TouchableOpacity,
   TextInput,
-  Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useState } from 'react';
-
-interface Category {
-  id: number;
-  name: string;
-  icon: string;
-  color: string;
-  backgroundColor: string;
-  itemCount: number;
-  description: string;
-}
+import { useCategories } from '@/hooks/useCategories';
+import { Category } from '@/lib/categories';
+import AddCategoryModal from '@/components/modals/AddCategoryModal';
+import EditCategoryModal from '@/components/modals/EditCategoryModal';
 
 export default function CategoriesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
 
-  // Sample data for categories
-  const [categories] = useState<Category[]>([
-    {
-      id: 1,
-      name: 'Coffee',
-      icon: 'cup.and.saucer.fill',
-      color: '#8b5a3c',
-      backgroundColor: '#8b5a3c20',
-      itemCount: 12,
-      description: 'Hot and cold coffee beverages',
-    },
-    {
-      id: 2,
-      name: 'Pastries',
-      icon: 'birthday.cake.fill',
-      color: '#f59e0b',
-      backgroundColor: '#f59e0b20',
-      itemCount: 8,
-      description: 'Fresh baked pastries and desserts',
-    },
-    {
-      id: 3,
-      name: 'Tea',
-      icon: 'leaf.fill',
-      color: '#10b981',
-      backgroundColor: '#10b98120',
-      itemCount: 6,
-      description: 'Premium tea selection',
-    },
-    {
-      id: 4,
-      name: 'Sandwiches',
-      icon: 'takeoutbag.and.cup.and.straw',
-      color: '#ef4444',
-      backgroundColor: '#ef444420',
-      itemCount: 15,
-      description: 'Gourmet sandwiches and wraps',
-    },
-    {
-      id: 5,
-      name: 'Salads',
-      icon: 'carrot',
-      color: '#22c55e',
-      backgroundColor: '#22c55e20',
-      itemCount: 7,
-      description: 'Fresh and healthy salads',
-    },
-    {
-      id: 6,
-      name: 'Beverages',
-      icon: 'waterbottle',
-      color: '#3b82f6',
-      backgroundColor: '#3b82f620',
-      itemCount: 10,
-      description: 'Non-coffee beverages and juices',
-    },
-  ]);
+  const {
+    categories,
+    loading,
+    error,
+    refreshCategories,
+    createNewCategory,
+    updateExistingCategory,
+    deleteExistingCategory,
+  } = useCategories();
 
   const filteredCategories = categories.filter(
     (category) =>
@@ -89,9 +41,17 @@ export default function CategoriesScreen() {
   );
 
   const handleAddCategory = () => {
-    Alert.alert('Add New Category', 'This will open the add category form.', [
-      { text: 'OK' },
-    ]);
+    setAddModalVisible(true);
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setSelectedCategory(category);
+    setEditModalVisible(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalVisible(false);
+    setSelectedCategory(null);
   };
 
   return (
@@ -119,53 +79,98 @@ export default function CategoriesScreen() {
           </View>
         </View>
 
+        {error && (
+          <View style={styles.errorContainer}>
+            <IconSymbol
+              size={20}
+              name="exclamationmark.triangle"
+              color="#ef4444"
+            />
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+            <TouchableOpacity
+              onPress={refreshCategories}
+              style={styles.retryButton}
+            >
+              <ThemedText style={styles.retryText}>Retry</ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <ScrollView
           style={styles.categoriesList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={refreshCategories}
+              colors={['#f59e0b']}
+              tintColor="#f59e0b"
+            />
+          }
         >
-          {filteredCategories.map((category) => (
-            <View key={category.id} style={styles.categoryItem}>
-              <View
-                style={[
-                  styles.categoryIcon,
-                  { backgroundColor: category.backgroundColor },
-                ]}
-              >
-                <IconSymbol
-                  size={24}
-                  name={category.icon as any}
-                  color={category.color}
-                />
-              </View>
-              <View style={styles.categoryInfo}>
-                <ThemedText type="defaultSemiBold" style={styles.categoryName}>
-                  {category.name}
-                </ThemedText>
-                <ThemedText style={styles.categoryDescription}>
-                  {category.description}
-                </ThemedText>
-                <ThemedText style={styles.itemCount}>
-                  {category.itemCount} items
-                </ThemedText>
-              </View>
-              <IconSymbol size={16} name="chevron.right" color="#6b7280" />
+          {loading && categories.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#f59e0b" />
+              <ThemedText style={styles.loadingText}>
+                Loading categories...
+              </ThemedText>
             </View>
-          ))}
+          ) : (
+            <>
+              {filteredCategories.map((category) => (
+                <TouchableOpacity
+                  key={category.id}
+                  style={styles.categoryItem}
+                  onPress={() => handleEditCategory(category)}
+                  activeOpacity={0.7}
+                >
+                  <View
+                    style={[
+                      styles.categoryIcon,
+                      { backgroundColor: category.backgroundColor },
+                    ]}
+                  >
+                    <IconSymbol
+                      size={24}
+                      name={category.icon as any}
+                      color={category.color}
+                    />
+                  </View>
+                  <View style={styles.categoryInfo}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.categoryName}
+                    >
+                      {category.name}
+                    </ThemedText>
+                    <ThemedText style={styles.categoryDescription}>
+                      {category.description}
+                    </ThemedText>
+                  </View>
+                  <IconSymbol size={16} name="chevron.right" color="#6b7280" />
+                </TouchableOpacity>
+              ))}
 
-          {filteredCategories.length === 0 && (
-            <View style={styles.emptyState}>
-              <IconSymbol size={48} name="square.grid.2x2" color="#d1d5db" />
-              <ThemedText style={styles.emptyText}>
-                {searchQuery
-                  ? 'No categories found'
-                  : 'No categories available'}
-              </ThemedText>
-              <ThemedText style={styles.emptySubtext}>
-                {searchQuery
-                  ? 'Try adjusting your search'
-                  : 'Add your first category to get started'}
-              </ThemedText>
-            </View>
+              {filteredCategories.length === 0 && !loading && (
+                <View style={styles.emptyState}>
+                  <IconSymbol
+                    size={48}
+                    name="square.grid.2x2"
+                    color="#d1d5db"
+                  />
+                  <ThemedText style={styles.emptyText}>
+                    {searchQuery
+                      ? 'No categories found'
+                      : 'No categories available'}
+                  </ThemedText>
+                  <ThemedText style={styles.emptySubtext}>
+                    {searchQuery
+                      ? 'Try adjusting your search'
+                      : 'Add your first category to get started'}
+                  </ThemedText>
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </ThemedView>
@@ -178,6 +183,21 @@ export default function CategoriesScreen() {
       >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
+
+      {/* Modals */}
+      <AddCategoryModal
+        visible={addModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onAdd={createNewCategory}
+      />
+
+      <EditCategoryModal
+        visible={editModalVisible}
+        category={selectedCategory}
+        onClose={handleCloseEditModal}
+        onUpdate={updateExistingCategory}
+        onDelete={deleteExistingCategory}
+      />
     </View>
   );
 }
@@ -305,5 +325,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#dc2626',
+  },
+  retryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#dc2626',
+    borderRadius: 6,
+  },
+  retryText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
   },
 });
