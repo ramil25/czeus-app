@@ -20,8 +20,10 @@ export default function CategoriesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
+
   const {
     categories,
     loading,
@@ -79,9 +81,16 @@ export default function CategoriesScreen() {
 
         {error && (
           <View style={styles.errorContainer}>
-            <IconSymbol size={20} name="exclamationmark.triangle" color="#ef4444" />
+            <IconSymbol
+              size={20}
+              name="exclamationmark.triangle"
+              color="#ef4444"
+            />
             <ThemedText style={styles.errorText}>{error}</ThemedText>
-            <TouchableOpacity onPress={refreshCategories} style={styles.retryButton}>
+            <TouchableOpacity
+              onPress={refreshCategories}
+              style={styles.retryButton}
+            >
               <ThemedText style={styles.retryText}>Retry</ThemedText>
             </TouchableOpacity>
           </View>
@@ -102,7 +111,9 @@ export default function CategoriesScreen() {
           {loading && categories.length === 0 ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#f59e0b" />
-              <ThemedText style={styles.loadingText}>Loading categories...</ThemedText>
+              <ThemedText style={styles.loadingText}>
+                Loading categories...
+              </ThemedText>
             </View>
           ) : (
             <>
@@ -126,14 +137,14 @@ export default function CategoriesScreen() {
                     />
                   </View>
                   <View style={styles.categoryInfo}>
-                    <ThemedText type="defaultSemiBold" style={styles.categoryName}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.categoryName}
+                    >
                       {category.name}
                     </ThemedText>
                     <ThemedText style={styles.categoryDescription}>
                       {category.description}
-                    </ThemedText>
-                    <ThemedText style={styles.itemCount}>
-                      {category.itemCount} items
                     </ThemedText>
                   </View>
                   <IconSymbol size={16} name="chevron.right" color="#6b7280" />
@@ -142,7 +153,11 @@ export default function CategoriesScreen() {
 
               {filteredCategories.length === 0 && !loading && (
                 <View style={styles.emptyState}>
-                  <IconSymbol size={48} name="square.grid.2x2" color="#d1d5db" />
+                  <IconSymbol
+                    size={48}
+                    name="square.grid.2x2"
+                    color="#d1d5db"
+                  />
                   <ThemedText style={styles.emptyText}>
                     {searchQuery
                       ? 'No categories found'
