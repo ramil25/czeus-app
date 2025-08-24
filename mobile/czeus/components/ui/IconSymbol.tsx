@@ -74,6 +74,21 @@ const MAPPING = {
   'magnifyingglass': 'search',
   'trash': 'delete',
   'trash.fill': 'delete-forever',
+  'square.grid.2x2': 'apps',
+  'dollarsign.circle': 'attach-money',
+  'envelope': 'email',
+  'phone': 'phone',
+  'takeoutbag.and.cup.and.straw': 'takeout-dining',
+  'carrot': 'restaurant',
+  'waterbottle': 'local-drink',
+  'pause.circle.fill': 'pause-circle-filled',
+  'questionmark.circle.fill': 'help',
+  'ruler.fill': 'straighten',
+  'multiply.circle.fill': 'clear',
+  'shippingbox.fill': 'inventory',
+  'takeoutbag.and.cup.and.straw.fill': 'takeout-dining',
+  'carrot.fill': 'restaurant',
+  'wineglass.fill': 'wine-bar',
 } as const;
 
 /**
