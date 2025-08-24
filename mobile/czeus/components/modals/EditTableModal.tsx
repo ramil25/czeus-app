@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Modal,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useUpdateTable } from '@/hooks/useTables';
+import { useDeleteTable, useUpdateTable } from '@/hooks/useTables';
+import React, { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 interface Table {
   id: number;
@@ -30,8 +31,10 @@ interface EditTableModalProps {
 export default function EditTableModal({ visible, table, onClose }: EditTableModalProps) {
   const [tableName, setTableName] = useState('');
   const [numberOfSeats, setNumberOfSeats] = useState('');
+  const [deleting, setDeleting] = useState(false);
   
   const updateTableMutation = useUpdateTable();
+  const deleteTableMutation = useDeleteTable();
 
   useEffect(() => {
     if (table) {
@@ -70,8 +73,42 @@ export default function EditTableModal({ visible, table, onClose }: EditTableMod
     );
   };
 
+  const handleDelete = () => {
+    if (!table) return;
+
+    Alert.alert(
+      'Delete Table',
+      `Are you sure you want to delete "${table.name}"? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+            try {
+              setDeleting(true);
+              await new Promise<void>((resolve, reject) => {
+                deleteTableMutation.mutate(table.id, {
+                  onSuccess: () => resolve(),
+                  onError: (e) => reject(e),
+                });
+              });
+              onClose();
+              Alert.alert('Success', 'Table deleted successfully');
+            } catch (e) {
+              const message = e instanceof Error ? e.message : 'Failed to delete table';
+              Alert.alert('Error', message);
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleClose = () => {
-    if (!updateTableMutation.isPending) {
+    if (!updateTableMutation.isPending && !deleting) {
       onClose();
     }
   };
@@ -87,55 +124,79 @@ export default function EditTableModal({ visible, table, onClose }: EditTableMod
     >
       <ThemedView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.closeButton} 
+          <TouchableOpacity
+            style={styles.closeButton}
             onPress={handleClose}
-            disabled={updateTableMutation.isPending}
+            disabled={updateTableMutation.isPending || deleting}
           >
-            <IconSymbol size={24} name="xmark.circle.fill" color="#374151" />
+            <IconSymbol size={24} name="xmark.circle.fill" color="#6b7280" />
           </TouchableOpacity>
           <ThemedText type="title" style={styles.title}>Edit Table</ThemedText>
-          <View style={styles.placeholder} />
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDelete}
+            disabled={updateTableMutation.isPending || deleting}
+          >
+            {deleting ? (
+              <ActivityIndicator size="small" color="#ef4444" />
+            ) : (
+              <IconSymbol size={24} name="trash" color="#ef4444" />
+            )}
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.content}>
-          <View style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Table Name</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={tableName}
-              onChangeText={setTableName}
-              placeholder="e.g., Table 1, A1, VIP Table"
-              placeholderTextColor="#9ca3af"
-              editable={!updateTableMutation.isPending}
-            />
-          </View>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Table Name *</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={tableName}
+                onChangeText={setTableName}
+                placeholder="Enter table name"
+                placeholderTextColor="#9ca3af"
+                editable={!updateTableMutation.isPending && !deleting}
+                maxLength={100}
+              />
+            </View>
 
-          <View style={styles.inputGroup}>
-            <ThemedText style={styles.label}>Number of Seats</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={numberOfSeats}
-              onChangeText={setNumberOfSeats}
-              placeholder="e.g., 4"
-              placeholderTextColor="#9ca3af"
-              keyboardType="numeric"
-              editable={!updateTableMutation.isPending}
-            />
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Number of Seats *</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={numberOfSeats}
+                onChangeText={setNumberOfSeats}
+                placeholder="e.g., 4"
+                placeholderTextColor="#9ca3af"
+                keyboardType="numeric"
+                editable={!updateTableMutation.isPending && !deleting}
+                maxLength={3}
+              />
+            </View>
           </View>
+        </ScrollView>
 
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={handleClose}
+            disabled={updateTableMutation.isPending || deleting}
+          >
+            <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+          </TouchableOpacity>
           <TouchableOpacity
             style={[
-              styles.submitButton,
-              updateTableMutation.isPending && styles.submitButtonDisabled,
+              styles.button,
+              styles.updateButton,
+              (!tableName.trim() || !numberOfSeats.trim() || updateTableMutation.isPending || deleting) && styles.disabledButton,
             ]}
             onPress={handleSubmit}
-            disabled={updateTableMutation.isPending}
+            disabled={!tableName.trim() || !numberOfSeats.trim() || updateTableMutation.isPending || deleting}
           >
             {updateTableMutation.isPending ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <ThemedText style={styles.submitButtonText}>Update Table</ThemedText>
+              <ThemedText style={styles.updateButtonText}>Update Table</ThemedText>
             )}
           </TouchableOpacity>
         </View>
@@ -145,67 +206,60 @@ export default function EditTableModal({ visible, table, onClose }: EditTableMod
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
+  container: { flex: 1, backgroundColor: '#f9fafb' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 20,
+    paddingHorizontal: 20,
     paddingTop: 60,
+    paddingBottom: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
-  closeButton: {
-    padding: 8,
-    marginLeft: -8,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  placeholder: {
-    width: 40,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#374151',
-  },
-  input: {
+  closeButton: { padding: 8, marginLeft: -8 },
+  deleteButton: { padding: 8, marginRight: -8 },
+  title: { fontSize: 18, fontWeight: '600', color: '#111827' },
+  content: { flex: 1, padding: 20 },
+  formContainer: {
     backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+  },
+  inputGroup: { marginBottom: 20 },
+  label: { fontSize: 16, fontWeight: '500', color: '#374151', marginBottom: 8 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
     borderRadius: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#374151',
+    color: '#111827',
+    backgroundColor: '#fff',
   },
-  submitButton: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 16,
+  footer: {
+    flexDirection: 'row',
+    gap: 12,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 20,
+    justifyContent: 'center',
+    minHeight: 48,
   },
-  submitButtonDisabled: {
-    backgroundColor: '#9ca3af',
-  },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  cancelButton: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#d1d5db' },
+  cancelButtonText: { fontSize: 16, fontWeight: '500', color: '#374151' },
+  updateButton: { backgroundColor: '#3b82f6' },
+  updateButtonText: { fontSize: 16, fontWeight: '500', color: '#fff' },
+  disabledButton: { opacity: 0.5 },
 });

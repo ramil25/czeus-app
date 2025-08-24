@@ -1,21 +1,20 @@
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
+import AddTableModal from '@/components/modals/AddTableModal';
+import EditTableModal from '@/components/modals/EditTableModal';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useTables } from '@/hooks/useTables';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useTables, useDeleteTable } from '@/hooks/useTables';
-import AddTableModal from '@/components/modals/AddTableModal';
-import EditTableModal from '@/components/modals/EditTableModal';
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 interface Table {
   id: number;
@@ -34,7 +33,6 @@ export default function TablesScreen() {
 
   // Use React Query hooks for data fetching
   const { data: tables = [], isLoading, error, refetch } = useTables();
-  const deleteTableMutation = useDeleteTable();
 
   const filteredTables = tables.filter(
     (table) =>
@@ -43,40 +41,9 @@ export default function TablesScreen() {
       table.capacity.toString().includes(searchQuery)
   );
 
-  const handleDeleteTable = (tableId: number, tableName: string) => {
-    Alert.alert(
-      'Delete Table',
-      `Are you sure you want to delete ${tableName}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => deleteTableMutation.mutate(tableId),
-        },
-      ]
-    );
-  };
-
   const handleEditTable = (table: Table) => {
     setSelectedTable(table);
     setShowEditModal(true);
-  };
-
-  const handleTablePress = (table: Table) => {
-    Alert.alert(
-      `Table: ${table.name}`,
-      `Capacity: ${table.capacity} people\nStatus: ${table.status}`,
-      [
-        { text: 'Edit', onPress: () => handleEditTable(table) },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => handleDeleteTable(table.id, table.name),
-        },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
   };
 
   const getStatusColor = (status: string) => {
@@ -227,8 +194,8 @@ export default function TablesScreen() {
             <TouchableOpacity
               key={table.id}
               style={styles.tableItem}
-              onPress={() => handleTablePress(table)}
-              onLongPress={() => handleDeleteTable(table.id, table.name)}
+              onPress={() => handleEditTable(table)}
+              activeOpacity={0.7}
             >
               <View style={styles.tableInfo}>
                 <View style={styles.tableHeader}>
