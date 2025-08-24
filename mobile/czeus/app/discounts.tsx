@@ -1,8 +1,14 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 interface Discount {
@@ -17,7 +23,6 @@ interface Discount {
 }
 
 export default function DiscountsScreen() {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Sample data for discounts
@@ -30,7 +35,7 @@ export default function DiscountsScreen() {
       description: 'First time customer discount',
       isActive: true,
       validUntil: '2024-12-31',
-      minOrder: 20
+      minOrder: 20,
     },
     {
       id: 2,
@@ -39,7 +44,7 @@ export default function DiscountsScreen() {
       value: 25,
       description: '25% off all coffee from 2-4 PM',
       isActive: true,
-      validUntil: '2024-12-31'
+      validUntil: '2024-12-31',
     },
     {
       id: 3,
@@ -49,7 +54,7 @@ export default function DiscountsScreen() {
       description: '$5 off with valid student ID',
       isActive: true,
       validUntil: '2024-12-31',
-      minOrder: 15
+      minOrder: 15,
     },
     {
       id: 4,
@@ -58,7 +63,7 @@ export default function DiscountsScreen() {
       value: 50,
       description: 'Buy one pastry, get second 50% off',
       isActive: true,
-      validUntil: '2024-10-31'
+      validUntil: '2024-10-31',
     },
     {
       id: 5,
@@ -68,7 +73,7 @@ export default function DiscountsScreen() {
       description: 'Reward for loyal customers',
       isActive: false,
       validUntil: '2024-09-30',
-      minOrder: 30
+      minOrder: 30,
     },
     {
       id: 6,
@@ -78,13 +83,14 @@ export default function DiscountsScreen() {
       description: '$3 off weekend orders',
       isActive: true,
       validUntil: '2024-12-31',
-      minOrder: 25
-    }
+      minOrder: 25,
+    },
   ]);
 
-  const filteredDiscounts = discounts.filter(discount =>
-    discount.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    discount.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDiscounts = discounts.filter(
+    (discount) =>
+      discount.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      discount.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getDiscountDisplayValue = (discount: Discount) => {
@@ -102,45 +108,38 @@ export default function DiscountsScreen() {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'percentage': return '#3b82f6';
-      case 'fixed': return '#10b981';
-      case 'bogo': return '#f59e0b';
-      default: return '#6b7280';
+      case 'percentage':
+        return '#3b82f6';
+      case 'fixed':
+        return '#10b981';
+      case 'bogo':
+        return '#f59e0b';
+      default:
+        return '#6b7280';
     }
   };
 
   const getTypeBackground = (type: string) => {
     switch (type) {
-      case 'percentage': return '#3b82f620';
-      case 'fixed': return '#10b98120';
-      case 'bogo': return '#f59e0b20';
-      default: return '#6b728020';
+      case 'percentage':
+        return '#3b82f620';
+      case 'fixed':
+        return '#10b98120';
+      case 'bogo':
+        return '#f59e0b20';
+      default:
+        return '#6b728020';
     }
   };
 
   const handleAddDiscount = () => {
-    Alert.alert(
-      'Add New Discount',
-      'This will open the add discount form.',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('Add New Discount', 'This will open the add discount form.', [
+      { text: 'OK' },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <IconSymbol size={24} name="chevron.left" color="#374151" />
-          </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Discounts</ThemedText>
-          <View style={styles.placeholder} />
-        </View>
-      </ThemedView>
-
       <ThemedView style={styles.content}>
         <View style={styles.searchSection}>
           <View style={styles.searchContainer}>
@@ -154,34 +153,58 @@ export default function DiscountsScreen() {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <IconSymbol size={20} name="xmark.circle.fill" color="#6b7280" />
+                <IconSymbol
+                  size={20}
+                  name="xmark.circle.fill"
+                  color="#6b7280"
+                />
               </TouchableOpacity>
             ) : null}
           </View>
         </View>
 
-        <ScrollView style={styles.discountsList} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.discountsList}
+          showsVerticalScrollIndicator={false}
+        >
           {filteredDiscounts.map((discount) => (
             <View key={discount.id} style={styles.discountItem}>
               <View style={styles.discountInfo}>
                 <View style={styles.discountHeader}>
                   <View style={styles.discountTitleRow}>
-                    <ThemedText type="defaultSemiBold" style={styles.discountName}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.discountName}
+                    >
                       {discount.name}
                     </ThemedText>
                     <View style={styles.badges}>
-                      <View style={[styles.typeBadge, { backgroundColor: getTypeBackground(discount.type) }]}>
-                        <ThemedText style={[styles.typeText, { color: getTypeColor(discount.type) }]}>
+                      <View
+                        style={[
+                          styles.typeBadge,
+                          { backgroundColor: getTypeBackground(discount.type) },
+                        ]}
+                      >
+                        <ThemedText
+                          style={[
+                            styles.typeText,
+                            { color: getTypeColor(discount.type) },
+                          ]}
+                        >
                           {discount.type.toUpperCase()}
                         </ThemedText>
                       </View>
                       {discount.isActive ? (
                         <View style={styles.activeBadge}>
-                          <ThemedText style={styles.activeText}>ACTIVE</ThemedText>
+                          <ThemedText style={styles.activeText}>
+                            ACTIVE
+                          </ThemedText>
                         </View>
                       ) : (
                         <View style={styles.inactiveBadge}>
-                          <ThemedText style={styles.inactiveText}>INACTIVE</ThemedText>
+                          <ThemedText style={styles.inactiveText}>
+                            INACTIVE
+                          </ThemedText>
                         </View>
                       )}
                     </View>
@@ -204,7 +227,11 @@ export default function DiscountsScreen() {
                   </View>
                   {discount.minOrder && (
                     <View style={styles.detailItem}>
-                      <IconSymbol size={14} name="dollarsign.circle" color="#6b7280" />
+                      <IconSymbol
+                        size={14}
+                        name="dollarsign.circle"
+                        color="#6b7280"
+                      />
                       <ThemedText style={styles.detailText}>
                         Min. order: ${discount.minOrder}
                       </ThemedText>
@@ -215,7 +242,7 @@ export default function DiscountsScreen() {
               <IconSymbol size={16} name="chevron.right" color="#6b7280" />
             </View>
           ))}
-          
+
           {filteredDiscounts.length === 0 && (
             <View style={styles.emptyState}>
               <IconSymbol size={48} name="tag.fill" color="#d1d5db" />
@@ -223,7 +250,9 @@ export default function DiscountsScreen() {
                 {searchQuery ? 'No discounts found' : 'No discounts available'}
               </ThemedText>
               <ThemedText style={styles.emptySubtext}>
-                {searchQuery ? 'Try adjusting your search' : 'Add your first discount to get started'}
+                {searchQuery
+                  ? 'Try adjusting your search'
+                  : 'Add your first discount to get started'}
               </ThemedText>
             </View>
           )}
@@ -231,7 +260,7 @@ export default function DiscountsScreen() {
       </ThemedView>
 
       {/* Floating Add Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={handleAddDiscount}
         activeOpacity={0.8}

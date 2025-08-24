@@ -1,4 +1,13 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, TextInput, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -22,15 +31,16 @@ export default function TablesScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  
+
   // Use React Query hooks for data fetching
   const { data: tables = [], isLoading, error, refetch } = useTables();
   const deleteTableMutation = useDeleteTable();
 
-  const filteredTables = tables.filter(table =>
-    table.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    table.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    table.capacity.toString().includes(searchQuery)
+  const filteredTables = tables.filter(
+    (table) =>
+      table.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      table.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      table.capacity.toString().includes(searchQuery)
   );
 
   const handleDeleteTable = (tableId: number, tableName: string) => {
@@ -39,11 +49,11 @@ export default function TablesScreen() {
       `Are you sure you want to delete ${tableName}?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
-          onPress: () => deleteTableMutation.mutate(tableId)
-        }
+          onPress: () => deleteTableMutation.mutate(tableId),
+        },
       ]
     );
   };
@@ -59,27 +69,39 @@ export default function TablesScreen() {
       `Capacity: ${table.capacity} people\nStatus: ${table.status}`,
       [
         { text: 'Edit', onPress: () => handleEditTable(table) },
-        { text: 'Delete', style: 'destructive', onPress: () => handleDeleteTable(table.id, table.name) },
-        { text: 'Cancel', style: 'cancel' }
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => handleDeleteTable(table.id, table.name),
+        },
+        { text: 'Cancel', style: 'cancel' },
       ]
     );
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'available': return '#10b981';
-      case 'occupied': return '#ef4444';
-      case 'reserved': return '#f59e0b';
-      default: return '#6b7280';
+      case 'available':
+        return '#10b981';
+      case 'occupied':
+        return '#ef4444';
+      case 'reserved':
+        return '#f59e0b';
+      default:
+        return '#6b7280';
     }
   };
 
   const getStatusBackground = (status: string) => {
     switch (status) {
-      case 'available': return '#10b98120';
-      case 'occupied': return '#ef444420';
-      case 'reserved': return '#f59e0b20';
-      default: return '#6b728020';
+      case 'available':
+        return '#10b98120';
+      case 'occupied':
+        return '#ef444420';
+      case 'reserved':
+        return '#f59e0b20';
+      default:
+        return '#6b728020';
     }
   };
 
@@ -92,13 +114,15 @@ export default function TablesScreen() {
       <View style={styles.container}>
         <ThemedView style={styles.header}>
           <View style={styles.headerTop}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => router.back()}
             >
               <IconSymbol size={24} name="chevron.left" color="#374151" />
             </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>Tables</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              Tables
+            </ThemedText>
             <View style={styles.placeholder} />
           </View>
         </ThemedView>
@@ -115,20 +139,31 @@ export default function TablesScreen() {
       <View style={styles.container}>
         <ThemedView style={styles.header}>
           <View style={styles.headerTop}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => router.back()}
             >
               <IconSymbol size={24} name="chevron.left" color="#374151" />
             </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>Tables</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              Tables
+            </ThemedText>
             <View style={styles.placeholder} />
           </View>
         </ThemedView>
         <View style={styles.errorContainer}>
-          <IconSymbol size={48} name="exclamationmark.triangle" color="#ef4444" />
-          <ThemedText style={styles.errorText}>Failed to load tables</ThemedText>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+          <IconSymbol
+            size={48}
+            name="exclamationmark.triangle"
+            color="#ef4444"
+          />
+          <ThemedText style={styles.errorText}>
+            Failed to load tables
+          </ThemedText>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => refetch()}
+          >
             <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
           </TouchableOpacity>
         </View>
@@ -138,18 +173,20 @@ export default function TablesScreen() {
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
+      {/* <ThemedView style={styles.header}>
         <View style={styles.headerTop}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
             <IconSymbol size={24} name="chevron.left" color="#374151" />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Tables</ThemedText>
+          <ThemedText type="title" style={styles.title}>
+            Tables
+          </ThemedText>
           <View style={styles.placeholder} />
         </View>
-      </ThemedView>
+      </ThemedView> */}
 
       <ThemedView style={styles.content}>
         <View style={styles.searchSection}>
@@ -164,14 +201,18 @@ export default function TablesScreen() {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <IconSymbol size={20} name="xmark.circle.fill" color="#6b7280" />
+                <IconSymbol
+                  size={20}
+                  name="xmark.circle.fill"
+                  color="#6b7280"
+                />
               </TouchableOpacity>
             ) : null}
           </View>
         </View>
 
-        <ScrollView 
-          style={styles.tablesList} 
+        <ScrollView
+          style={styles.tablesList}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -183,8 +224,8 @@ export default function TablesScreen() {
           }
         >
           {filteredTables.map((table) => (
-            <TouchableOpacity 
-              key={table.id} 
+            <TouchableOpacity
+              key={table.id}
               style={styles.tableItem}
               onPress={() => handleTablePress(table)}
               onLongPress={() => handleDeleteTable(table.id, table.name)}
@@ -194,8 +235,18 @@ export default function TablesScreen() {
                   <ThemedText type="defaultSemiBold" style={styles.tableName}>
                     {table.name}
                   </ThemedText>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusBackground(table.status) }]}>
-                    <ThemedText style={[styles.statusText, { color: getStatusColor(table.status) }]}>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: getStatusBackground(table.status) },
+                    ]}
+                  >
+                    <ThemedText
+                      style={[
+                        styles.statusText,
+                        { color: getStatusColor(table.status) },
+                      ]}
+                    >
                       {table.status}
                     </ThemedText>
                   </View>
@@ -213,15 +264,21 @@ export default function TablesScreen() {
               <IconSymbol size={16} name="chevron.right" color="#6b7280" />
             </TouchableOpacity>
           ))}
-          
+
           {filteredTables.length === 0 && (
             <View style={styles.emptyState}>
-              <IconSymbol size={48} name="table.furniture.fill" color="#d1d5db" />
+              <IconSymbol
+                size={48}
+                name="table.furniture.fill"
+                color="#d1d5db"
+              />
               <ThemedText style={styles.emptyText}>
                 {searchQuery ? 'No tables found' : 'No tables available'}
               </ThemedText>
               <ThemedText style={styles.emptySubtext}>
-                {searchQuery ? 'Try adjusting your search' : 'Add your first table to get started'}
+                {searchQuery
+                  ? 'Try adjusting your search'
+                  : 'Add your first table to get started'}
               </ThemedText>
             </View>
           )}
@@ -229,7 +286,7 @@ export default function TablesScreen() {
       </ThemedView>
 
       {/* Floating Add Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={handleAddTable}
         activeOpacity={0.8}
@@ -257,7 +314,6 @@ export default function TablesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
   },
   header: {
     padding: 20,
