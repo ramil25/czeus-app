@@ -74,6 +74,15 @@ const MAPPING = {
   'magnifyingglass': 'search',
   'trash': 'delete',
   'trash.fill': 'delete-forever',
+  'square.grid.2x2': 'apps',
+  'dollarsign.circle': 'attach-money',
+  'envelope': 'email',
+  'phone': 'phone',
+  'takeoutbag.and.cup.and.straw': 'takeout-dining',
+  'carrot': 'restaurant',
+  'waterbottle': 'local-drink',
+  'pause.circle.fill': 'pause-circle-filled',
+  'questionmark.circle.fill': 'help',
 } as const;
 
 /**
