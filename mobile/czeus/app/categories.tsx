@@ -1,8 +1,14 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 interface Category {
@@ -16,7 +22,6 @@ interface Category {
 }
 
 export default function CategoriesScreen() {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Sample data for categories
@@ -28,7 +33,7 @@ export default function CategoriesScreen() {
       color: '#8b5a3c',
       backgroundColor: '#8b5a3c20',
       itemCount: 12,
-      description: 'Hot and cold coffee beverages'
+      description: 'Hot and cold coffee beverages',
     },
     {
       id: 2,
@@ -37,7 +42,7 @@ export default function CategoriesScreen() {
       color: '#f59e0b',
       backgroundColor: '#f59e0b20',
       itemCount: 8,
-      description: 'Fresh baked pastries and desserts'
+      description: 'Fresh baked pastries and desserts',
     },
     {
       id: 3,
@@ -46,7 +51,7 @@ export default function CategoriesScreen() {
       color: '#10b981',
       backgroundColor: '#10b98120',
       itemCount: 6,
-      description: 'Premium tea selection'
+      description: 'Premium tea selection',
     },
     {
       id: 4,
@@ -55,7 +60,7 @@ export default function CategoriesScreen() {
       color: '#ef4444',
       backgroundColor: '#ef444420',
       itemCount: 15,
-      description: 'Gourmet sandwiches and wraps'
+      description: 'Gourmet sandwiches and wraps',
     },
     {
       id: 5,
@@ -64,7 +69,7 @@ export default function CategoriesScreen() {
       color: '#22c55e',
       backgroundColor: '#22c55e20',
       itemCount: 7,
-      description: 'Fresh and healthy salads'
+      description: 'Fresh and healthy salads',
     },
     {
       id: 6,
@@ -73,38 +78,24 @@ export default function CategoriesScreen() {
       color: '#3b82f6',
       backgroundColor: '#3b82f620',
       itemCount: 10,
-      description: 'Non-coffee beverages and juices'
-    }
+      description: 'Non-coffee beverages and juices',
+    },
   ]);
 
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    category.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCategories = categories.filter(
+    (category) =>
+      category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleAddCategory = () => {
-    Alert.alert(
-      'Add New Category',
-      'This will open the add category form.',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('Add New Category', 'This will open the add category form.', [
+      { text: 'OK' },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <IconSymbol size={24} name="chevron.left" color="#374151" />
-          </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Categories</ThemedText>
-          <View style={styles.placeholder} />
-        </View>
-      </ThemedView>
-
       <ThemedView style={styles.content}>
         <View style={styles.searchSection}>
           <View style={styles.searchContainer}>
@@ -118,17 +109,33 @@ export default function CategoriesScreen() {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <IconSymbol size={20} name="xmark.circle.fill" color="#6b7280" />
+                <IconSymbol
+                  size={20}
+                  name="xmark.circle.fill"
+                  color="#6b7280"
+                />
               </TouchableOpacity>
             ) : null}
           </View>
         </View>
 
-        <ScrollView style={styles.categoriesList} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.categoriesList}
+          showsVerticalScrollIndicator={false}
+        >
           {filteredCategories.map((category) => (
             <View key={category.id} style={styles.categoryItem}>
-              <View style={[styles.categoryIcon, { backgroundColor: category.backgroundColor }]}>
-                <IconSymbol size={24} name={category.icon as any} color={category.color} />
+              <View
+                style={[
+                  styles.categoryIcon,
+                  { backgroundColor: category.backgroundColor },
+                ]}
+              >
+                <IconSymbol
+                  size={24}
+                  name={category.icon as any}
+                  color={category.color}
+                />
               </View>
               <View style={styles.categoryInfo}>
                 <ThemedText type="defaultSemiBold" style={styles.categoryName}>
@@ -144,15 +151,19 @@ export default function CategoriesScreen() {
               <IconSymbol size={16} name="chevron.right" color="#6b7280" />
             </View>
           ))}
-          
+
           {filteredCategories.length === 0 && (
             <View style={styles.emptyState}>
               <IconSymbol size={48} name="square.grid.2x2" color="#d1d5db" />
               <ThemedText style={styles.emptyText}>
-                {searchQuery ? 'No categories found' : 'No categories available'}
+                {searchQuery
+                  ? 'No categories found'
+                  : 'No categories available'}
               </ThemedText>
               <ThemedText style={styles.emptySubtext}>
-                {searchQuery ? 'Try adjusting your search' : 'Add your first category to get started'}
+                {searchQuery
+                  ? 'Try adjusting your search'
+                  : 'Add your first category to get started'}
               </ThemedText>
             </View>
           )}
@@ -160,7 +171,7 @@ export default function CategoriesScreen() {
       </ThemedView>
 
       {/* Floating Add Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={handleAddCategory}
         activeOpacity={0.8}
@@ -174,7 +185,6 @@ export default function CategoriesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
   },
   header: {
     padding: 20,

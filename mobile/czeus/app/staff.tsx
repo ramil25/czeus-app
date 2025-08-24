@@ -1,8 +1,14 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
 interface Staff {
@@ -18,7 +24,6 @@ interface Staff {
 }
 
 export default function StaffScreen() {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Sample data for staff
@@ -32,7 +37,7 @@ export default function StaffScreen() {
       status: 'active',
       phone: '+1-555-0123',
       joinDate: '2023-01-15',
-      permissions: ['manage_staff', 'view_reports', 'manage_inventory']
+      permissions: ['manage_staff', 'view_reports', 'manage_inventory'],
     },
     {
       id: 2,
@@ -43,7 +48,7 @@ export default function StaffScreen() {
       status: 'active',
       phone: '+1-555-0124',
       joinDate: '2023-03-20',
-      permissions: ['make_drinks', 'take_orders']
+      permissions: ['make_drinks', 'take_orders'],
     },
     {
       id: 3,
@@ -54,7 +59,7 @@ export default function StaffScreen() {
       status: 'on-break',
       phone: '+1-555-0125',
       joinDate: '2023-06-10',
-      permissions: ['handle_payments', 'take_orders', 'manage_discounts']
+      permissions: ['handle_payments', 'take_orders', 'manage_discounts'],
     },
     {
       id: 4,
@@ -65,7 +70,7 @@ export default function StaffScreen() {
       status: 'active',
       phone: '+1-555-0126',
       joinDate: '2023-08-05',
-      permissions: ['serve_tables', 'take_orders']
+      permissions: ['serve_tables', 'take_orders'],
     },
     {
       id: 5,
@@ -76,7 +81,7 @@ export default function StaffScreen() {
       status: 'inactive',
       phone: '+1-555-0127',
       joinDate: '2023-02-28',
-      permissions: ['make_drinks']
+      permissions: ['make_drinks'],
     },
     {
       id: 6,
@@ -87,87 +92,95 @@ export default function StaffScreen() {
       status: 'active',
       phone: '+1-555-0128',
       joinDate: '2023-07-12',
-      permissions: ['handle_payments', 'take_orders']
-    }
+      permissions: ['handle_payments', 'take_orders'],
+    },
   ]);
 
-  const filteredStaff = staff.filter(member =>
-    member.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.role.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStaff = staff.filter(
+    (member) =>
+      member.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'manager': return '#8b5cf6';
-      case 'cashier': return '#3b82f6';
-      case 'barista': return '#8b5a3c';
-      case 'server': return '#10b981';
-      default: return '#6b7280';
+      case 'manager':
+        return '#8b5cf6';
+      case 'cashier':
+        return '#3b82f6';
+      case 'barista':
+        return '#8b5a3c';
+      case 'server':
+        return '#10b981';
+      default:
+        return '#6b7280';
     }
   };
 
   const getRoleBackground = (role: string) => {
     switch (role) {
-      case 'manager': return '#8b5cf620';
-      case 'cashier': return '#3b82f620';
-      case 'barista': return '#8b5a3c20';
-      case 'server': return '#10b98120';
-      default: return '#6b728020';
+      case 'manager':
+        return '#8b5cf620';
+      case 'cashier':
+        return '#3b82f620';
+      case 'barista':
+        return '#8b5a3c20';
+      case 'server':
+        return '#10b98120';
+      default:
+        return '#6b728020';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return '#10b981';
-      case 'inactive': return '#6b7280';
-      case 'on-break': return '#f59e0b';
-      default: return '#6b7280';
+      case 'active':
+        return '#10b981';
+      case 'inactive':
+        return '#6b7280';
+      case 'on-break':
+        return '#f59e0b';
+      default:
+        return '#6b7280';
     }
   };
 
   const getStatusBackground = (status: string) => {
     switch (status) {
-      case 'active': return '#10b98120';
-      case 'inactive': return '#6b728020';
-      case 'on-break': return '#f59e0b20';
-      default: return '#6b728020';
+      case 'active':
+        return '#10b98120';
+      case 'inactive':
+        return '#6b728020';
+      case 'on-break':
+        return '#f59e0b20';
+      default:
+        return '#6b728020';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'active': return 'checkmark.circle.fill';
-      case 'inactive': return 'xmark.circle.fill';
-      case 'on-break': return 'pause.circle.fill';
-      default: return 'questionmark.circle.fill';
+      case 'active':
+        return 'checkmark.circle.fill';
+      case 'inactive':
+        return 'xmark.circle.fill';
+      case 'on-break':
+        return 'pause.circle.fill';
+      default:
+        return 'questionmark.circle.fill';
     }
   };
 
   const handleAddStaff = () => {
-    Alert.alert(
-      'Add New Staff',
-      'This will open the add staff form.',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('Add New Staff', 'This will open the add staff form.', [
+      { text: 'OK' },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <IconSymbol size={24} name="chevron.left" color="#374151" />
-          </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Staff</ThemedText>
-          <View style={styles.placeholder} />
-        </View>
-      </ThemedView>
-
       <ThemedView style={styles.content}>
         <View style={styles.searchSection}>
           <View style={styles.searchContainer}>
@@ -181,13 +194,20 @@ export default function StaffScreen() {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <IconSymbol size={20} name="xmark.circle.fill" color="#6b7280" />
+                <IconSymbol
+                  size={20}
+                  name="xmark.circle.fill"
+                  color="#6b7280"
+                />
               </TouchableOpacity>
             ) : null}
           </View>
         </View>
 
-        <ScrollView style={styles.staffList} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.staffList}
+          showsVerticalScrollIndicator={false}
+        >
           {filteredStaff.map((member) => (
             <View key={member.id} style={styles.staffItem}>
               <View style={styles.staffAvatar}>
@@ -199,8 +219,18 @@ export default function StaffScreen() {
                     {member.firstName} {member.lastName}
                   </ThemedText>
                   <View style={styles.badges}>
-                    <View style={[styles.roleBadge, { backgroundColor: getRoleBackground(member.role) }]}>
-                      <ThemedText style={[styles.roleText, { color: getRoleColor(member.role) }]}>
+                    <View
+                      style={[
+                        styles.roleBadge,
+                        { backgroundColor: getRoleBackground(member.role) },
+                      ]}
+                    >
+                      <ThemedText
+                        style={[
+                          styles.roleText,
+                          { color: getRoleColor(member.role) },
+                        ]}
+                      >
                         {member.role.toUpperCase()}
                       </ThemedText>
                     </View>
@@ -222,13 +252,23 @@ export default function StaffScreen() {
                 </View>
                 <View style={styles.statusRow}>
                   <View style={styles.statusContainer}>
-                    <IconSymbol 
-                      size={16} 
-                      name={getStatusIcon(member.status) as any} 
-                      color={getStatusColor(member.status)} 
+                    <IconSymbol
+                      size={16}
+                      name={getStatusIcon(member.status) as any}
+                      color={getStatusColor(member.status)}
                     />
-                    <View style={[styles.statusBadge, { backgroundColor: getStatusBackground(member.status) }]}>
-                      <ThemedText style={[styles.statusText, { color: getStatusColor(member.status) }]}>
+                    <View
+                      style={[
+                        styles.statusBadge,
+                        { backgroundColor: getStatusBackground(member.status) },
+                      ]}
+                    >
+                      <ThemedText
+                        style={[
+                          styles.statusText,
+                          { color: getStatusColor(member.status) },
+                        ]}
+                      >
                         {member.status.replace('-', ' ').toUpperCase()}
                       </ThemedText>
                     </View>
@@ -241,7 +281,7 @@ export default function StaffScreen() {
               <IconSymbol size={16} name="chevron.right" color="#6b7280" />
             </View>
           ))}
-          
+
           {filteredStaff.length === 0 && (
             <View style={styles.emptyState}>
               <IconSymbol size={48} name="person.2.fill" color="#d1d5db" />
@@ -249,7 +289,9 @@ export default function StaffScreen() {
                 {searchQuery ? 'No staff found' : 'No staff members'}
               </ThemedText>
               <ThemedText style={styles.emptySubtext}>
-                {searchQuery ? 'Try adjusting your search' : 'Add your first staff member to get started'}
+                {searchQuery
+                  ? 'Try adjusting your search'
+                  : 'Add your first staff member to get started'}
               </ThemedText>
             </View>
           )}
@@ -257,7 +299,7 @@ export default function StaffScreen() {
       </ThemedView>
 
       {/* Floating Add Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={handleAddStaff}
         activeOpacity={0.8}

@@ -1,9 +1,21 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTables, useDeleteTable } from '@/hooks/useTables';
+import AddTableModal from '@/components/modals/AddTableModal';
+import EditTableModal from '@/components/modals/EditTableModal';
 
 interface Table {
   id: number;
@@ -16,98 +28,165 @@ interface Table {
 export default function TablesScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
 
-  // Sample data for tables
-  const [tables] = useState<Table[]>([
-    {
-      id: 1,
-      name: 'Table 1',
-      capacity: 2,
-      status: 'available',
-      description: 'Window side table for 2'
-    },
-    {
-      id: 2,
-      name: 'Table 2',
-      capacity: 4,
-      status: 'occupied',
-      description: 'Central table for 4 people'
-    },
-    {
-      id: 3,
-      name: 'Table 3',
-      capacity: 6,
-      status: 'reserved',
-      description: 'Large family table'
-    },
-    {
-      id: 4,
-      name: 'Table 4',
-      capacity: 2,
-      status: 'available',
-      description: 'Cozy corner table'
-    },
-    {
-      id: 5,
-      name: 'Table 5',
-      capacity: 8,
-      status: 'available',
-      description: 'Party table for large groups'
-    },
-    {
-      id: 6,
-      name: 'VIP Table',
-      capacity: 4,
-      status: 'available',
-      description: 'Premium table with special service'
-    }
-  ]);
+  // Use React Query hooks for data fetching
+  const { data: tables = [], isLoading, error, refetch } = useTables();
+  const deleteTableMutation = useDeleteTable();
 
-  const filteredTables = tables.filter(table =>
-    table.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    table.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTables = tables.filter(
+    (table) =>
+      table.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      table.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      table.capacity.toString().includes(searchQuery)
   );
+
+  const handleDeleteTable = (tableId: number, tableName: string) => {
+    Alert.alert(
+      'Delete Table',
+      `Are you sure you want to delete ${tableName}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteTableMutation.mutate(tableId),
+        },
+      ]
+    );
+  };
+
+  const handleEditTable = (table: Table) => {
+    setSelectedTable(table);
+    setShowEditModal(true);
+  };
+
+  const handleTablePress = (table: Table) => {
+    Alert.alert(
+      `Table: ${table.name}`,
+      `Capacity: ${table.capacity} people\nStatus: ${table.status}`,
+      [
+        { text: 'Edit', onPress: () => handleEditTable(table) },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => handleDeleteTable(table.id, table.name),
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'available': return '#10b981';
-      case 'occupied': return '#ef4444';
-      case 'reserved': return '#f59e0b';
-      default: return '#6b7280';
+      case 'available':
+        return '#10b981';
+      case 'occupied':
+        return '#ef4444';
+      case 'reserved':
+        return '#f59e0b';
+      default:
+        return '#6b7280';
     }
   };
 
   const getStatusBackground = (status: string) => {
     switch (status) {
-      case 'available': return '#10b98120';
-      case 'occupied': return '#ef444420';
-      case 'reserved': return '#f59e0b20';
-      default: return '#6b728020';
+      case 'available':
+        return '#10b98120';
+      case 'occupied':
+        return '#ef444420';
+      case 'reserved':
+        return '#f59e0b20';
+      default:
+        return '#6b728020';
     }
   };
 
   const handleAddTable = () => {
-    Alert.alert(
-      'Add New Table',
-      'This will open the add table form.',
-      [{ text: 'OK' }]
-    );
+    setShowAddModal(true);
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ThemedView style={styles.header}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <IconSymbol size={24} name="chevron.left" color="#374151" />
+            </TouchableOpacity>
+            <ThemedText type="title" style={styles.title}>
+              Tables
+            </ThemedText>
+            <View style={styles.placeholder} />
+          </View>
+        </ThemedView>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <ThemedText style={styles.loadingText}>Loading tables...</ThemedText>
+        </View>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <ThemedView style={styles.header}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <IconSymbol size={24} name="chevron.left" color="#374151" />
+            </TouchableOpacity>
+            <ThemedText type="title" style={styles.title}>
+              Tables
+            </ThemedText>
+            <View style={styles.placeholder} />
+          </View>
+        </ThemedView>
+        <View style={styles.errorContainer}>
+          <IconSymbol
+            size={48}
+            name="exclamationmark.triangle"
+            color="#ef4444"
+          />
+          <ThemedText style={styles.errorText}>
+            Failed to load tables
+          </ThemedText>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => refetch()}
+          >
+            <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
+      {/* <ThemedView style={styles.header}>
         <View style={styles.headerTop}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
             <IconSymbol size={24} name="chevron.left" color="#374151" />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Tables</ThemedText>
+          <ThemedText type="title" style={styles.title}>
+            Tables
+          </ThemedText>
           <View style={styles.placeholder} />
         </View>
-      </ThemedView>
+      </ThemedView> */}
 
       <ThemedView style={styles.content}>
         <View style={styles.searchSection}>
@@ -122,22 +201,52 @@ export default function TablesScreen() {
             />
             {searchQuery ? (
               <TouchableOpacity onPress={() => setSearchQuery('')}>
-                <IconSymbol size={20} name="xmark.circle.fill" color="#6b7280" />
+                <IconSymbol
+                  size={20}
+                  name="xmark.circle.fill"
+                  color="#6b7280"
+                />
               </TouchableOpacity>
             ) : null}
           </View>
         </View>
 
-        <ScrollView style={styles.tablesList} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.tablesList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={refetch}
+              colors={['#3b82f6']}
+              tintColor="#3b82f6"
+            />
+          }
+        >
           {filteredTables.map((table) => (
-            <View key={table.id} style={styles.tableItem}>
+            <TouchableOpacity
+              key={table.id}
+              style={styles.tableItem}
+              onPress={() => handleTablePress(table)}
+              onLongPress={() => handleDeleteTable(table.id, table.name)}
+            >
               <View style={styles.tableInfo}>
                 <View style={styles.tableHeader}>
                   <ThemedText type="defaultSemiBold" style={styles.tableName}>
                     {table.name}
                   </ThemedText>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusBackground(table.status) }]}>
-                    <ThemedText style={[styles.statusText, { color: getStatusColor(table.status) }]}>
+                  <View
+                    style={[
+                      styles.statusBadge,
+                      { backgroundColor: getStatusBackground(table.status) },
+                    ]}
+                  >
+                    <ThemedText
+                      style={[
+                        styles.statusText,
+                        { color: getStatusColor(table.status) },
+                      ]}
+                    >
                       {table.status}
                     </ThemedText>
                   </View>
@@ -153,17 +262,23 @@ export default function TablesScreen() {
                 </View>
               </View>
               <IconSymbol size={16} name="chevron.right" color="#6b7280" />
-            </View>
+            </TouchableOpacity>
           ))}
-          
+
           {filteredTables.length === 0 && (
             <View style={styles.emptyState}>
-              <IconSymbol size={48} name="table.furniture.fill" color="#d1d5db" />
+              <IconSymbol
+                size={48}
+                name="table.furniture.fill"
+                color="#d1d5db"
+              />
               <ThemedText style={styles.emptyText}>
                 {searchQuery ? 'No tables found' : 'No tables available'}
               </ThemedText>
               <ThemedText style={styles.emptySubtext}>
-                {searchQuery ? 'Try adjusting your search' : 'Add your first table to get started'}
+                {searchQuery
+                  ? 'Try adjusting your search'
+                  : 'Add your first table to get started'}
               </ThemedText>
             </View>
           )}
@@ -171,13 +286,27 @@ export default function TablesScreen() {
       </ThemedView>
 
       {/* Floating Add Button */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.addButton}
         onPress={handleAddTable}
         activeOpacity={0.8}
       >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
+
+      <AddTableModal
+        visible={showAddModal}
+        onClose={() => setShowAddModal(false)}
+      />
+
+      <EditTableModal
+        visible={showEditModal}
+        table={selectedTable}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedTable(null);
+        }}
+      />
     </View>
   );
 }
@@ -185,7 +314,6 @@ export default function TablesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
   },
   header: {
     padding: 20,
@@ -317,5 +445,40 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#ef4444',
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
