@@ -1,19 +1,20 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useCategories } from '@/hooks/useCategories';
+import { CreateSizeInput, Size } from '@/lib/sizes';
+import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Modal,
-  View,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
+  View,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { CreateSizeInput, Size } from '@/lib/sizes';
-import { useCategories } from '@/hooks/useCategories';
 
 interface AddSizeModalProps {
   visible: boolean;
@@ -113,6 +114,9 @@ export default function AddSizeModal({ visible, onClose, onAdd }: AddSizeModalPr
                     onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
                     style={styles.picker}
                     enabled={!loading}
+                    dropdownIconColor="#374151"
+                    mode={Platform.OS === 'android' ? 'dropdown' : undefined}
+                    itemStyle={Platform.OS === 'ios' ? styles.pickerItem : undefined}
                   >
                     <Picker.Item label="Select a category" value={null} />
                     {categories.map((category) => (
@@ -236,9 +240,15 @@ const styles = StyleSheet.create({
     borderColor: '#d1d5db',
     borderRadius: 8,
     backgroundColor: '#fff',
+    overflow: 'hidden',
   },
   picker: {
-    height: 50,
+    width: '100%',
+    color: '#111827',
+    ...(Platform.OS === 'android' ? { height: 52 } : {}),
+  },
+  pickerItem: {
+    fontSize: 16,
     color: '#111827',
   },
   footer: {

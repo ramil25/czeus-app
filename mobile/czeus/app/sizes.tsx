@@ -1,21 +1,21 @@
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
+import AddSizeModal from '@/components/modals/AddSizeModal';
+import EditSizeModal from '@/components/modals/EditSizeModal';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useState } from 'react';
 import { useSizes } from '@/hooks/useSizes';
-import AddSizeModal from '@/components/modals/AddSizeModal';
-import EditSizeModal from '@/components/modals/EditSizeModal';
 import { Size } from '@/lib/sizes';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function SizesScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,99 +51,114 @@ export default function SizesScreen() {
   const handleRefresh = async () => {
     try {
       await refreshSizes();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to refresh sizes');
+    } catch (err: any) {
+      Alert.alert('Error', 'Failed to refresh sizes', err.message);
     }
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={loading}
-          onRefresh={handleRefresh}
-          tintColor="#3b82f6"
-          colors={['#3b82f6']}
-        />
-      }
-    >
-      <ThemedView style={styles.content}>
-        <View style={styles.searchContainer}>
-          <IconSymbol size={20} name="magnifyingglass" color="#6b7280" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search sizes..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#9ca3af"
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scrollArea}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={handleRefresh}
+            tintColor="#3b82f6"
+            colors={['#3b82f6']}
           />
-        </View>
-
-        {error && (
-          <View style={styles.errorContainer}>
-            <IconSymbol size={24} name="exclamationmark.triangle" color="#ef4444" />
-            <ThemedText style={styles.errorText}>{error}</ThemedText>
-            <TouchableOpacity style={styles.retryButton} onPress={handleRefresh}>
-              <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
-            </TouchableOpacity>
+        }
+      >
+        <ThemedView style={styles.content}>
+          <View style={styles.searchContainer}>
+            <IconSymbol size={20} name="magnifyingglass" color="#6b7280" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search sizes..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#9ca3af"
+            />
           </View>
-        )}
 
-        {loading && !error && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#3b82f6" />
-            <ThemedText style={styles.loadingText}>Loading sizes...</ThemedText>
-          </View>
-        )}
+          {error && (
+            <View style={styles.errorContainer}>
+              <IconSymbol
+                size={24}
+                name="exclamationmark.triangle"
+                color="#ef4444"
+              />
+              <ThemedText style={styles.errorText}>{error}</ThemedText>
+              <TouchableOpacity
+                style={styles.retryButton}
+                onPress={handleRefresh}
+              >
+                <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
 
-        <View style={styles.sizesList}>
-          {!loading && !error && filteredSizes.length === 0 ? (
-            <View style={styles.emptyState}>
-              <IconSymbol size={48} name="ruler.fill" color="#d1d5db" />
-              <ThemedText style={styles.emptyText}>No sizes found</ThemedText>
-              <ThemedText style={styles.emptySubtext}>
-                {searchQuery
-                  ? 'Try adjusting your search terms'
-                  : 'Add your first size to get started'}
+          {loading && !error && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#3b82f6" />
+              <ThemedText style={styles.loadingText}>
+                Loading sizes...
               </ThemedText>
             </View>
-          ) : (
-            filteredSizes.map((size) => (
-              <TouchableOpacity 
-                key={size.id} 
-                style={styles.sizeCard}
-                onPress={() => handleSizePress(size)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.sizeIcon}>
-                  <IconSymbol
-                    size={24}
-                    name="ruler.fill"
-                    color="#3b82f6"
-                  />
-                </View>
-                <View style={styles.sizeInfo}>
-                  <View style={styles.sizeHeader}>
-                    <ThemedText type="defaultSemiBold" style={styles.sizeName}>
-                      {size.name}
+          )}
+
+          <View style={styles.sizesList}>
+            {!loading && !error && filteredSizes.length === 0 ? (
+              <View style={styles.emptyState}>
+                <IconSymbol size={48} name="ruler.fill" color="#d1d5db" />
+                <ThemedText style={styles.emptyText}>No sizes found</ThemedText>
+                <ThemedText style={styles.emptySubtext}>
+                  {searchQuery
+                    ? 'Try adjusting your search terms'
+                    : 'Add your first size to get started'}
+                </ThemedText>
+              </View>
+            ) : (
+              filteredSizes.map((size) => (
+                <TouchableOpacity
+                  key={size.id}
+                  style={styles.sizeCard}
+                  onPress={() => handleSizePress(size)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.sizeIcon}>
+                    <IconSymbol size={24} name="ruler.fill" color="#3b82f6" />
+                  </View>
+                  <View style={styles.sizeInfo}>
+                    <View style={styles.sizeHeader}>
+                      <ThemedText
+                        type="defaultSemiBold"
+                        style={styles.sizeName}
+                      >
+                        {size.name}
+                      </ThemedText>
+                    </View>
+                    <ThemedText style={styles.categoryText}>
+                      {size.categoryName}
+                    </ThemedText>
+                    <ThemedText style={styles.dateText}>
+                      Created: {new Date(size.createdAt).toLocaleDateString()}
                     </ThemedText>
                   </View>
-                  <ThemedText style={styles.categoryText}>
-                    {size.categoryName}
-                  </ThemedText>
-                  <ThemedText style={styles.dateText}>
-                    Created: {new Date(size.createdAt).toLocaleDateString()}
-                  </ThemedText>
-                </View>
-                <IconSymbol size={20} name="chevron.right" color="#d1d5db" />
-              </TouchableOpacity>
-            ))
-          )}
-        </View>
-      </ThemedView>
+                  <IconSymbol size={20} name="chevron.right" color="#d1d5db" />
+                </TouchableOpacity>
+              ))
+            )}
+          </View>
+        </ThemedView>
+      </ScrollView>
 
-      <TouchableOpacity style={styles.fab} onPress={handleAddSize}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleAddSize}
+        activeOpacity={0.85}
+      >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
 
@@ -163,7 +178,7 @@ export default function SizesScreen() {
         onUpdate={updateExistingSize}
         onDelete={deleteExistingSize}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -172,6 +187,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
+  scrollArea: { flex: 1 },
+  scrollContent: { paddingBottom: 120 },
   content: {
     padding: 20,
   },
