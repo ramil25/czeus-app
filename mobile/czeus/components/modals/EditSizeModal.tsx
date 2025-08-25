@@ -23,31 +23,30 @@ interface EditSizeModalProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-export default function EditSizeModal({ 
-  visible, 
-  size, 
-  onClose, 
-  onUpdate, 
-  onDelete 
+export default function EditSizeModal({
+  visible,
+  size,
+  onClose,
+  onUpdate,
+  onDelete,
 }: EditSizeModalProps) {
   const [sizeName, setSizeName] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  
+  const [deleting, setDeleting] = useState(false);
+
   const { categories, loading: categoriesLoading } = useCategories();
 
-  // Initialize form when size changes
   useEffect(() => {
-    if (visible && size) {
+    if (size) {
       setSizeName(size.name);
       setSelectedCategoryId(size.categoryId);
     }
-  }, [visible, size]);
+  }, [size]);
 
   const handleUpdate = async () => {
     if (!size) return;
-
+    
     if (!sizeName.trim()) {
       Alert.alert('Validation Error', 'Size name is required');
       return;
@@ -75,7 +74,7 @@ export default function EditSizeModal({
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!size) return;
 
     Alert.alert(
@@ -91,7 +90,7 @@ export default function EditSizeModal({
           style: 'destructive',
           onPress: async () => {
             try {
-              setDeleteLoading(true);
+              setDeleting(true);
               await onDelete(size.id);
               onClose();
               Alert.alert('Success', 'Size deleted successfully');
@@ -99,7 +98,7 @@ export default function EditSizeModal({
               const message = error instanceof Error ? error.message : 'Failed to delete size';
               Alert.alert('Error', message);
             } finally {
-              setDeleteLoading(false);
+              setDeleting(false);
             }
           },
         },
@@ -107,52 +106,64 @@ export default function EditSizeModal({
     );
   };
 
-  const handleCancel = () => {
-    if (size) {
-      setSizeName(size.name);
-      setSelectedCategoryId(size.categoryId);
+  const handleClose = () => {
+    if (!loading && !deleting) {
+      onClose();
     }
-    onClose();
   };
 
-  if (!visible || !size) return null;
+  if (!size) return null;
 
   return (
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
-      onRequestClose={handleCancel}
+      presentationStyle="pageSheet"
+      onRequestClose={handleClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Edit Size</Text>
-            <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
-              <IconSymbol size={24} name="xmark.circle.fill" color="#6b7280" />
-            </TouchableOpacity>
-          </View>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={handleClose}
+            disabled={loading || deleting}
+            style={styles.closeButton}
+          >
+            <IconSymbol size={24} name="xmark.circle.fill" color="#6b7280" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Edit Size</Text>
+          <TouchableOpacity
+            onPress={handleDelete}
+            disabled={loading || deleting}
+            style={styles.deleteButton}
+          >
+            {deleting ? (
+              <ActivityIndicator size="small" color="#ef4444" />
+            ) : (
+              <IconSymbol size={24} name="trash" color="#ef4444" />
+            )}
+          </TouchableOpacity>
+        </View>
 
-          <ScrollView style={styles.content}>
-            <View style={styles.formGroup}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
               <Text style={styles.label}>Size Name *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter size name (e.g., Small, Medium, Large)"
                 value={sizeName}
                 onChangeText={setSizeName}
+                placeholder="Enter size name"
+                placeholderTextColor="#9ca3af"
+                editable={!loading && !deleting}
                 maxLength={100}
-                autoCapitalize="words"
-                editable={!loading && !deleteLoading}
               />
-              <Text style={styles.charCount}>{sizeName.length}/100</Text>
             </View>
 
-            <View style={styles.formGroup}>
+            <View style={styles.inputGroup}>
               <Text style={styles.label}>Category *</Text>
               {categoriesLoading ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="small" color="#3b82f6" />
+                  <ActivityIndicator size="small" color="#f59e0b" />
                   <Text style={styles.loadingText}>Loading categories...</Text>
                 </View>
               ) : (
@@ -161,7 +172,7 @@ export default function EditSizeModal({
                     selectedValue={selectedCategoryId}
                     onValueChange={(itemValue) => setSelectedCategoryId(itemValue)}
                     style={styles.picker}
-                    enabled={!loading && !deleteLoading}
+                    enabled={!loading && !deleting}
                   >
                     <Picker.Item label="Select a category" value={null} />
                     {categories.map((category) => (
@@ -175,53 +186,33 @@ export default function EditSizeModal({
                 </View>
               )}
             </View>
-
-            <View style={styles.categoryInfo}>
-              <Text style={styles.categoryInfoLabel}>Current Category:</Text>
-              <Text style={styles.categoryInfoText}>{size.categoryName}</Text>
-            </View>
-          </ScrollView>
-
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.deleteButton]}
-              onPress={handleDelete}
-              disabled={loading || deleteLoading}
-            >
-              {deleteLoading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <>
-                  <IconSymbol size={16} name="trash" color="#fff" />
-                  <Text style={styles.deleteButtonText}>Delete</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleCancel}
-              disabled={loading || deleteLoading}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.button,
-                styles.submitButton,
-                (loading || deleteLoading) && styles.disabledButton,
-              ]}
-              onPress={handleUpdate}
-              disabled={loading || deleteLoading || !sizeName.trim() || !selectedCategoryId}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.submitButtonText}>Update</Text>
-              )}
-            </TouchableOpacity>
           </View>
+        </ScrollView>
+
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={handleClose}
+            disabled={loading || deleting}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.updateButton,
+              (!sizeName.trim() || !selectedCategoryId || loading || deleting) && styles.disabledButton,
+            ]}
+            onPress={handleUpdate}
+            disabled={!sizeName.trim() || !selectedCategoryId || loading || deleting}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.updateButtonText}>Update Size</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -229,40 +220,46 @@ export default function EditSizeModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modal: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 400,
-    maxHeight: '80%',
+    backgroundColor: '#f9fafb',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
+  closeButton: {
+    padding: 8,
+    marginLeft: -8,
+  },
+  deleteButton: {
+    padding: 8,
+    marginRight: -8,
+  },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1f2937',
-  },
-  closeButton: {
-    padding: 4,
+    fontWeight: '600',
+    color: '#111827',
   },
   content: {
+    flex: 1,
     padding: 20,
   },
-  formGroup: {
+  formContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  inputGroup: {
     marginBottom: 20,
   },
   label: {
@@ -275,16 +272,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#d1d5db',
     borderRadius: 8,
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     fontSize: 16,
+    color: '#111827',
     backgroundColor: '#fff',
-    color: '#1f2937',
-  },
-  charCount: {
-    fontSize: 12,
-    color: '#6b7280',
-    textAlign: 'right',
-    marginTop: 4,
   },
   loadingContainer: {
     flexDirection: 'row',
@@ -308,70 +300,43 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
-    color: '#1f2937',
+    color: '#111827',
   },
-  categoryInfo: {
-    backgroundColor: '#f3f4f6',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  categoryInfoLabel: {
-    fontSize: 12,
-    color: '#6b7280',
-    fontWeight: '500',
-  },
-  categoryInfoText: {
-    fontSize: 14,
-    color: '#374151',
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  buttonContainer: {
+  footer: {
     flexDirection: 'row',
+    gap: 12,
     padding: 20,
+    backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
-    gap: 8,
   },
   button: {
     flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: 8,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
-    flexDirection: 'row',
-    gap: 4,
-  },
-  deleteButton: {
-    backgroundColor: '#ef4444',
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
+    minHeight: 48,
   },
   cancelButton: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#d1d5db',
   },
   cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
     color: '#374151',
-    fontSize: 14,
+  },
+  updateButton: {
+    backgroundColor: '#f59e0b',
+  },
+  updateButtonText: {
+    fontSize: 16,
     fontWeight: '500',
-  },
-  submitButton: {
-    backgroundColor: '#3b82f6',
-  },
-  submitButtonText: {
     color: '#fff',
-    fontSize: 14,
-    fontWeight: '500',
   },
   disabledButton: {
-    backgroundColor: '#9ca3af',
+    opacity: 0.5,
   },
 });
