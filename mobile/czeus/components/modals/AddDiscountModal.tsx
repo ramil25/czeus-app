@@ -98,7 +98,7 @@ export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscoun
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose} disabled={loading}>
-            <IconSymbol size={24} name="xmark" color="#374151" />
+            <IconSymbol size={24} name="xmark.circle.fill" color="#374151" />
           </TouchableOpacity>
           <Text style={styles.title}>Add Discount</Text>
           <View style={styles.placeholder} />

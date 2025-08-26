@@ -142,7 +142,7 @@ export default function EditDiscountModal({
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose} disabled={loading}>
-            <IconSymbol size={24} name="xmark" color="#374151" />
+            <IconSymbol size={24} name="xmark.circle.fill" color="#374151" />
           </TouchableOpacity>
           <Text style={styles.title}>Edit Discount</Text>
           <TouchableOpacity onPress={handleDelete} disabled={loading}>
