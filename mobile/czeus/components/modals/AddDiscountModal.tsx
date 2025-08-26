@@ -1,19 +1,19 @@
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { CreateDiscountInput, Discount, DiscountType } from '@/lib/discounts';
+import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Modal,
-  View,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
-  Platform,
+  View,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { CreateDiscountInput, Discount, DiscountType } from '@/lib/discounts';
 
 interface AddDiscountModalProps {
   visible: boolean;
@@ -21,7 +21,11 @@ interface AddDiscountModalProps {
   onAdd: (input: CreateDiscountInput) => Promise<Discount>;
 }
 
-export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscountModalProps) {
+export default function AddDiscountModal({
+  visible,
+  onClose,
+  onAdd,
+}: AddDiscountModalProps) {
   const [discountName, setDiscountName] = useState('');
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
   const [discountValue, setDiscountValue] = useState('');
@@ -29,7 +33,7 @@ export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscoun
 
   const handleClose = () => {
     if (loading) return;
-    
+
     // Reset form
     setDiscountName('');
     setDiscountType('percentage');
@@ -41,20 +45,20 @@ export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscoun
     if (!discountName.trim()) {
       return 'Discount name is required';
     }
-    
+
     if (!discountValue.trim()) {
       return 'Discount value is required';
     }
-    
+
     const value = parseFloat(discountValue);
     if (isNaN(value) || value <= 0) {
       return 'Discount value must be a positive number';
     }
-    
+
     if (discountType === 'percentage' && value > 100) {
       return 'Percentage discount cannot exceed 100%';
     }
-    
+
     return null;
   };
 
@@ -72,16 +76,17 @@ export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscoun
         discount_type: discountType,
         discount_value: parseFloat(discountValue),
       });
-      
+
       // Reset form
       setDiscountName('');
       setDiscountType('percentage');
       setDiscountValue('');
       onClose();
-      
+
       Alert.alert('Success', 'Discount created successfully');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create discount';
+      const message =
+        error instanceof Error ? error.message : 'Failed to create discount';
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -129,7 +134,9 @@ export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscoun
                   enabled={!loading}
                   dropdownIconColor="#374151"
                   mode={Platform.OS === 'android' ? 'dropdown' : undefined}
-                  itemStyle={Platform.OS === 'ios' ? styles.pickerItem : undefined}
+                  itemStyle={
+                    Platform.OS === 'ios' ? styles.pickerItem : undefined
+                  }
                 >
                   <Picker.Item label="Percentage" value="percentage" />
                   <Picker.Item label="Actual Value" value="actual" />
@@ -145,7 +152,11 @@ export default function AddDiscountModal({ visible, onClose, onAdd }: AddDiscoun
                 style={styles.input}
                 value={discountValue}
                 onChangeText={setDiscountValue}
-                placeholder={discountType === 'percentage' ? 'Enter percentage (e.g., 10)' : 'Enter amount (e.g., 5.00)'}
+                placeholder={
+                  discountType === 'percentage'
+                    ? 'Enter percentage (e.g., 10)'
+                    : 'Enter amount (e.g., 5.00)'
+                }
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 editable={!loading}
@@ -244,11 +255,16 @@ const styles = StyleSheet.create({
   picker: {
     width: '100%',
     color: '#111827',
-    ...(Platform.OS === 'android' ? { height: 52 } : {}),
+    // Give a little more vertical room to avoid clipping ascenders/descenders
+    ...(Platform.OS === 'android'
+      ? { height: 56, paddingVertical: 4 }
+      : { height: 180 }), // iOS wheel gets its own intrinsic height; this just ensures enough space
   },
   pickerItem: {
-    fontSize: 16,
+    fontSize: 18,
+    lineHeight: 22,
     color: '#111827',
+    fontFamily: Platform.OS === 'ios' ? undefined : 'System',
   },
   footer: {
     flexDirection: 'row',

@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { Discount, DiscountType, UpdateDiscountInput } from '@/lib/discounts';
+import { Picker } from '@react-native-picker/picker';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Modal,
-  View,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
-  Platform,
+  View,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Discount, UpdateDiscountInput, DiscountType } from '@/lib/discounts';
 
 interface EditDiscountModalProps {
   visible: boolean;
@@ -23,12 +23,12 @@ interface EditDiscountModalProps {
   onDelete: (id: number) => Promise<void>;
 }
 
-export default function EditDiscountModal({ 
-  visible, 
-  discount, 
-  onClose, 
-  onUpdate, 
-  onDelete 
+export default function EditDiscountModal({
+  visible,
+  discount,
+  onClose,
+  onUpdate,
+  onDelete,
 }: EditDiscountModalProps) {
   const [discountName, setDiscountName] = useState('');
   const [discountType, setDiscountType] = useState<DiscountType>('percentage');
@@ -57,26 +57,26 @@ export default function EditDiscountModal({
     if (!discountName.trim()) {
       return 'Discount name is required';
     }
-    
+
     if (!discountValue.trim()) {
       return 'Discount value is required';
     }
-    
+
     const value = parseFloat(discountValue);
     if (isNaN(value) || value <= 0) {
       return 'Discount value must be a positive number';
     }
-    
+
     if (discountType === 'percentage' && value > 100) {
       return 'Percentage discount cannot exceed 100%';
     }
-    
+
     return null;
   };
 
   const handleUpdate = async () => {
     if (!discount) return;
-    
+
     const validationError = validateForm();
     if (validationError) {
       Alert.alert('Validation Error', validationError);
@@ -90,11 +90,12 @@ export default function EditDiscountModal({
         discount_type: discountType,
         discount_value: parseFloat(discountValue),
       });
-      
+
       onClose();
       Alert.alert('Success', 'Discount updated successfully');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update discount';
+      const message =
+        error instanceof Error ? error.message : 'Failed to update discount';
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
@@ -119,7 +120,10 @@ export default function EditDiscountModal({
               onClose();
               Alert.alert('Success', 'Discount deleted successfully');
             } catch (error) {
-              const message = error instanceof Error ? error.message : 'Failed to delete discount';
+              const message =
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to delete discount';
               Alert.alert('Error', message);
             } finally {
               setLoading(false);
@@ -175,7 +179,9 @@ export default function EditDiscountModal({
                   enabled={!loading}
                   dropdownIconColor="#374151"
                   mode={Platform.OS === 'android' ? 'dropdown' : undefined}
-                  itemStyle={Platform.OS === 'ios' ? styles.pickerItem : undefined}
+                  itemStyle={
+                    Platform.OS === 'ios' ? styles.pickerItem : undefined
+                  }
                 >
                   <Picker.Item label="Percentage" value="percentage" />
                   <Picker.Item label="Actual Value" value="actual" />
@@ -191,7 +197,11 @@ export default function EditDiscountModal({
                 style={styles.input}
                 value={discountValue}
                 onChangeText={setDiscountValue}
-                placeholder={discountType === 'percentage' ? 'Enter percentage (e.g., 10)' : 'Enter amount (e.g., 5.00)'}
+                placeholder={
+                  discountType === 'percentage'
+                    ? 'Enter percentage (e.g., 10)'
+                    : 'Enter amount (e.g., 5.00)'
+                }
                 placeholderTextColor="#9ca3af"
                 keyboardType="numeric"
                 editable={!loading}
@@ -287,11 +297,15 @@ const styles = StyleSheet.create({
   picker: {
     width: '100%',
     color: '#111827',
-    ...(Platform.OS === 'android' ? { height: 52 } : {}),
+    ...(Platform.OS === 'android'
+      ? { height: 56, paddingVertical: 4 }
+      : { height: 180 }),
   },
   pickerItem: {
-    fontSize: 16,
+    fontSize: 18,
+    lineHeight: 22,
     color: '#111827',
+    fontFamily: Platform.OS === 'ios' ? undefined : 'System',
   },
   footer: {
     flexDirection: 'row',
