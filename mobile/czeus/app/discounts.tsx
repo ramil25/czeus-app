@@ -4,116 +4,64 @@ import {
   View,
   TouchableOpacity,
   TextInput,
-  Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useState } from 'react';
-
-interface Discount {
-  id: number;
-  name: string;
-  type: 'percentage' | 'fixed' | 'bogo';
-  value: number;
-  description: string;
-  isActive: boolean;
-  validUntil: string;
-  minOrder?: number;
-}
+import { useDiscounts } from '@/hooks/useDiscounts';
+import { Discount, formatDiscountValue, getDiscountTypeDisplayName } from '@/lib/discounts';
+import AddDiscountModal from '@/components/modals/AddDiscountModal';
+import EditDiscountModal from '@/components/modals/EditDiscountModal';
 
 export default function DiscountsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
 
-  // Sample data for discounts
-  const [discounts] = useState<Discount[]>([
-    {
-      id: 1,
-      name: 'Welcome Discount',
-      type: 'percentage',
-      value: 10,
-      description: 'First time customer discount',
-      isActive: true,
-      validUntil: '2024-12-31',
-      minOrder: 20,
-    },
-    {
-      id: 2,
-      name: 'Happy Hour',
-      type: 'percentage',
-      value: 25,
-      description: '25% off all coffee from 2-4 PM',
-      isActive: true,
-      validUntil: '2024-12-31',
-    },
-    {
-      id: 3,
-      name: 'Student Special',
-      type: 'fixed',
-      value: 5,
-      description: '$5 off with valid student ID',
-      isActive: true,
-      validUntil: '2024-12-31',
-      minOrder: 15,
-    },
-    {
-      id: 4,
-      name: 'Buy One Get One',
-      type: 'bogo',
-      value: 50,
-      description: 'Buy one pastry, get second 50% off',
-      isActive: true,
-      validUntil: '2024-10-31',
-    },
-    {
-      id: 5,
-      name: 'Loyalty Reward',
-      type: 'percentage',
-      value: 15,
-      description: 'Reward for loyal customers',
-      isActive: false,
-      validUntil: '2024-09-30',
-      minOrder: 30,
-    },
-    {
-      id: 6,
-      name: 'Weekend Special',
-      type: 'fixed',
-      value: 3,
-      description: '$3 off weekend orders',
-      isActive: true,
-      validUntil: '2024-12-31',
-      minOrder: 25,
-    },
-  ]);
+  const {
+    discounts,
+    loading,
+    error,
+    refreshDiscounts,
+    createNewDiscount,
+    updateExistingDiscount,
+    deleteExistingDiscount,
+  } = useDiscounts();
 
   const filteredDiscounts = discounts.filter(
     (discount) =>
       discount.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      discount.description.toLowerCase().includes(searchQuery.toLowerCase())
+      getDiscountTypeDisplayName(discount.type).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getDiscountDisplayValue = (discount: Discount) => {
-    switch (discount.type) {
-      case 'percentage':
-        return `${discount.value}%`;
-      case 'fixed':
-        return `$${discount.value}`;
-      case 'bogo':
-        return `${discount.value}% off`;
-      default:
-        return `${discount.value}`;
-    }
+  const handleAddDiscount = () => {
+    setAddModalVisible(true);
+  };
+
+  const handleEditDiscount = (discount: Discount) => {
+    setSelectedDiscount(discount);
+    setEditModalVisible(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setAddModalVisible(false);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalVisible(false);
+    setSelectedDiscount(null);
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'percentage':
         return '#3b82f6';
-      case 'fixed':
+      case 'actual':
         return '#10b981';
-      case 'bogo':
-        return '#f59e0b';
       default:
         return '#6b7280';
     }
@@ -123,20 +71,29 @@ export default function DiscountsScreen() {
     switch (type) {
       case 'percentage':
         return '#3b82f620';
-      case 'fixed':
+      case 'actual':
         return '#10b98120';
-      case 'bogo':
-        return '#f59e0b20';
       default:
         return '#6b728020';
     }
   };
 
-  const handleAddDiscount = () => {
-    Alert.alert('Add New Discount', 'This will open the add discount form.', [
-      { text: 'OK' },
-    ]);
-  };
+  if (error && !loading) {
+    return (
+      <View style={styles.container}>
+        <ThemedView style={styles.content}>
+          <View style={styles.errorContainer}>
+            <IconSymbol size={48} name="exclamationmark.triangle" color="#ef4444" />
+            <ThemedText style={styles.errorText}>Error loading discounts</ThemedText>
+            <ThemedText style={styles.errorSubtext}>{error}</ThemedText>
+            <TouchableOpacity style={styles.retryButton} onPress={refreshDiscounts}>
+              <ThemedText style={styles.retryButtonText}>Try Again</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </ThemedView>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -166,84 +123,84 @@ export default function DiscountsScreen() {
         <ScrollView
           style={styles.discountsList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={refreshDiscounts}
+              colors={['#ef4444']}
+              tintColor="#ef4444"
+            />
+          }
         >
-          {filteredDiscounts.map((discount) => (
-            <View key={discount.id} style={styles.discountItem}>
-              <View style={styles.discountInfo}>
-                <View style={styles.discountHeader}>
-                  <View style={styles.discountTitleRow}>
-                    <ThemedText
-                      type="defaultSemiBold"
-                      style={styles.discountName}
-                    >
-                      {discount.name}
-                    </ThemedText>
-                    <View style={styles.badges}>
-                      <View
-                        style={[
-                          styles.typeBadge,
-                          { backgroundColor: getTypeBackground(discount.type) },
-                        ]}
+          {loading && discounts.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#ef4444" />
+              <ThemedText style={styles.loadingText}>Loading discounts...</ThemedText>
+            </View>
+          ) : (
+            filteredDiscounts.map((discount) => (
+              <TouchableOpacity
+                key={discount.id}
+                style={styles.discountItem}
+                onPress={() => handleEditDiscount(discount)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.discountInfo}>
+                  <View style={styles.discountHeader}>
+                    <View style={styles.discountTitleRow}>
+                      <ThemedText
+                        type="defaultSemiBold"
+                        style={styles.discountName}
                       >
-                        <ThemedText
+                        {discount.name}
+                      </ThemedText>
+                      <View style={styles.badges}>
+                        <View
                           style={[
-                            styles.typeText,
-                            { color: getTypeColor(discount.type) },
+                            styles.typeBadge,
+                            { backgroundColor: getTypeBackground(discount.type) },
                           ]}
                         >
-                          {discount.type.toUpperCase()}
-                        </ThemedText>
+                          <ThemedText
+                            style={[
+                              styles.typeText,
+                              { color: getTypeColor(discount.type) },
+                            ]}
+                          >
+                            {getDiscountTypeDisplayName(discount.type).toUpperCase()}
+                          </ThemedText>
+                        </View>
                       </View>
-                      {discount.isActive ? (
-                        <View style={styles.activeBadge}>
-                          <ThemedText style={styles.activeText}>
-                            ACTIVE
-                          </ThemedText>
-                        </View>
-                      ) : (
-                        <View style={styles.inactiveBadge}>
-                          <ThemedText style={styles.inactiveText}>
-                            INACTIVE
-                          </ThemedText>
-                        </View>
-                      )}
                     </View>
-                  </View>
-                  <View style={styles.valueContainer}>
-                    <ThemedText style={styles.discountValue}>
-                      {getDiscountDisplayValue(discount)} OFF
-                    </ThemedText>
-                  </View>
-                </View>
-                <ThemedText style={styles.discountDescription}>
-                  {discount.description}
-                </ThemedText>
-                <View style={styles.discountDetails}>
-                  <View style={styles.detailItem}>
-                    <IconSymbol size={14} name="calendar" color="#6b7280" />
-                    <ThemedText style={styles.detailText}>
-                      Valid until {discount.validUntil}
-                    </ThemedText>
-                  </View>
-                  {discount.minOrder && (
-                    <View style={styles.detailItem}>
-                      <IconSymbol
-                        size={14}
-                        name="dollarsign.circle"
-                        color="#6b7280"
-                      />
-                      <ThemedText style={styles.detailText}>
-                        Min. order: ${discount.minOrder}
+                    <View style={styles.valueContainer}>
+                      <ThemedText style={styles.discountValue}>
+                        {formatDiscountValue(discount)} OFF
                       </ThemedText>
                     </View>
-                  )}
+                  </View>
+                  <View style={styles.discountDetails}>
+                    <View style={styles.detailItem}>
+                      <IconSymbol size={14} name="calendar" color="#6b7280" />
+                      <ThemedText style={styles.detailText}>
+                        Created {new Date(discount.created_at).toLocaleDateString()}
+                      </ThemedText>
+                    </View>
+                    {discount.updated_at && (
+                      <View style={styles.detailItem}>
+                        <IconSymbol size={14} name="pencil" color="#6b7280" />
+                        <ThemedText style={styles.detailText}>
+                          Updated {new Date(discount.updated_at).toLocaleDateString()}
+                        </ThemedText>
+                      </View>
+                    )}
+                  </View>
                 </View>
-              </View>
-              <IconSymbol size={16} name="chevron.right" color="#6b7280" />
-            </View>
-          ))}
+                <IconSymbol size={16} name="chevron.right" color="#6b7280" />
+              </TouchableOpacity>
+            ))
+          )}
 
-          {filteredDiscounts.length === 0 && (
+          {filteredDiscounts.length === 0 && !loading && (
             <View style={styles.emptyState}>
               <IconSymbol size={48} name="tag.fill" color="#d1d5db" />
               <ThemedText style={styles.emptyText}>
@@ -267,6 +224,22 @@ export default function DiscountsScreen() {
       >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
+
+      {/* Add Discount Modal */}
+      <AddDiscountModal
+        visible={addModalVisible}
+        onClose={handleCloseAddModal}
+        onAdd={createNewDiscount}
+      />
+
+      {/* Edit Discount Modal */}
+      <EditDiscountModal
+        visible={editModalVisible}
+        discount={selectedDiscount}
+        onClose={handleCloseEditModal}
+        onUpdate={updateExistingDiscount}
+        onDelete={deleteExistingDiscount}
+      />
     </View>
   );
 }
@@ -365,28 +338,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
   },
-  activeBadge: {
-    backgroundColor: '#10b98120',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  activeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#10b981',
-  },
-  inactiveBadge: {
-    backgroundColor: '#6b728020',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  inactiveText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
   valueContainer: {
     alignSelf: 'flex-start',
   },
@@ -394,11 +345,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#ef4444',
-  },
-  discountDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 8,
   },
   discountDetails: {
     gap: 4,
@@ -447,5 +393,46 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginTop: 12,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#374151',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#ef4444',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
