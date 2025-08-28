@@ -147,14 +147,14 @@ export default function ProductsScreen() {
             <RefreshControl
               refreshing={loading}
               onRefresh={refreshProducts}
-              colors={['#3b82f6']}
-              tintColor="#3b82f6"
+              colors={['#f59e0b']}
+              tintColor="#f59e0b"
             />
           }
         >
           {loading && products.length === 0 ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#3b82f6" />
+              <ActivityIndicator size="large" color="#f59e0b" />
               <ThemedText style={styles.loadingText}>
                 Loading products...
               </ThemedText>
@@ -168,67 +168,38 @@ export default function ProductsScreen() {
                   onPress={() => handleEditProduct(product)}
                   activeOpacity={0.7}
                 >
-                  {/* Product Image or Icon */}
-                  <View style={styles.productImageContainer}>
-                    {product.image ? (
-                      <Image source={{ uri: product.image }} style={styles.productImage} />
-                    ) : (
-                      <View
-                        style={[
-                          styles.productIcon,
-                          { backgroundColor: getCategoryBackgroundColor(product.category) },
-                        ]}
-                      >
-                        <IconSymbol
-                          size={24}
-                          name={getCategoryIcon(product.category) as any}
-                          color={getCategoryColor(product.category)}
-                        />
-                      </View>
-                    )}
-                  </View>
-
+                  {product.image ? (
+                    <Image source={{ uri: product.image }} style={styles.productIcon} />
+                  ) : (
+                    <View
+                      style={[
+                        styles.productIcon,
+                        { backgroundColor: getCategoryBackgroundColor(product.category) },
+                      ]}
+                    >
+                      <IconSymbol
+                        size={24}
+                        name={getCategoryIcon(product.category) as any}
+                        color={getCategoryColor(product.category)}
+                      />
+                    </View>
+                  )}
                   <View style={styles.productInfo}>
-                    <View style={styles.productHeader}>
-                      <ThemedText
-                        type="defaultSemiBold"
-                        style={styles.productName}
-                      >
-                        {product.name}
-                      </ThemedText>
-                      <View style={styles.priceContainer}>
-                        <ThemedText style={styles.productPrice}>
-                          ₱{product.price.toFixed(2)}
-                        </ThemedText>
-                      </View>
-                    </View>
-                    
-                    <View style={styles.productMeta}>
-                      <View style={styles.categoryBadge}>
-                        <ThemedText style={styles.categoryText}>
-                          {product.category}
-                        </ThemedText>
-                      </View>
-                      <View style={styles.sizeBadge}>
-                        <ThemedText style={styles.sizeText}>
-                          {product.size}
-                        </ThemedText>
-                      </View>
-                    </View>
-
-                    <View style={styles.statusContainer}>
-                      <View style={[
-                        styles.statusBadge,
-                        { backgroundColor: product.status === 'Available' ? '#10b98120' : '#ef444420' }
-                      ]}>
-                        <ThemedText style={[
-                          styles.statusText,
-                          { color: product.status === 'Available' ? '#10b981' : '#ef4444' }
-                        ]}>
-                          {product.status}
-                        </ThemedText>
-                      </View>
-                    </View>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.productName}
+                    >
+                      {product.name}
+                    </ThemedText>
+                    <ThemedText style={styles.productDescription}>
+                      {product.category} • {product.size} • ₱{product.price.toFixed(2)}
+                    </ThemedText>
+                    <ThemedText style={[
+                      styles.productStatus,
+                      { color: product.status === 'Available' ? '#10b981' : '#ef4444' }
+                    ]}>
+                      {product.status}
+                    </ThemedText>
                   </View>
                   <IconSymbol size={16} name="chevron.right" color="#6b7280" />
                 </TouchableOpacity>
@@ -325,86 +296,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  productImageContainer: {
-    marginRight: 16,
-  },
-  productImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-  },
   productIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 16,
   },
   productInfo: {
     flex: 1,
   },
-  productHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
   productName: {
     fontSize: 16,
-    flex: 1,
-    marginRight: 8,
+    marginBottom: 4,
   },
-  priceContainer: {
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  productPrice: {
+  productDescription: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#1f2937',
-  },
-  productMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 8,
-  },
-  categoryBadge: {
-    backgroundColor: '#e5e7eb',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  categoryText: {
-    fontSize: 12,
     color: '#6b7280',
-    fontWeight: '500',
+    marginBottom: 4,
   },
-  sizeBadge: {
-    backgroundColor: '#ddd6fe',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  sizeText: {
+  productStatus: {
     fontSize: 12,
-    color: '#7c3aed',
-    fontWeight: '500',
-  },
-  statusContainer: {
-    marginTop: 4,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   emptyState: {
     alignItems: 'center',
@@ -430,7 +344,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#f59e0b',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
