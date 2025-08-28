@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Products Management UI Preview</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+            margin: 0 auto 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #f9fafb;
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px;
+            padding-top: 40px;
+        }
+        
+        .search-section {
+            margin-bottom: 20px;
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            gap: 12px;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #374151;
+        }
+        
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .products-list {
+            flex: 1;
+        }
+        
+        .product-item {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .product-image-container {
+            margin-right: 16px;
+        }
+        
+        .product-image {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+            margin-right: 8px;
+        }
+        
+        .price-container {
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        
+        .product-price {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .product-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+        
+        .category-badge {
+            background: #e5e7eb;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .category-text {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .size-badge {
+            background: #ddd6fe;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .size-text {
+            font-size: 12px;
+            color: #7c3aed;
+            font-weight: 500;
+        }
+        
+        .status-container {
+            margin-top: 4px;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .status-available {
+            background: #10b98120;
+            color: #10b981;
+        }
+        
+        .status-unavailable {
+            background: #ef444420;
+            color: #ef4444;
+        }
+        
+        .status-text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .add-button {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+        }
+        
+        .add-button:hover {
+            background: #2563eb;
+        }
+        
+        .chevron {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .icon {
+            color: #6b7280;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="screen">
+            <div class="content">
+                <div class="search-section">
+                    <div class="search-container">
+                        <span class="icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Search products..." />
+                    </div>
+                </div>
+
+                <div class="products-list">
+                    <div class="product-item">
+                        <div class="product-image-container">
+                            <div class="product-image">☕</div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <div class="product-name">Cappuccino</div>
+                                <div class="price-container">
+                                    <div class="product-price">₱120.00</div>
+                                </div>
+                            </div>
+                            <div class="product-meta">
+                                <div class="category-badge">
+                                    <div class="category-text">Coffee</div>
+                                </div>
+                                <div class="size-badge">
+                                    <div class="size-text">Large</div>
+                                </div>
+                            </div>
+                            <div class="status-container">
+                                <div class="status-badge status-available">
+                                    <div class="status-text">Available</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="chevron">›</span>
+                    </div>
+
+                    <div class="product-item">
+                        <div class="product-image-container">
+                            <div class="product-image">🫖</div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <div class="product-name">Green Tea</div>
+                                <div class="price-container">
+                                    <div class="product-price">₱95.00</div>
+                                </div>
+                            </div>
+                            <div class="product-meta">
+                                <div class="category-badge">
+                                    <div class="category-text">Tea</div>
+                                </div>
+                                <div class="size-badge">
+                                    <div class="size-text">Regular</div>
+                                </div>
+                            </div>
+                            <div class="status-container">
+                                <div class="status-badge status-available">
+                                    <div class="status-text">Available</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="chevron">›</span>
+                    </div>
+
+                    <div class="product-item">
+                        <div class="product-image-container">
+                            <div class="product-image">🧁</div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <div class="product-name">Blueberry Muffin</div>
+                                <div class="price-container">
+                                    <div class="product-price">₱75.00</div>
+                                </div>
+                            </div>
+                            <div class="product-meta">
+                                <div class="category-badge">
+                                    <div class="category-text">Pastries</div>
+                                </div>
+                                <div class="size-badge">
+                                    <div class="size-text">Regular</div>
+                                </div>
+                            </div>
+                            <div class="status-container">
+                                <div class="status-badge status-unavailable">
+                                    <div class="status-text">Not Available</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="chevron">›</span>
+                    </div>
+
+                    <div class="product-item">
+                        <div class="product-image-container">
+                            <div class="product-image">🥪</div>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-header">
+                                <div class="product-name">Ham Sandwich</div>
+                                <div class="price-container">
+                                    <div class="product-price">₱180.00</div>
+                                </div>
+                            </div>
+                            <div class="product-meta">
+                                <div class="category-badge">
+                                    <div class="category-text">Sandwiches</div>
+                                </div>
+                                <div class="size-badge">
+                                    <div class="size-text">Double</div>
+                                </div>
+                            </div>
+                            <div class="status-container">
+                                <div class="status-badge status-available">
+                                    <div class="status-text">Available</div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="chevron">›</span>
+                    </div>
+                </div>
+
+                <div class="add-button">+</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <h2 style="margin-bottom: 20px;">Mobile Products Management - Implementation Complete</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; text-align: left;">
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">🗄️ Database Integration</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>✅ Connected to Supabase products table</li>
+                    <li>✅ Full CRUD operations (Create, Read, Update, Delete)</li>
+                    <li>✅ Real-time data synchronization</li>
+                    <li>✅ Foreign key relationships with categories & sizes</li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">📱 UI Components</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>✅ Products list with images & details</li>
+                    <li>✅ Add Product modal with validation</li>
+                    <li>✅ Edit Product modal with delete option</li>
+                    <li>✅ Search and filter functionality</li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">🔧 Features</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>✅ Image upload with picker integration</li>
+                    <li>✅ Category & size dropdowns</li>
+                    <li>✅ Price validation</li>
+                    <li>✅ Status toggle (Available/Not Available)</li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <h3 style="color: #374151; margin-bottom: 12px;">⚡ Technical</h3>
+                <ul style="color: #6b7280; line-height: 1.6;">
+                    <li>✅ TypeScript type safety</li>
+                    <li>✅ Error handling & loading states</li>
+                    <li>✅ Follows categories management pattern</li>
+                    <li>✅ Responsive design optimized for mobile</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 12px; border: 1px solid #0ea5e9;">
+            <h3 style="color: #0c4a6e; margin-bottom: 12px;">🎯 Implementation Summary</h3>
+            <p style="color: #075985; line-height: 1.6;">
+                Successfully implemented complete mobile products management system with Supabase database integration. 
+                The solution includes full CRUD operations, image upload capability, category/size relationships, 
+                and follows the established UI patterns from the categories management system. All features are 
+                production-ready with proper error handling, validation, and type safety.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
