@@ -119,7 +119,7 @@ export default function TabLayout() {
       
       {/* Hide other tabs that aren't part of the role-based navigation */}
       <Tabs.Screen
-        name="products"
+        name="products-tab"
         options={{
           href: null, // Hide this tab
         }}

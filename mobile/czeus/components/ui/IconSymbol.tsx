@@ -92,6 +92,9 @@ const MAPPING = {
   'bag.fill': 'shopping-bag',
   'drop.fill': 'water-drop',
   'sun.max.fill': 'wb-sunny',
+  'camera.fill': 'camera-alt',
+  'chevron.up': 'keyboard-arrow-up',
+  'chevron.down': 'keyboard-arrow-down',
 } as const;
 
 /**

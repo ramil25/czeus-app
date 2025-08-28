@@ -1,161 +1,211 @@
-// Mobile-optimized product data layer
+import { supabase } from './supabaseClient';
+
+// Database schema type to match Supabase table
+export interface DbProduct {
+  id: number;
+  created_at: string;
+  updated_at?: string;
+  deleted_at?: string;
+  product_name: string;
+  category_id: number;
+  size_id: number;
+  price: number;
+  status: 'available' | 'not available';
+  image_url?: string;
+}
+
+// Extended product type with category and size details
+export interface ProductWithDetails extends DbProduct {
+  pos_categories?: {
+    id: number;
+    category_name: string;
+    category_description: string;
+  };
+  pos_sizes?: {
+    id: number;
+    size_name: string;
+    category_id: number;
+  };
+}
+
+// Frontend type that matches mobile component expectations
 export interface Product {
   id: number;
   name: string;
   price: number;
-  stock: number;
   category: string;
-  status: 'Available' | 'Out of Stock' | 'Deleted';
+  categoryId: number;
+  size: string;
+  sizeId: number;
+  status: 'Available' | 'Not Available';
   image?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface CreateProductInput {
-  name: string;
+  product_name: string;
+  category_id: number;
+  size_id: number;
   price: number;
-  stock: number;
-  category: string;
-  image?: string;
+  status: 'available' | 'not available';
+  image_url?: string;
 }
 
 export interface UpdateProductInput {
-  name?: string;
+  product_name?: string;
+  category_id?: number;
+  size_id?: number;
   price?: number;
-  stock?: number;
-  category?: string;
-  image?: string;
+  status?: 'available' | 'not available';
+  image_url?: string;
 }
 
-// Sample data for demo
-const sampleProducts: Product[] = [
-  {
-    id: 1,
-    name: 'Cappuccino',
-    price: 120,
-    stock: 45,
-    category: 'Coffee',
-    status: 'Available',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: 'Latte',
-    price: 130,
-    stock: 32,
-    category: 'Coffee',
-    status: 'Available',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    name: 'Green Tea',
-    price: 110,
-    stock: 8,
-    category: 'Tea',
-    status: 'Available',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 4,
-    name: 'Blueberry Muffin',
-    price: 70,
-    stock: 0,
-    category: 'Pastries',
-    status: 'Out of Stock',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 5,
-    name: 'Ham Sandwich',
-    price: 180,
-    stock: 15,
-    category: 'Sandwiches',
-    status: 'Available',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+// Convert database record to frontend type
+function dbProductToProduct(productWithDetails: ProductWithDetails): Product {
+  return {
+    id: productWithDetails.id,
+    name: productWithDetails.product_name,
+    price: productWithDetails.price,
+    category: productWithDetails.pos_categories?.category_name || 'Unknown',
+    categoryId: productWithDetails.category_id,
+    size: productWithDetails.pos_sizes?.size_name || 'Unknown',
+    sizeId: productWithDetails.size_id,
+    status: productWithDetails.status === 'available' ? 'Available' : 'Not Available',
+    image: productWithDetails.image_url,
+    createdAt: productWithDetails.created_at,
+    updatedAt: productWithDetails.updated_at,
+  };
+}
 
-// Local storage for demo
-let productsStore = [...sampleProducts];
-let nextId = 6;
-
-// Get all products
+// Get all non-deleted products with category and size information
 export async function fetchProducts(): Promise<Product[]> {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return productsStore.filter(p => p.status !== 'Deleted');
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        pos_categories (
+          id,
+          category_name,
+          category_description
+        ),
+        pos_sizes (
+          id,
+          size_name,
+          category_id
+        )
+      `)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`Failed to fetch products: ${error.message}`);
+    }
+
+    return (data || []).map(dbProductToProduct);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
 }
 
 // Create a new product
 export async function createProduct(input: CreateProductInput): Promise<Product> {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const newProduct: Product = {
-    id: nextId++,
-    name: input.name,
-    price: input.price,
-    stock: input.stock,
-    category: input.category,
-    status: input.stock > 0 ? 'Available' : 'Out of Stock',
-    image: input.image,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  
-  productsStore.push(newProduct);
-  return newProduct;
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        product_name: input.product_name,
+        category_id: input.category_id,
+        size_id: input.size_id,
+        price: input.price,
+        status: input.status,
+        image_url: input.image_url,
+      })
+      .select(`
+        *,
+        pos_categories (
+          id,
+          category_name,
+          category_description
+        ),
+        pos_sizes (
+          id,
+          size_name,
+          category_id
+        )
+      `)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create product: ${error.message}`);
+    }
+
+    return dbProductToProduct(data);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    throw error;
+  }
 }
 
-// Update a product
+// Update an existing product
 export async function updateProduct(
   id: number,
   input: UpdateProductInput
 ): Promise<Product> {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const index = productsStore.findIndex(p => p.id === id);
-  if (index === -1) {
-    throw new Error('Product not found');
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        ...input,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .is('deleted_at', null)
+      .select(`
+        *,
+        pos_categories (
+          id,
+          category_name,
+          category_description
+        ),
+        pos_sizes (
+          id,
+          size_name,
+          category_id
+        )
+      `)
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update product: ${error.message}`);
+    }
+
+    return dbProductToProduct(data);
+  } catch (error) {
+    console.error('Error updating product:', error);
+    throw error;
   }
-  
-  const updated = {
-    ...productsStore[index],
-    ...input,
-    status: (input.stock !== undefined ? input.stock : productsStore[index].stock) > 0 
-      ? 'Available' as const 
-      : 'Out of Stock' as const,
-    updatedAt: new Date().toISOString(),
-  };
-  
-  productsStore[index] = updated;
-  return updated;
 }
 
-// Delete a product
+// Soft delete a product
 export async function deleteProduct(id: number): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const index = productsStore.findIndex(p => p.id === id);
-  if (index === -1) {
-    throw new Error('Product not found');
-  }
-  
-  productsStore[index] = {
-    ...productsStore[index],
-    status: 'Deleted' as any,
-    updatedAt: new Date().toISOString(),
-  };
-}
+  try {
+    const { error } = await supabase
+      .from('products')
+      .update({
+        deleted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .is('deleted_at', null);
 
-// Get categories
-export async function getCategories(): Promise<string[]> {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  const categories = [...new Set(productsStore.map(p => p.category))];
-  return categories.filter(Boolean);
+    if (error) {
+      throw new Error(`Failed to delete product: ${error.message}`);
+    }
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    throw error;
+  }
 }

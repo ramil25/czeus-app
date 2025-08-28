@@ -9,7 +9,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardScreen() {
-  const { data: products = [], isLoading } = useProducts();
+  const { products, loading } = useProducts();
   const { user, signOut } = useAuth();
 
   const handleSignOut = () => {
@@ -36,10 +36,10 @@ export default function DashboardScreen() {
 
   // Calculate stats from products
   const totalProducts = products.length;
-  const availableProducts = products.filter(p => p.status === 'Available').length;
-  const outOfStockProducts = products.filter(p => p.status === 'Out of Stock').length;
-  const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 10).length;
-  const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+  const availableProducts = products.filter((p: any) => p.status === 'Available').length;
+  const outOfStockProducts = products.filter((p: any) => p.status === 'Not Available').length;
+  const lowStockProducts = 0; // Stock tracking not available in current implementation
+  const totalValue = products.reduce((sum: number, p: any) => sum + p.price, 0);
 
   return (
     <ScrollView style={styles.container}>
@@ -84,13 +84,13 @@ export default function DashboardScreen() {
         <View style={styles.statsRow}>
           <StatCard
             title="Products"
-            value={isLoading ? '...' : totalProducts.toString()}
+            value={loading ? '...' : totalProducts.toString()}
             subtitle={`${availableProducts} Available`}
             color="#f59e0b"
           />
           <StatCard
             title="Inventory Value"
-            value={isLoading ? '...' : `₱${totalValue.toFixed(0)}`}
+            value={loading ? '...' : `₱${totalValue.toFixed(0)}`}
             subtitle="Total Stock"
             color="#8b5cf6"
           />
@@ -115,7 +115,7 @@ export default function DashboardScreen() {
         )}
         <TrendCard
           title="Product Categories"
-          value={`📂 ${[...new Set(products.map(p => p.category))].length} categories`}
+          value={`📂 ${[...new Set(products.map((p: any) => p.category))].length} categories`}
           description="Coffee, Tea, Pastries, etc."
         />
       </View>
