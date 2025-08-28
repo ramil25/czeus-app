@@ -7,10 +7,10 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useProducts } from '@/hooks/useProducts';
 
 export default function ProductsScreen() {
-  const { data: products = [], isLoading, error } = useProducts();
+  const { products, loading, error } = useProducts();
   const [showAddForm, setShowAddForm] = useState(false);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <ThemedView style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#2362c7" />
@@ -95,10 +95,9 @@ export default function ProductsScreen() {
                   <ThemedText style={styles.productPrice}>₱{product.price.toFixed(2)}</ThemedText>
                   <ThemedText style={[
                     styles.productStock,
-                    product.stock <= 10 && product.stock > 0 && styles.lowStock,
-                    product.stock === 0 && styles.outOfStock
+                    product.status === 'Not Available' && styles.outOfStock
                   ]}>
-                    Stock: {product.stock}
+                    Status: {product.status}
                   </ThemedText>
                 </View>
               </View>

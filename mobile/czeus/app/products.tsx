@@ -1,151 +1,96 @@
-import { StyleSheet, ScrollView, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  RefreshControl,
+  Image,
+} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  cost: number;
-  stock: number;
-  sku: string;
-  isActive: boolean;
-  description: string;
-  image?: string;
-}
+import { useProducts } from '@/hooks/useProducts';
+import { Product } from '@/lib/products';
+import AddProductModal from '@/components/modals/AddProductModal';
+import EditProductModal from '@/components/modals/EditProductModal';
 
 export default function ProductsScreen() {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [addModalVisible, setAddModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Sample data for products
-  const [products] = useState<Product[]>([
-    {
-      id: 1,
-      name: 'Espresso',
-      category: 'Coffee',
-      price: 2.50,
-      cost: 0.75,
-      stock: 50,
-      sku: 'ESP001',
-      isActive: true,
-      description: 'Rich, bold espresso shot'
-    },
-    {
-      id: 2,
-      name: 'Cappuccino',
-      category: 'Coffee',
-      price: 4.00,
-      cost: 1.20,
-      stock: 30,
-      sku: 'CAP001',
-      isActive: true,
-      description: 'Espresso with steamed milk and foam'
-    },
-    {
-      id: 3,
-      name: 'Croissant',
-      category: 'Pastries',
-      price: 3.50,
-      cost: 1.00,
-      stock: 20,
-      sku: 'CRO001',
-      isActive: true,
-      description: 'Buttery, flaky pastry'
-    },
-    {
-      id: 4,
-      name: 'Chocolate Muffin',
-      category: 'Pastries',
-      price: 4.25,
-      cost: 1.50,
-      stock: 15,
-      sku: 'MUF001',
-      isActive: true,
-      description: 'Rich chocolate chip muffin'
-    },
-    {
-      id: 5,
-      name: 'Green Tea',
-      category: 'Tea',
-      price: 3.00,
-      cost: 0.80,
-      stock: 40,
-      sku: 'TEA001',
-      isActive: true,
-      description: 'Premium green tea blend'
-    },
-    {
-      id: 6,
-      name: 'Club Sandwich',
-      category: 'Sandwiches',
-      price: 8.50,
-      cost: 3.00,
-      stock: 10,
-      sku: 'SAN001',
-      isActive: true,
-      description: 'Triple-layer club sandwich'
-    },
-    {
-      id: 7,
-      name: 'Caesar Salad',
-      category: 'Salads',
-      price: 7.75,
-      cost: 2.50,
-      stock: 12,
-      sku: 'SAL001',
-      isActive: true,
-      description: 'Fresh romaine with caesar dressing'
-    },
-    {
-      id: 8,
-      name: 'Orange Juice',
-      category: 'Beverages',
-      price: 3.75,
-      cost: 1.25,
-      stock: 25,
-      sku: 'BEV001',
-      isActive: false,
-      description: 'Freshly squeezed orange juice'
-    }
-  ]);
+  const {
+    products,
+    loading,
+    error,
+    refreshProducts,
+    createNewProduct,
+    updateExistingProduct,
+    deleteExistingProduct,
+  } = useProducts();
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.size.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleAddProduct = () => {
-    Alert.alert('Add Product', 'Add new product functionality would be implemented here');
+    setAddModalVisible(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setEditModalVisible(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalVisible(false);
+    setSelectedProduct(null);
   };
 
   const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'coffee': return 'cup.and.saucer.fill';
-      case 'pastries': return 'birthday.cake.fill';
-      case 'tea': return 'leaf.fill';
-      case 'sandwiches': return 'takeoutbag.and.cup.and.straw.fill';
-      case 'salads': return 'carrot.fill';
-      case 'beverages': return 'wineglass.fill';
-      default: return 'shippingbox.fill';
+    const lowercaseName = category.toLowerCase();
+    
+    if (lowercaseName.includes('coffee')) {
+      return 'cup.and.saucer.fill';
+    } else if (lowercaseName.includes('tea')) {
+      return 'leaf.fill';
+    } else if (lowercaseName.includes('pastries') || lowercaseName.includes('pastry')) {
+      return 'birthday.cake.fill';
+    } else if (lowercaseName.includes('sandwich')) {
+      return 'takeoutbag.and.cup.and.straw.fill';
+    } else if (lowercaseName.includes('salad')) {
+      return 'carrot.fill';
+    } else if (lowercaseName.includes('beverage')) {
+      return 'wineglass.fill';
+    } else {
+      return 'shippingbox.fill';
     }
   };
 
   const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'coffee': return '#8b5a3c';
-      case 'pastries': return '#f59e0b';
-      case 'tea': return '#10b981';
-      case 'sandwiches': return '#ef4444';
-      case 'salads': return '#22c55e';
-      case 'beverages': return '#3b82f6';
-      default: return '#6b7280';
+    const lowercaseName = category.toLowerCase();
+    
+    if (lowercaseName.includes('coffee')) {
+      return '#8b5a3c';
+    } else if (lowercaseName.includes('tea')) {
+      return '#10b981';
+    } else if (lowercaseName.includes('pastries') || lowercaseName.includes('pastry')) {
+      return '#f59e0b';
+    } else if (lowercaseName.includes('sandwich')) {
+      return '#ef4444';
+    } else if (lowercaseName.includes('salad')) {
+      return '#22c55e';
+    } else if (lowercaseName.includes('beverage')) {
+      return '#3b82f6';
+    } else {
+      return '#6b7280';
     }
   };
 
@@ -153,196 +98,240 @@ export default function ProductsScreen() {
     return getCategoryColor(category) + '20';
   };
 
-  const getStockStatus = (stock: number) => {
-    if (stock === 0) return { label: 'Out of Stock', color: '#ef4444' };
-    if (stock <= 10) return { label: 'Low Stock', color: '#f59e0b' };
-    return { label: 'In Stock', color: '#10b981' };
-  };
-
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <IconSymbol size={24} name="chevron.left" color="#3b82f6" />
-            <ThemedText style={styles.backText}>Back</ThemedText>
-          </TouchableOpacity>
-        </View>
-        <ThemedText type="title" style={styles.title}>Product Management</ThemedText>
-        <ThemedText style={styles.subtitle}>Manage your menu items, pricing, and inventory</ThemedText>
-      </ThemedView>
-
+    <View style={styles.container}>
       <ThemedView style={styles.content}>
-        <View style={styles.searchContainer}>
-          <IconSymbol size={20} name="magnifyingglass" color="#6b7280" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search products..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#9ca3af"
-          />
+        <View style={styles.searchSection}>
+          <View style={styles.searchContainer}>
+            <IconSymbol size={20} name="magnifyingglass" color="#6b7280" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search products..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#9ca3af"
+            />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <IconSymbol
+                  size={20}
+                  name="xmark.circle.fill"
+                  color="#6b7280"
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
 
-        <View style={styles.productsList}>
-          {filteredProducts.length === 0 ? (
-            <View style={styles.emptyState}>
-              <IconSymbol size={48} name="shippingbox.fill" color="#d1d5db" />
-              <ThemedText style={styles.emptyText}>No products found</ThemedText>
-              <ThemedText style={styles.emptySubtext}>
-                {searchQuery ? 'Try adjusting your search terms' : 'Add your first product to get started'}
+        {error && (
+          <View style={styles.errorContainer}>
+            <IconSymbol
+              size={20}
+              name="exclamationmark.triangle"
+              color="#ef4444"
+            />
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+            <TouchableOpacity
+              onPress={refreshProducts}
+              style={styles.retryButton}
+            >
+              <ThemedText style={styles.retryText}>Retry</ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <ScrollView
+          style={styles.productsList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={refreshProducts}
+              colors={['#3b82f6']}
+              tintColor="#3b82f6"
+            />
+          }
+        >
+          {loading && products.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#3b82f6" />
+              <ThemedText style={styles.loadingText}>
+                Loading products...
               </ThemedText>
             </View>
           ) : (
-            filteredProducts.map((product) => {
-              const stockStatus = getStockStatus(product.stock);
-              return (
-                <View key={product.id} style={styles.productCard}>
-                  <View style={[styles.productIcon, { backgroundColor: getCategoryBackgroundColor(product.category) }]}>
-                    <IconSymbol size={24} name={getCategoryIcon(product.category) as any} color={getCategoryColor(product.category)} />
+            <>
+              {filteredProducts.map((product) => (
+                <TouchableOpacity
+                  key={product.id}
+                  style={styles.productItem}
+                  onPress={() => handleEditProduct(product)}
+                  activeOpacity={0.7}
+                >
+                  {/* Product Image or Icon */}
+                  <View style={styles.productImageContainer}>
+                    {product.image ? (
+                      <Image source={{ uri: product.image }} style={styles.productImage} />
+                    ) : (
+                      <View
+                        style={[
+                          styles.productIcon,
+                          { backgroundColor: getCategoryBackgroundColor(product.category) },
+                        ]}
+                      >
+                        <IconSymbol
+                          size={24}
+                          name={getCategoryIcon(product.category) as any}
+                          color={getCategoryColor(product.category)}
+                        />
+                      </View>
+                    )}
                   </View>
+
                   <View style={styles.productInfo}>
                     <View style={styles.productHeader}>
-                      <ThemedText type="defaultSemiBold" style={styles.productName}>
+                      <ThemedText
+                        type="defaultSemiBold"
+                        style={styles.productName}
+                      >
                         {product.name}
                       </ThemedText>
                       <View style={styles.priceContainer}>
                         <ThemedText style={styles.productPrice}>
-                          ${product.price.toFixed(2)}
+                          ₱{product.price.toFixed(2)}
                         </ThemedText>
                       </View>
                     </View>
+                    
                     <View style={styles.productMeta}>
                       <View style={styles.categoryBadge}>
                         <ThemedText style={styles.categoryText}>
                           {product.category}
                         </ThemedText>
                       </View>
-                      <View style={styles.skuContainer}>
-                        <ThemedText style={styles.skuText}>
-                          SKU: {product.sku}
+                      <View style={styles.sizeBadge}>
+                        <ThemedText style={styles.sizeText}>
+                          {product.size}
                         </ThemedText>
                       </View>
                     </View>
-                    <ThemedText style={styles.productDescription}>
-                      {product.description}
-                    </ThemedText>
-                    <View style={styles.productDetails}>
-                      <View style={styles.stockContainer}>
-                        <IconSymbol size={14} name="cube.box.fill" color={stockStatus.color} />
-                        <ThemedText style={[styles.stockText, { color: stockStatus.color }]}>
-                          {stockStatus.label} ({product.stock})
-                        </ThemedText>
-                      </View>
-                      <View style={styles.statusContainer}>
-                        <View style={[
-                          styles.statusBadge, 
-                          { backgroundColor: product.isActive ? '#10b98120' : '#6b728020' }
+
+                    <View style={styles.statusContainer}>
+                      <View style={[
+                        styles.statusBadge,
+                        { backgroundColor: product.status === 'Available' ? '#10b98120' : '#ef444420' }
+                      ]}>
+                        <ThemedText style={[
+                          styles.statusText,
+                          { color: product.status === 'Available' ? '#10b981' : '#ef4444' }
                         ]}>
-                          <ThemedText style={[
-                            styles.statusText,
-                            { color: product.isActive ? '#10b981' : '#6b7280' }
-                          ]}>
-                            {product.isActive ? 'Active' : 'Inactive'}
-                          </ThemedText>
-                        </View>
+                          {product.status}
+                        </ThemedText>
                       </View>
-                    </View>
-                    <View style={styles.profitContainer}>
-                      <ThemedText style={styles.profitText}>
-                        Cost: ${product.cost.toFixed(2)} • Profit: ${(product.price - product.cost).toFixed(2)}
-                      </ThemedText>
                     </View>
                   </View>
-                  <IconSymbol size={20} name="chevron.right" color="#d1d5db" />
+                  <IconSymbol size={16} name="chevron.right" color="#6b7280" />
+                </TouchableOpacity>
+              ))}
+
+              {filteredProducts.length === 0 && !loading && (
+                <View style={styles.emptyState}>
+                  <IconSymbol
+                    size={48}
+                    name="shippingbox.fill"
+                    color="#d1d5db"
+                  />
+                  <ThemedText style={styles.emptyText}>
+                    {searchQuery
+                      ? 'No products found'
+                      : 'No products available'}
+                  </ThemedText>
+                  <ThemedText style={styles.emptySubtext}>
+                    {searchQuery
+                      ? 'Try adjusting your search'
+                      : 'Add your first product to get started'}
+                  </ThemedText>
                 </View>
-              );
-            })
+              )}
+            </>
           )}
-        </View>
+        </ScrollView>
       </ThemedView>
 
-      <TouchableOpacity style={styles.fab} onPress={handleAddProduct}>
+      {/* Floating Add Button */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={handleAddProduct}
+        activeOpacity={0.8}
+      >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
-    </ScrollView>
+
+      {/* Modals */}
+      <AddProductModal
+        visible={addModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onAdd={createNewProduct}
+      />
+
+      <EditProductModal
+        visible={editModalVisible}
+        product={selectedProduct}
+        onClose={handleCloseEditModal}
+        onUpdate={updateExistingProduct}
+        onDelete={deleteExistingProduct}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backText: {
-    marginLeft: 4,
-    color: '#3b82f6',
-    fontSize: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
   },
   content: {
+    flex: 1,
     padding: 20,
+  },
+  searchSection: {
+    marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    marginBottom: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 12,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
     fontSize: 16,
-    color: '#1f2937',
+    color: '#374151',
   },
   productsList: {
-    gap: 12,
+    flex: 1,
   },
-  productCard: {
+  productItem: {
     backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    marginBottom: 12,
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    alignItems: 'center',
+  },
+  productImageContainer: {
+    marginRight: 16,
+  },
+  productImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
   productIcon: {
     width: 48,
@@ -350,8 +339,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
-    marginTop: 4,
   },
   productInfo: {
     flex: 1,
@@ -382,85 +369,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    gap: 8,
   },
   categoryBadge: {
     backgroundColor: '#e5e7eb',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
-    marginRight: 8,
   },
   categoryText: {
     fontSize: 12,
     color: '#6b7280',
     fontWeight: '500',
   },
-  skuContainer: {
-    flex: 1,
+  sizeBadge: {
+    backgroundColor: '#ddd6fe',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  skuText: {
+  sizeText: {
     fontSize: 12,
-    color: '#9ca3af',
-  },
-  productDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 12,
-  },
-  productDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  stockContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  stockText: {
-    fontSize: 12,
-    marginLeft: 4,
+    color: '#7c3aed',
     fontWeight: '500',
   },
   statusContainer: {
-    marginLeft: 8,
+    marginTop: 4,
   },
   statusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    alignSelf: 'flex-start',
   },
   statusText: {
     fontSize: 12,
     fontWeight: '500',
   },
-  profitContainer: {
-    marginTop: 4,
-  },
-  profitText: {
-    fontSize: 12,
-    color: '#9ca3af',
-  },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 40,
+    justifyContent: 'center',
+    paddingVertical: 60,
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#374151',
     marginTop: 16,
-    color: '#6b7280',
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#9ca3af',
-    marginTop: 4,
+    color: '#6b7280',
+    marginTop: 8,
     textAlign: 'center',
   },
-  fab: {
+  addButton: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
+    bottom: 30,
+    right: 30,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -475,5 +441,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    borderWidth: 1,
+    borderColor: '#fecaca',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    gap: 8,
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#dc2626',
+  },
+  retryButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#dc2626',
+    borderRadius: 6,
+  },
+  retryText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#6b7280',
   },
 });

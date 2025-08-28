@@ -1,65 +1,97 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { 
-  fetchProducts, 
-  createProduct, 
-  updateProduct, 
+import { useState, useEffect, useCallback } from 'react';
+import {
+  fetchProducts,
+  createProduct,
+  updateProduct,
   deleteProduct,
-  getCategories,
+  Product,
   CreateProductInput,
-  UpdateProductInput
-} from '../lib/products';
+  UpdateProductInput,
+} from '@/lib/products';
 
-const QUERY_KEY = ['products'];
-const CATEGORIES_QUERY_KEY = ['categories'];
-
-export function useProducts() {
-  return useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: fetchProducts,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+export interface UseProductsResult {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+  refreshProducts: () => Promise<void>;
+  createNewProduct: (input: CreateProductInput) => Promise<Product>;
+  updateExistingProduct: (id: number, input: UpdateProductInput) => Promise<Product>;
+  deleteExistingProduct: (id: number) => Promise<void>;
 }
 
-export function useCategories() {
-  return useQuery({
-    queryKey: CATEGORIES_QUERY_KEY,
-    queryFn: getCategories,
-    staleTime: 1000 * 60 * 10, // 10 minutes
-  });
-}
+export function useProducts(): UseProductsResult {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export function useCreateProduct() {
-  const queryClient = useQueryClient();
+  const refreshProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedProducts = await fetchProducts();
+      setProducts(fetchedProducts);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch products';
+      setError(errorMessage);
+      console.error('Error fetching products:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  return useMutation({
-    mutationFn: createProduct,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
-    },
-  });
-}
+  const createNewProduct = useCallback(async (input: CreateProductInput): Promise<Product> => {
+    try {
+      setError(null);
+      const newProduct = await createProduct(input);
+      setProducts(prev => [newProduct, ...prev]);
+      return newProduct;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create product';
+      setError(errorMessage);
+      throw err;
+    }
+  }, []);
 
-export function useUpdateProduct() {
-  const queryClient = useQueryClient();
+  const updateExistingProduct = useCallback(async (id: number, input: UpdateProductInput): Promise<Product> => {
+    try {
+      setError(null);
+      const updatedProduct = await updateProduct(id, input);
+      setProducts(prev =>
+        prev.map(product =>
+          product.id === id ? updatedProduct : product
+        )
+      );
+      return updatedProduct;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update product';
+      setError(errorMessage);
+      throw err;
+    }
+  }, []);
 
-  return useMutation({
-    mutationFn: ({ id, input }: { id: number; input: UpdateProductInput }) =>
-      updateProduct(id, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
-    },
-  });
-}
+  const deleteExistingProduct = useCallback(async (id: number): Promise<void> => {
+    try {
+      setError(null);
+      await deleteProduct(id);
+      setProducts(prev => prev.filter(product => product.id !== id));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete product';
+      setError(errorMessage);
+      throw err;
+    }
+  }, []);
 
-export function useDeleteProduct() {
-  const queryClient = useQueryClient();
+  useEffect(() => {
+    refreshProducts();
+  }, [refreshProducts]);
 
-  return useMutation({
-    mutationFn: deleteProduct,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-    },
-  });
+  return {
+    products,
+    loading,
+    error,
+    refreshProducts,
+    createNewProduct,
+    updateExistingProduct,
+    deleteExistingProduct,
+  };
 }
