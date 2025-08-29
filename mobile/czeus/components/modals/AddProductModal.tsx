@@ -16,6 +16,7 @@ import { CreateProductInput, Product } from '@/lib/products';
 import { useCategories } from '@/hooks/useCategories';
 import { useSizes } from '@/hooks/useSizes';
 import * as ImagePicker from 'expo-image-picker';
+import { uploadImageFromMobile, isLocalFileUri } from '@/utils/imageUpload';
 
 interface AddProductModalProps {
   visible: boolean;
@@ -31,6 +32,7 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
   const [status, setStatus] = useState<'available' | 'not available'>('available');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
 
@@ -102,13 +104,33 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
 
     try {
       setLoading(true);
+      
+      let finalImageUrl: string | undefined = undefined;
+      
+      // Upload image if we have a local file URI
+      if (imageUri && isLocalFileUri(imageUri)) {
+        try {
+          setUploadingImage(true);
+          finalImageUrl = await uploadImageFromMobile(imageUri, 'products');
+        } catch (error) {
+          console.error('Failed to upload image:', error);
+          Alert.alert('Upload Error', 'Failed to upload image. Product will be created without an image.');
+          // Continue without image
+        } finally {
+          setUploadingImage(false);
+        }
+      } else if (imageUri) {
+        // If it's already a URL (not local file), use it as is
+        finalImageUrl = imageUri;
+      }
+      
       await onAdd({
         product_name: productName.trim(),
         category_id: selectedCategoryId,
         size_id: selectedSizeId,
         price: Number(price),
         status,
-        image_url: imageUri || undefined,
+        image_url: finalImageUrl,
       });
       
       // Reset form
@@ -121,6 +143,7 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
+      setUploadingImage(false);
     }
   };
 
@@ -133,10 +156,11 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
     setImageUri(null);
     setShowCategoryDropdown(false);
     setShowSizeDropdown(false);
+    setUploadingImage(false);
   };
 
   const handleClose = () => {
-    if (!loading) {
+    if (!loading && !uploadingImage) {
       resetForm();
       onClose();
     }
@@ -154,7 +178,7 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleClose} disabled={loading} style={styles.closeButton}>
+          <TouchableOpacity onPress={handleClose} disabled={loading || uploadingImage} style={styles.closeButton}>
             <IconSymbol size={24} name="xmark.circle.fill" color="#6b7280" />
           </TouchableOpacity>
           <Text style={styles.title}>Add New Product</Text>
@@ -167,6 +191,12 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
             {/* Image Upload */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Product Image</Text>
+              {uploadingImage && (
+                <View style={styles.uploadingContainer}>
+                  <ActivityIndicator size="small" color="#3b82f6" />
+                  <Text style={styles.uploadingText}>Uploading image...</Text>
+                </View>
+              )}
               <View style={styles.imageContainer}>
                 {imageUri ? (
                   <View style={styles.imagePreview}>
@@ -176,7 +206,11 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  <TouchableOpacity style={styles.imagePlaceholder} onPress={pickImage}>
+                  <TouchableOpacity 
+                    style={styles.imagePlaceholder} 
+                    onPress={pickImage}
+                    disabled={uploadingImage}
+                  >
                     <IconSymbol size={32} name="camera.fill" color="#9ca3af" />
                     <Text style={styles.imagePlaceholderText}>Tap to add image</Text>
                   </TouchableOpacity>
@@ -337,7 +371,7 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
             onPress={handleClose}
-            disabled={loading}
+            disabled={loading || uploadingImage}
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
@@ -346,12 +380,12 @@ export default function AddProductModal({ visible, onClose, onAdd }: AddProductM
             style={[
               styles.button,
               styles.addButton,
-              (!productName.trim() || !selectedCategoryId || !selectedSizeId || !price.trim() || loading) && styles.disabledButton,
+              (!productName.trim() || !selectedCategoryId || !selectedSizeId || !price.trim() || loading || uploadingImage) && styles.disabledButton,
             ]}
             onPress={handleSubmit}
-            disabled={!productName.trim() || !selectedCategoryId || !selectedSizeId || !price.trim() || loading}
+            disabled={!productName.trim() || !selectedCategoryId || !selectedSizeId || !price.trim() || loading || uploadingImage}
           >
-            {loading ? (
+            {loading || uploadingImage ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
               <Text style={styles.addButtonText}>Add Product</Text>
@@ -532,6 +566,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#9ca3af',
     marginTop: 4,
+  },
+  uploadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#eff6ff',
+    borderRadius: 6,
+  },
+  uploadingText: {
+    fontSize: 14,
+    color: '#3b82f6',
+    marginLeft: 8,
   },
   footer: {
     flexDirection: 'row',
