@@ -32,9 +32,7 @@ export async function uploadImageFromMobile(imageUri: string, folder: string = '
     const response = await fetch('https://czeus-app.vercel.app/api/upload-image', {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      // Don't set Content-Type header - let browser/React Native set it with boundary
     });
 
     if (!response.ok) {
