@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Staff Management Preview</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: #fff;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+            color: #374151;
+        }
+
+        .content {
+            padding: 20px;
+            background: #f9fafb;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #374151;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .staff-item {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .staff-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .staff-info {
+            flex: 1;
+        }
+
+        .staff-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .staff-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .role-manager {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .role-barista {
+            background: rgba(139, 90, 60, 0.2);
+            color: #8b5a3c;
+        }
+
+        .role-cashier {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .role-server {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .contact-info {
+            margin-bottom: 8px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .contact-text {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-on-break {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .join-date {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .add-button {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            border: none;
+        }
+
+        .chevron {
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .demo-note {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        .features {
+            margin: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .features h3 {
+            margin: 0 0 16px 0;
+            font-size: 18px;
+            color: #374151;
+        }
+
+        .features ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-note">
+        📱 <strong>Mobile Staff Management</strong> - Connected to Supabase Database
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Staff</h1>
+        </div>
+
+        <div class="content">
+            <div class="search-container">
+                <span>🔍</span>
+                <input type="text" class="search-input" placeholder="Search staff..." />
+            </div>
+
+            <!-- Staff Member 1 -->
+            <div class="staff-item">
+                <div class="staff-avatar">👤</div>
+                <div class="staff-info">
+                    <div class="staff-header">
+                        <div class="staff-name">John Doe</div>
+                        <div class="role-badge role-manager">Manager</div>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span>✉️</span>
+                            <span class="contact-text">john.doe@cafe.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span class="contact-text">+1-555-0123</span>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-container">
+                            <span>✅</span>
+                            <div class="status-badge status-active">Active</div>
+                        </div>
+                        <div class="join-date">Joined 2023-01-15</div>
+                    </div>
+                </div>
+                <span class="chevron">›</span>
+            </div>
+
+            <!-- Staff Member 2 -->
+            <div class="staff-item">
+                <div class="staff-avatar">👤</div>
+                <div class="staff-info">
+                    <div class="staff-header">
+                        <div class="staff-name">Jane Smith</div>
+                        <div class="role-badge role-barista">Barista</div>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span>✉️</span>
+                            <span class="contact-text">jane.smith@cafe.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span class="contact-text">+1-555-0124</span>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-container">
+                            <span>✅</span>
+                            <div class="status-badge status-active">Active</div>
+                        </div>
+                        <div class="join-date">Joined 2023-03-20</div>
+                    </div>
+                </div>
+                <span class="chevron">›</span>
+            </div>
+
+            <!-- Staff Member 3 -->
+            <div class="staff-item">
+                <div class="staff-avatar">👤</div>
+                <div class="staff-info">
+                    <div class="staff-header">
+                        <div class="staff-name">Mike Johnson</div>
+                        <div class="role-badge role-cashier">Cashier</div>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span>✉️</span>
+                            <span class="contact-text">mike.johnson@cafe.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span class="contact-text">+1-555-0125</span>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-container">
+                            <span>⏸️</span>
+                            <div class="status-badge status-on-break">On Break</div>
+                        </div>
+                        <div class="join-date">Joined 2023-06-10</div>
+                    </div>
+                </div>
+                <span class="chevron">›</span>
+            </div>
+
+            <!-- Staff Member 4 -->
+            <div class="staff-item">
+                <div class="staff-avatar">👤</div>
+                <div class="staff-info">
+                    <div class="staff-header">
+                        <div class="staff-name">Sarah Wilson</div>
+                        <div class="role-badge role-server">Server</div>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span>✉️</span>
+                            <span class="contact-text">sarah.wilson@cafe.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span>📞</span>
+                            <span class="contact-text">+1-555-0126</span>
+                        </div>
+                    </div>
+                    <div class="status-row">
+                        <div class="status-container">
+                            <span>✅</span>
+                            <div class="status-badge status-active">Active</div>
+                        </div>
+                        <div class="join-date">Joined 2023-08-05</div>
+                    </div>
+                </div>
+                <span class="chevron">›</span>
+            </div>
+
+            <!-- Add Button -->
+            <button class="add-button">+</button>
+        </div>
+    </div>
+
+    <div class="features">
+        <h3>🔧 Key Features Implemented</h3>
+        <ul>
+            <li>Real-time data from Supabase database</li>
+            <li>Search and filter functionality</li>
+            <li>Tap to edit staff member</li>
+            <li>Long-press to delete staff member</li>
+            <li>Pull-to-refresh for data updates</li>
+            <li>Loading states and error handling</li>
+            <li>Role-based permissions display</li>
+            <li>Floating action button to add staff</li>
+            <li>Navigation to existing user forms</li>
+            <li>Consistent with web implementation</li>
+        </ul>
+    </div>
+
+    <div class="features">
+        <h3>📱 Mobile Interactions</h3>
+        <ul>
+            <li><strong>Tap:</strong> Edit staff member (navigates to edit form)</li>
+            <li><strong>Long Press:</strong> Delete staff member (shows confirmation)</li>
+            <li><strong>+ Button:</strong> Add new staff (navigates to add form with role='staff')</li>
+            <li><strong>Search:</strong> Filter staff by name, email, or role</li>
+            <li><strong>Pull Down:</strong> Refresh data from database</li>
+        </ul>
+    </div>
+</body>
+</html>
