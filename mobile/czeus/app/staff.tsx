@@ -13,14 +13,18 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { useStaff, useDeleteStaff } from '@/hooks/useStaff';
+import { useStaff, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
 import { Staff } from '@/lib/staff';
+import EditStaffModal from '@/components/modals/EditStaffModal';
 
 export default function StaffScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   
   // Use real data from Supabase
   const { data: staff = [], isLoading, refetch } = useStaff();
+  const updateStaffMutation = useUpdateStaff();
   const deleteStaffMutation = useDeleteStaff();
 
   const filteredStaff = staff.filter(
@@ -104,8 +108,14 @@ export default function StaffScreen() {
     router.push('/add-user?role=staff');
   };
 
-  const handleEditStaff = (staffId: number) => {
-    router.push(`/edit-user?userId=${staffId}`);
+  const handleEditStaff = (staff: Staff) => {
+    setSelectedStaff(staff);
+    setEditModalVisible(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalVisible(false);
+    setSelectedStaff(null);
   };
 
   const handleDeleteStaff = (staff: Staff) => {
@@ -194,7 +204,7 @@ export default function StaffScreen() {
             <TouchableOpacity 
               key={member.id} 
               style={styles.staffItem}
-              onPress={() => handleEditStaff(member.id)}
+              onPress={() => handleEditStaff(member)}
               onLongPress={() => handleDeleteStaff(member)}
             >
               <View style={styles.staffAvatar}>
@@ -293,6 +303,15 @@ export default function StaffScreen() {
       >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
+
+      {/* Edit Staff Modal */}
+      <EditStaffModal
+        visible={editModalVisible}
+        staff={selectedStaff}
+        onClose={handleCloseEditModal}
+        onUpdate={updateStaffMutation.mutateAsync}
+        onDelete={deleteStaffMutation.mutateAsync}
+      />
     </View>
   );
 }
