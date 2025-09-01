@@ -138,6 +138,34 @@ function AppNavigator() {
           },
         }} 
       />
+      <Stack.Screen 
+        name="add-user" 
+        options={{ 
+          title: 'Add User',
+          headerBackTitle: 'Back',
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#374151',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }} 
+      />
+      <Stack.Screen 
+        name="edit-user" 
+        options={{ 
+          title: 'Edit User',
+          headerBackTitle: 'Back',
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#374151',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }} 
+      />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
