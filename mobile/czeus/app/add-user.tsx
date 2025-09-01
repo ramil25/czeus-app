@@ -8,8 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useState } from 'react';
-import { router } from 'expo-router';
+import { useState, useEffect } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -19,6 +19,8 @@ import { UserFormData } from '@/lib/users';
 import { UserRole } from '@/types/auth';
 
 export default function AddUserScreen() {
+  const { role } = useLocalSearchParams<{ role?: string }>();
+  
   const [form, setForm] = useState<UserFormData>({
     first_name: '',
     middle_name: '',
@@ -30,6 +32,13 @@ export default function AddUserScreen() {
     address: '',
     birth_day: '',
   });
+
+  // Set role from URL parameter if provided
+  useEffect(() => {
+    if (role && (role === 'admin' || role === 'staff' || role === 'customer')) {
+      setForm(prev => ({ ...prev, role: role as UserRole }));
+    }
+  }, [role]);
 
   const createUserMutation = useCreateUser();
 
