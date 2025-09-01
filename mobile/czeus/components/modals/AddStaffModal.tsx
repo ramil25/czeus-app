@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -11,51 +11,24 @@ import {
   ScrollView,
 } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Staff, StaffFormData } from '@/lib/staff';
+import { StaffFormData, Staff } from '@/lib/staff';
 
-interface EditStaffModalProps {
+interface AddStaffModalProps {
   visible: boolean;
-  staff: Staff | null;
   onClose: () => void;
-  onUpdate: (params: { id: number; staffData: StaffFormData }) => Promise<Staff>;
-  onDelete: (id: number) => Promise<void>;
+  onAdd: (staffData: StaffFormData) => Promise<Staff>;
 }
 
-export default function EditStaffModal({
-  visible,
-  staff,
-  onClose,
-  onUpdate,
-  onDelete,
-}: EditStaffModalProps) {
+export default function AddStaffModal({ visible, onClose, onAdd }: AddStaffModalProps) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [position, setPosition] = useState('');
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (staff) {
-      setFirstName(staff.firstName || '');
-      setLastName(staff.lastName || '');
-      setPhone(staff.phone || '');
-      setPosition(staff.position || '');
-      setAddress(staff.address || '');
-    } else {
-      // Reset form when staff is null
-      setFirstName('');
-      setLastName('');
-      setPhone('');
-      setPosition('');
-      setAddress('');
-    }
-  }, [staff]);
-
-  const handleUpdate = async () => {
-    if (!staff) return;
-    
+  const handleSubmit = async () => {
     if (!firstName.trim()) {
       Alert.alert('Validation Error', 'First name is required');
       return;
@@ -66,69 +39,58 @@ export default function EditStaffModal({
       return;
     }
 
+    if (!email.trim()) {
+      Alert.alert('Validation Error', 'Email is required');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Validation Error', 'Please enter a valid email address');
+      return;
+    }
+
     try {
       setLoading(true);
-      await onUpdate({ 
-        id: staff.id, 
-        staffData: {
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          email: staff.email, // Keep the same email
-          phone: phone.trim(),
-          position: position.trim(),
-          address: address.trim(),
-        }
+      await onAdd({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        position: position.trim(),
+        address: address.trim(),
       });
       
+      // Reset form
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPhone('');
+      setPosition('');
+      setAddress('');
       onClose();
-      Alert.alert('Success', 'Staff member updated successfully');
+      
+      Alert.alert('Success', 'Staff member added successfully');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update staff member';
+      const message = error instanceof Error ? error.message : 'Failed to add staff member';
       Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = () => {
-    if (!staff) return;
-
-    Alert.alert(
-      'Delete Staff Member',
-      `Are you sure you want to delete "${staff.firstName} ${staff.lastName}"? This action cannot be undone.`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setDeleting(true);
-              await onDelete(staff.id);
-              onClose();
-              Alert.alert('Success', 'Staff member deleted successfully');
-            } catch (error) {
-              const message = error instanceof Error ? error.message : 'Failed to delete staff member';
-              Alert.alert('Error', message);
-            } finally {
-              setDeleting(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const handleClose = () => {
-    if (!loading && !deleting) {
+    if (!loading) {
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setPhone('');
+      setPosition('');
+      setAddress('');
       onClose();
     }
   };
-
-  if (!staff) return null;
 
   return (
     <Modal
@@ -139,25 +101,11 @@ export default function EditStaffModal({
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={handleClose}
-            disabled={loading || deleting}
-            style={styles.closeButton}
-          >
+          <TouchableOpacity onPress={handleClose} disabled={loading} style={styles.closeButton}>
             <IconSymbol size={24} name="xmark.circle.fill" color="#6b7280" />
           </TouchableOpacity>
-          <Text style={styles.title}>Edit Staff</Text>
-          <TouchableOpacity
-            onPress={handleDelete}
-            disabled={loading || deleting}
-            style={styles.deleteButton}
-          >
-            {deleting ? (
-              <ActivityIndicator size="small" color="#ef4444" />
-            ) : (
-              <IconSymbol size={24} name="trash" color="#ef4444" />
-            )}
-          </TouchableOpacity>
+          <Text style={styles.title}>Add New Staff</Text>
+          <View style={styles.placeholder} />
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -170,7 +118,7 @@ export default function EditStaffModal({
                 onChangeText={setFirstName}
                 placeholder="Enter first name"
                 placeholderTextColor="#9ca3af"
-                editable={!loading && !deleting}
+                editable={!loading}
                 autoCapitalize="words"
                 maxLength={50}
               />
@@ -184,23 +132,25 @@ export default function EditStaffModal({
                 onChangeText={setLastName}
                 placeholder="Enter last name"
                 placeholderTextColor="#9ca3af"
-                editable={!loading && !deleting}
+                editable={!loading}
                 autoCapitalize="words"
                 maxLength={50}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email (Read-only)</Text>
+              <Text style={styles.label}>Email *</Text>
               <TextInput
-                style={[styles.input, styles.inputDisabled]}
-                value={staff.email}
-                editable={false}
-                placeholderTextColor="#6b7280"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter email address"
+                placeholderTextColor="#9ca3af"
+                editable={!loading}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                maxLength={100}
               />
-              <Text style={styles.helpText}>
-                Email addresses cannot be changed for security reasons
-              </Text>
             </View>
 
             <View style={styles.inputGroup}>
@@ -211,7 +161,7 @@ export default function EditStaffModal({
                 onChangeText={setPhone}
                 placeholder="Enter phone number (optional)"
                 placeholderTextColor="#9ca3af"
-                editable={!loading && !deleting}
+                editable={!loading}
                 keyboardType="phone-pad"
                 maxLength={20}
               />
@@ -225,7 +175,7 @@ export default function EditStaffModal({
                 onChangeText={setPosition}
                 placeholder="Enter position/job title (optional)"
                 placeholderTextColor="#9ca3af"
-                editable={!loading && !deleting}
+                editable={!loading}
                 autoCapitalize="words"
                 maxLength={100}
               />
@@ -242,10 +192,16 @@ export default function EditStaffModal({
                 multiline
                 numberOfLines={3}
                 textAlignVertical="top"
-                editable={!loading && !deleting}
+                editable={!loading}
                 autoCapitalize="words"
                 maxLength={200}
               />
+            </View>
+
+            <View style={styles.roleInfo}>
+              <Text style={styles.roleInfoText}>
+                Role will be automatically set to Staff
+              </Text>
             </View>
           </View>
         </ScrollView>
@@ -254,7 +210,7 @@ export default function EditStaffModal({
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
             onPress={handleClose}
-            disabled={loading || deleting}
+            disabled={loading}
           >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
@@ -262,16 +218,16 @@ export default function EditStaffModal({
           <TouchableOpacity
             style={[
               styles.button,
-              styles.updateButton,
-              (!firstName.trim() || !lastName.trim() || loading || deleting) && styles.disabledButton,
+              styles.addButton,
+              (!firstName.trim() || !lastName.trim() || !email.trim() || loading) && styles.disabledButton,
             ]}
-            onPress={handleUpdate}
-            disabled={!firstName.trim() || !lastName.trim() || loading || deleting}
+            onPress={handleSubmit}
+            disabled={!firstName.trim() || !lastName.trim() || !email.trim() || loading}
           >
             {loading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text style={styles.updateButtonText}>Update Staff</Text>
+              <Text style={styles.addButtonText}>Add Staff</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -297,21 +253,27 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e7eb',
   },
   closeButton: {
-    padding: 4,
+    padding: 8,
+    marginLeft: -8,
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#374151',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
   },
-  deleteButton: {
-    padding: 4,
+  placeholder: {
+    width: 40,
   },
   content: {
     flex: 1,
+    padding: 20,
   },
   formContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
     padding: 20,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   inputGroup: {
     marginBottom: 20,
@@ -325,61 +287,64 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#d1d5db',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: 8,
+    paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
+    color: '#111827',
     backgroundColor: '#fff',
-    color: '#374151',
-  },
-  inputDisabled: {
-    backgroundColor: '#f9fafb',
-    color: '#6b7280',
   },
   textArea: {
     height: 80,
-    textAlignVertical: 'top',
+    paddingTop: 12,
   },
-  helpText: {
+  roleInfo: {
+    backgroundColor: '#10b98120',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 8,
+  },
+  roleInfoText: {
     fontSize: 14,
-    color: '#6b7280',
-    marginTop: 4,
+    color: '#059669',
     fontStyle: 'italic',
+    textAlign: 'center',
   },
   footer: {
     flexDirection: 'row',
+    gap: 12,
     padding: 20,
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
-    gap: 12,
   },
   button: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
   },
   cancelButton: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#d1d5db',
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#6b7280',
+    fontWeight: '500',
+    color: '#374151',
   },
-  updateButton: {
+  addButton: {
     backgroundColor: '#10b981',
   },
-  updateButtonText: {
+  addButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#fff',
   },
   disabledButton: {
-    backgroundColor: '#9ca3af',
+    opacity: 0.5,
   },
 });

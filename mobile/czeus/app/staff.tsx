@@ -12,18 +12,20 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useState } from 'react';
-import { router } from 'expo-router';
-import { useStaff, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
+import { useStaff, useCreateStaff, useUpdateStaff, useDeleteStaff } from '@/hooks/useStaff';
 import { Staff } from '@/lib/staff';
 import EditStaffModal from '@/components/modals/EditStaffModal';
+import AddStaffModal from '@/components/modals/AddStaffModal';
 
 export default function StaffScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   
   // Use real data from Supabase
   const { data: staff = [], isLoading, refetch } = useStaff();
+  const createStaffMutation = useCreateStaff();
   const updateStaffMutation = useUpdateStaff();
   const deleteStaffMutation = useDeleteStaff();
 
@@ -105,7 +107,11 @@ export default function StaffScreen() {
   };
 
   const handleAddStaff = () => {
-    router.push('/add-user?role=staff');
+    setAddModalVisible(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setAddModalVisible(false);
   };
 
   const handleEditStaff = (staff: Staff) => {
@@ -303,6 +309,13 @@ export default function StaffScreen() {
       >
         <IconSymbol size={24} name="plus" color="#fff" />
       </TouchableOpacity>
+
+      {/* Add Staff Modal */}
+      <AddStaffModal
+        visible={addModalVisible}
+        onClose={handleCloseAddModal}
+        onAdd={createStaffMutation.mutateAsync}
+      />
 
       {/* Edit Staff Modal */}
       <EditStaffModal
