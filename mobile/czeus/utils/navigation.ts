@@ -27,7 +27,7 @@ export function getTabsForRole(role: UserRole | undefined): string[] {
     case 'admin':
       return ['index', 'users', 'pos-setup', 'explore'];
     case 'staff':
-      return ['pos', 'profile'];
+      return ['pos', 'profile', 'explore'];
     case 'customer':
       return ['foods', 'points', 'profile'];
     default:
