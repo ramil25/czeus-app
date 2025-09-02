@@ -38,41 +38,49 @@ export default function MoreScreen() {
     );
   };
 
+  // Check if user has permission to access this screen (admin or staff only)
+  const hasAccess = user?.role === 'admin' || user?.role === 'staff';
+
+  // If user doesn't have access, show access denied message
+  if (!hasAccess) {
+    return (
+      <ScrollView style={styles.container}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title">Access Denied</ThemedText>
+          <ThemedText>This section is only available to admin and staff users.</ThemedText>
+        </ThemedView>
+      </ScrollView>
+    );
+  }
+
   const menuOptions: MenuOption[] = [
     {
-      title: 'User Management',
-      description: 'Manage users and permissions',
-      icon: 'person.3.fill',
+      title: 'Inventory Management',
+      description: 'Manage products and stock levels',
+      icon: 'cube.box.fill',
       color: '#2362c7',
-      onPress: () => console.log('User Management'),
+      onPress: () => console.log('Inventory Management'),
+    },
+    {
+      title: 'Customer Lists',
+      description: 'View and manage customer database',
+      icon: 'person.2.fill',
+      color: '#f59e0b',
+      onPress: () => console.log('Customer Lists'),
+    },
+    {
+      title: 'Sales Management',
+      description: 'Track sales and transactions',
+      icon: 'chart.line.uptrend.xyaxis',
+      color: '#10b981',
+      onPress: () => console.log('Sales Management'),
     },
     {
       title: 'Points Management',
       description: 'Customer loyalty points',
       icon: 'star.fill',
-      color: '#f59e0b',
-      onPress: () => console.log('Points Management'),
-    },
-    {
-      title: 'POS Setup',
-      description: 'Categories, discounts, staff',
-      icon: 'gearshape.fill',
       color: '#8b5cf6',
-      onPress: () => console.log('POS Setup'),
-    },
-    {
-      title: 'Table Management',
-      description: 'Restaurant table management',
-      icon: 'table.furniture.fill',
-      color: '#10b981',
-      onPress: () => console.log('Table Management'),
-    },
-    {
-      title: 'Reports',
-      description: 'Sales and analytics reports',
-      icon: 'chart.bar.fill',
-      color: '#ef4444',
-      onPress: () => console.log('Reports'),
+      onPress: () => console.log('Points Management'),
     },
     {
       title: 'Settings',
