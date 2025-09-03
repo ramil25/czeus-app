@@ -15,7 +15,6 @@ import { useInventory } from '@/hooks/useInventory';
 import { InventoryItem } from '@/lib/inventory';
 import AddInventoryModal from '@/components/modals/AddInventoryModal';
 import EditInventoryModal from '@/components/modals/EditInventoryModal';
-import { router } from 'expo-router';
 
 export default function InventoryManagementScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,20 +55,36 @@ export default function InventoryManagementScreen() {
 
   const getCategoryIcon = (category: string) => {
     const lowercaseName = category.toLowerCase();
-    
+
     if (lowercaseName.includes('coffee')) {
       return 'cup.and.saucer.fill';
     } else if (lowercaseName.includes('tea')) {
       return 'leaf.fill';
-    } else if (lowercaseName.includes('dairy') || lowercaseName.includes('milk')) {
+    } else if (
+      lowercaseName.includes('dairy') ||
+      lowercaseName.includes('milk')
+    ) {
       return 'waterbottle';
-    } else if (lowercaseName.includes('condiment') || lowercaseName.includes('sugar') || lowercaseName.includes('spice')) {
+    } else if (
+      lowercaseName.includes('condiment') ||
+      lowercaseName.includes('sugar') ||
+      lowercaseName.includes('spice')
+    ) {
       return 'bag.fill';
-    } else if (lowercaseName.includes('meat') || lowercaseName.includes('protein')) {
+    } else if (
+      lowercaseName.includes('meat') ||
+      lowercaseName.includes('protein')
+    ) {
       return 'takeoutbag.and.cup.and.straw.fill';
-    } else if (lowercaseName.includes('vegetable') || lowercaseName.includes('produce')) {
+    } else if (
+      lowercaseName.includes('vegetable') ||
+      lowercaseName.includes('produce')
+    ) {
       return 'carrot.fill';
-    } else if (lowercaseName.includes('grain') || lowercaseName.includes('flour')) {
+    } else if (
+      lowercaseName.includes('grain') ||
+      lowercaseName.includes('flour')
+    ) {
       return 'bag';
     } else {
       return 'shippingbox.fill';
@@ -78,20 +93,36 @@ export default function InventoryManagementScreen() {
 
   const getCategoryColor = (category: string) => {
     const lowercaseName = category.toLowerCase();
-    
+
     if (lowercaseName.includes('coffee')) {
       return '#8b5a3c';
     } else if (lowercaseName.includes('tea')) {
       return '#10b981';
-    } else if (lowercaseName.includes('dairy') || lowercaseName.includes('milk')) {
+    } else if (
+      lowercaseName.includes('dairy') ||
+      lowercaseName.includes('milk')
+    ) {
       return '#3b82f6';
-    } else if (lowercaseName.includes('condiment') || lowercaseName.includes('sugar') || lowercaseName.includes('spice')) {
+    } else if (
+      lowercaseName.includes('condiment') ||
+      lowercaseName.includes('sugar') ||
+      lowercaseName.includes('spice')
+    ) {
       return '#f59e0b';
-    } else if (lowercaseName.includes('meat') || lowercaseName.includes('protein')) {
+    } else if (
+      lowercaseName.includes('meat') ||
+      lowercaseName.includes('protein')
+    ) {
       return '#ef4444';
-    } else if (lowercaseName.includes('vegetable') || lowercaseName.includes('produce')) {
+    } else if (
+      lowercaseName.includes('vegetable') ||
+      lowercaseName.includes('produce')
+    ) {
       return '#22c55e';
-    } else if (lowercaseName.includes('grain') || lowercaseName.includes('flour')) {
+    } else if (
+      lowercaseName.includes('grain') ||
+      lowercaseName.includes('flour')
+    ) {
       return '#a855f7';
     } else {
       return '#6b7280';
@@ -116,16 +147,6 @@ export default function InventoryManagementScreen() {
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <IconSymbol size={24} name="chevron.left" color="#374151" />
-        </TouchableOpacity>
-        <ThemedText type="title" style={styles.headerTitle}>
-          Inventory Management
-        </ThemedText>
-        <View style={{ width: 24 }} />
-      </ThemedView>
-
       <ThemedView style={styles.content}>
         <View style={styles.searchSection}>
           <View style={styles.searchContainer}>
@@ -197,7 +218,11 @@ export default function InventoryManagementScreen() {
                   <View
                     style={[
                       styles.itemIcon,
-                      { backgroundColor: getCategoryBackgroundColor(item.item_category) },
+                      {
+                        backgroundColor: getCategoryBackgroundColor(
+                          item.item_category
+                        ),
+                      },
                     ]}
                   >
                     <IconSymbol
@@ -207,19 +232,18 @@ export default function InventoryManagementScreen() {
                     />
                   </View>
                   <View style={styles.itemInfo}>
-                    <ThemedText
-                      type="defaultSemiBold"
-                      style={styles.itemName}
-                    >
+                    <ThemedText type="defaultSemiBold" style={styles.itemName}>
                       {item.item_name}
                     </ThemedText>
                     <ThemedText style={styles.itemDescription}>
                       {item.item_category} • {item.item_qty} {item.unit_measure}
                     </ThemedText>
-                    <ThemedText style={[
-                      styles.itemStatus,
-                      { color: getStockStatusColor(item.item_qty) }
-                    ]}>
+                    <ThemedText
+                      style={[
+                        styles.itemStatus,
+                        { color: getStockStatusColor(item.item_qty) },
+                      ]}
+                    >
                       {getStockStatusText(item.item_qty)}
                     </ThemedText>
                   </View>

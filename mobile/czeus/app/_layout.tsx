@@ -54,9 +54,9 @@ function AppNavigator() {
     <Stack>
       <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen 
-        name="products" 
-        options={{ 
+      <Stack.Screen
+        name="products"
+        options={{
           title: 'Products',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -66,11 +66,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="categories" 
-        options={{ 
+      <Stack.Screen
+        name="categories"
+        options={{
           title: 'Categories',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -80,11 +80,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="sizes" 
-        options={{ 
+      <Stack.Screen
+        name="sizes"
+        options={{
           title: 'Sizes',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -94,11 +94,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="tables" 
-        options={{ 
+      <Stack.Screen
+        name="tables"
+        options={{
           title: 'Tables',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -108,11 +108,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="discounts" 
-        options={{ 
+      <Stack.Screen
+        name="discounts"
+        options={{
           title: 'Discounts',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -122,11 +122,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="staff" 
-        options={{ 
+      <Stack.Screen
+        name="staff"
+        options={{
           title: 'Staff',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -136,11 +136,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="add-user" 
-        options={{ 
+      <Stack.Screen
+        name="add-user"
+        options={{
           title: 'Add User',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -150,11 +150,11 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
       />
-      <Stack.Screen 
-        name="edit-user" 
-        options={{ 
+      <Stack.Screen
+        name="edit-user"
+        options={{
           title: 'Edit User',
           headerBackTitle: 'Back',
           headerStyle: {
@@ -164,7 +164,21 @@ function AppNavigator() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-        }} 
+        }}
+      />
+      <Stack.Screen
+        name="inventory-management"
+        options={{
+          title: 'Inventory Management',
+          headerBackTitle: 'Back',
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#374151',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
       />
       <Stack.Screen name="+not-found" />
     </Stack>
