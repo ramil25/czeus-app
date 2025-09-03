@@ -4,6 +4,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
+import { router } from 'expo-router';
 
 interface MenuOption {
   title: string;
@@ -59,7 +60,7 @@ export default function MoreScreen() {
       description: 'Manage products and stock levels',
       icon: 'cube.box.fill',
       color: '#2362c7',
-      onPress: () => console.log('Inventory Management'),
+      onPress: () => router.push('/inventory-management'),
     },
     {
       title: 'Customer Lists',
