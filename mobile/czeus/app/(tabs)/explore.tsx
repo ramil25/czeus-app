@@ -67,7 +67,7 @@ export default function MoreScreen() {
       description: 'View and manage customer database',
       icon: 'person.2.fill',
       color: '#f59e0b',
-      onPress: () => console.log('Customer Lists'),
+      onPress: () => router.push('/customers'),
     },
     {
       title: 'Sales Management',
