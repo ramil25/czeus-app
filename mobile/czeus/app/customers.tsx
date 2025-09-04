@@ -12,7 +12,12 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useState } from 'react';
-import { useCustomers, useCreateCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
+import {
+  useCustomers,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+} from '@/hooks/useCustomers';
 import { Customer } from '@/lib/customers';
 import EditCustomerModal from '@/components/modals/EditCustomerModal';
 import AddCustomerModal from '@/components/modals/AddCustomerModal';
@@ -21,8 +26,10 @@ export default function CustomersScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
+
   // Use real data from Supabase
   const { data: customers = [], isLoading, refetch } = useCustomers();
   const createCustomerMutation = useCreateCustomer();
@@ -83,8 +90,8 @@ export default function CustomersScreen() {
       `Are you sure you want to delete ${customer.firstName} ${customer.lastName}?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -94,7 +101,7 @@ export default function CustomersScreen() {
               console.error('Failed to delete customer:', error);
               Alert.alert('Error', 'Failed to delete customer');
             }
-          }
+          },
         },
       ]
     );
@@ -112,30 +119,25 @@ export default function CustomersScreen() {
 
   return (
     <View style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Customers</ThemedText>
-        <ThemedText>Manage customer database</ThemedText>
-        
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <IconSymbol size={20} name="magnifyingglass" color="#9ca3af" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search customers..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#9ca3af"
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity
-              onPress={() => setSearchQuery('')}
-              style={styles.clearButton}
-            >
-              <IconSymbol size={16} name="xmark.circle.fill" color="#9ca3af" />
-            </TouchableOpacity>
-          )}
-        </View>
-      </ThemedView>
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <IconSymbol size={20} name="magnifyingglass" color="#9ca3af" />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search customers..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="#9ca3af"
+        />
+        {searchQuery.length > 0 && (
+          <TouchableOpacity
+            onPress={() => setSearchQuery('')}
+            style={styles.clearButton}
+          >
+            <IconSymbol size={16} name="xmark.circle.fill" color="#9ca3af" />
+          </TouchableOpacity>
+        )}
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -155,10 +157,9 @@ export default function CustomersScreen() {
                 {searchQuery ? 'No customers found' : 'No customers yet'}
               </ThemedText>
               <ThemedText style={styles.emptyDescription}>
-                {searchQuery 
+                {searchQuery
                   ? 'Try adjusting your search terms'
-                  : 'Add your first customer to get started'
-                }
+                  : 'Add your first customer to get started'}
               </ThemedText>
             </View>
           ) : (
@@ -174,14 +175,21 @@ export default function CustomersScreen() {
                 </View>
                 <View style={styles.customerInfo}>
                   <View style={styles.customerHeader}>
-                    <ThemedText type="defaultSemiBold" style={styles.customerName}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.customerName}
+                    >
                       {customer.firstName} {customer.lastName}
                     </ThemedText>
                     <View style={styles.badges}>
                       <View
                         style={[
                           styles.statusBadge,
-                          { backgroundColor: getStatusBackground(customer.status) },
+                          {
+                            backgroundColor: getStatusBackground(
+                              customer.status
+                            ),
+                          },
                         ]}
                       >
                         <ThemedText
@@ -213,15 +221,21 @@ export default function CustomersScreen() {
                   </View>
                   <View style={styles.statsInfo}>
                     <View style={styles.statItem}>
-                      <ThemedText style={styles.statValue}>{customer.totalPoints}</ThemedText>
+                      <ThemedText style={styles.statValue}>
+                        {customer.totalPoints}
+                      </ThemedText>
                       <ThemedText style={styles.statLabel}>Points</ThemedText>
                     </View>
                     <View style={styles.statItem}>
-                      <ThemedText style={styles.statValue}>{customer.totalOrders}</ThemedText>
+                      <ThemedText style={styles.statValue}>
+                        {customer.totalOrders}
+                      </ThemedText>
                       <ThemedText style={styles.statLabel}>Orders</ThemedText>
                     </View>
                     <View style={styles.statItem}>
-                      <ThemedText style={styles.statValue}>{customer.joinDate}</ThemedText>
+                      <ThemedText style={styles.statValue}>
+                        {customer.joinDate}
+                      </ThemedText>
                       <ThemedText style={styles.statLabel}>Joined</ThemedText>
                     </View>
                   </View>

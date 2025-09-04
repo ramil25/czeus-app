@@ -1,4 +1,14 @@
-import { StyleSheet, ScrollView, View, Alert, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Alert,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import { useState, useEffect } from 'react';
 import { useLocalSearchParams, router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -11,7 +21,11 @@ import { UserRole } from '@/types/auth';
 
 export default function EditUserScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
-  const { data: user, isLoading: userLoading, error } = useUser(parseInt(userId || '0'));
+  const {
+    data: user,
+    isLoading: userLoading,
+    error,
+  } = useUser(parseInt(userId || '0'));
   const updateUserMutation = useUpdateUser();
 
   const [form, setForm] = useState<UserFormData>({
@@ -48,7 +62,7 @@ export default function EditUserScreen() {
   };
 
   const updateForm = (field: keyof UserFormData, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateForm = (): boolean => {
@@ -68,22 +82,21 @@ export default function EditUserScreen() {
     if (!validateForm() || !user) return;
 
     try {
-      await updateUserMutation.mutateAsync({ 
-        id: user.id, 
-        userData: form 
+      await updateUserMutation.mutateAsync({
+        id: user.id,
+        userData: form,
       });
-      Alert.alert(
-        'Success',
-        'User updated successfully',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.back(),
-          },
-        ]
-      );
+      Alert.alert('Success', 'User updated successfully', [
+        {
+          text: 'OK',
+          onPress: () => router.back(),
+        },
+      ]);
     } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to update user');
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Failed to update user'
+      );
     }
   };
 
@@ -101,13 +114,17 @@ export default function EditUserScreen() {
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <IconSymbol size={24} name="chevron.left" color="#2362c7" />
             </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>Edit User</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              Edit User
+            </ThemedText>
             <View style={styles.placeholder} />
           </View>
         </ThemedView>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#2362c7" />
-          <ThemedText style={styles.loadingText}>Loading user data...</ThemedText>
+          <ThemedText style={styles.loadingText}>
+            Loading user data...
+          </ThemedText>
         </View>
       </ThemedView>
     );
@@ -121,12 +138,18 @@ export default function EditUserScreen() {
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <IconSymbol size={24} name="chevron.left" color="#2362c7" />
             </TouchableOpacity>
-            <ThemedText type="title" style={styles.title}>Edit User</ThemedText>
+            <ThemedText type="title" style={styles.title}>
+              Edit User
+            </ThemedText>
             <View style={styles.placeholder} />
           </View>
         </ThemedView>
         <View style={styles.errorContainer}>
-          <IconSymbol size={48} name="exclamationmark.triangle" color="#ef4444" />
+          <IconSymbol
+            size={48}
+            name="exclamationmark.triangle"
+            color="#ef4444"
+          />
           <ThemedText style={styles.errorText}>User not found</ThemedText>
           <TouchableOpacity style={styles.errorButton} onPress={handleBack}>
             <ThemedText style={styles.errorButtonText}>Go Back</ThemedText>
@@ -137,7 +160,7 @@ export default function EditUserScreen() {
   }
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
@@ -146,7 +169,9 @@ export default function EditUserScreen() {
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <IconSymbol size={24} name="chevron.left" color="#2362c7" />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>Edit User</ThemedText>
+          <ThemedText type="title" style={styles.title}>
+            Edit User
+          </ThemedText>
           <View style={styles.placeholder} />
         </View>
       </ThemedView>
@@ -155,8 +180,10 @@ export default function EditUserScreen() {
         <ThemedView style={styles.form}>
           {/* Required Fields */}
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>Basic Information</ThemedText>
-            
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Basic Information
+            </ThemedText>
+
             <View style={styles.field}>
               <ThemedText style={styles.label}>First Name *</ThemedText>
               <TextInput
@@ -208,7 +235,8 @@ export default function EditUserScreen() {
                     <ThemedText
                       style={[
                         styles.roleOptionText,
-                        form.role === option.value && styles.roleOptionTextSelected,
+                        form.role === option.value &&
+                          styles.roleOptionTextSelected,
                       ]}
                     >
                       {option.label}
@@ -221,8 +249,10 @@ export default function EditUserScreen() {
 
           {/* Optional Fields */}
           <View style={styles.section}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>Additional Information</ThemedText>
-            
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              Additional Information
+            </ThemedText>
+
             <View style={styles.field}>
               <ThemedText style={styles.label}>Middle Name</ThemedText>
               <TextInput
@@ -285,12 +315,17 @@ export default function EditUserScreen() {
 
           {/* Submit Button */}
           <TouchableOpacity
-            style={[styles.submitButton, updateUserMutation.isPending && styles.submitButtonDisabled]}
+            style={[
+              styles.submitButton,
+              updateUserMutation.isPending && styles.submitButtonDisabled,
+            ]}
             onPress={handleSubmit}
             disabled={updateUserMutation.isPending}
           >
             <ThemedText style={styles.submitButtonText}>
-              {updateUserMutation.isPending ? 'Updating User...' : 'Update User'}
+              {updateUserMutation.isPending
+                ? 'Updating User...'
+                : 'Update User'}
             </ThemedText>
           </TouchableOpacity>
         </ThemedView>

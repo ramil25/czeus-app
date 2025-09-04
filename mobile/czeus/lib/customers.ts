@@ -1,5 +1,11 @@
-import { createUser, getUsers, updateUser, deleteUser, UserFormData, UserProfile } from './users';
-import { supabaseAuth } from './supabaseClient';
+import {
+  createUser,
+  getUsers,
+  updateUser,
+  deleteUser,
+  UserFormData,
+  UserProfile,
+} from './users';
 
 // Convert CustomerForm to UserFormData for database operations
 export type CustomerFormData = {
@@ -61,9 +67,7 @@ export async function getCustomers(): Promise<Customer[]> {
   try {
     const users = await getUsers();
     // Filter only customers and convert to Customer format
-    return users
-      .filter(user => user.role === 'customer')
-      .map(userToCustomer);
+    return users.filter((user) => user.role === 'customer').map(userToCustomer);
   } catch (error) {
     console.error('Error fetching customers:', error);
     throw error;
@@ -71,39 +75,12 @@ export async function getCustomers(): Promise<Customer[]> {
 }
 
 // Create a new customer with auto-verified auth signup
-export async function createCustomer(customerData: CustomerFormData): Promise<Customer> {
+export async function createCustomer(
+  customerData: CustomerFormData
+): Promise<Customer> {
   try {
-    // First, create the auth user with auto-verification
-    const tempPassword = 'TempPass123!'; // Temporary password
-    const authResult = await supabaseAuth.signUp(
-      customerData.email, 
-      tempPassword, 
-      customerData.firstName, 
-      customerData.lastName
-    );
-
-    if (authResult.error) {
-      throw authResult.error;
-    }
-
-    // The signUp function in supabaseClient already creates a profile entry with role 'customer'
-    // So we just need to update it with additional customer data
     const userFormData = customerFormToUserForm(customerData);
-    
-    // Find the newly created user by email
-    const users = await getUsers();
-    const newUser = users.find(user => user.email === customerData.email && user.role === 'customer');
-    
-    if (!newUser) {
-      throw new Error('Customer profile was not created properly');
-    }
-
-    // Update with additional customer data if needed
-    if (customerData.phone || customerData.address || customerData.birthDay) {
-      const updatedUser = await updateUser(newUser.id, userFormData);
-      return userToCustomer(updatedUser);
-    }
-
+    const newUser = await createUser(userFormData);
     return userToCustomer(newUser);
   } catch (error) {
     console.error('Error creating customer:', error);
@@ -112,12 +89,15 @@ export async function createCustomer(customerData: CustomerFormData): Promise<Cu
 }
 
 // Update an existing customer (email and role are not editable)
-export async function updateCustomer(id: number, customerData: Omit<CustomerFormData, 'email'>): Promise<Customer> {
+export async function updateCustomer(
+  id: number,
+  customerData: Omit<CustomerFormData, 'email'>
+): Promise<Customer> {
   try {
     // Get current user data to preserve email and role
     const users = await getUsers();
-    const existingUser = users.find(user => user.id === id);
-    
+    const existingUser = users.find((user) => user.id === id);
+
     if (!existingUser) {
       throw new Error('Customer not found');
     }
