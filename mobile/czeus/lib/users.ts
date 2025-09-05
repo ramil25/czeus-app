@@ -216,14 +216,6 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
       })
       .select()
       .single();
-    if (isValidEmail(profileData.email)) {
-      await supabase.auth.signUp({
-        email: profileData.email,
-        password: DEFAULT_PASSWORD,
-      });
-    } else {
-      console.log('Invalid email format, user not signed in automatically.');
-    }
 
     if (profileError) {
       // Check for specific database errors
@@ -232,6 +224,16 @@ export async function createUser(userData: UserFormData): Promise<UserProfile> {
         throw new Error(`User with email ${userData.email} already exists.`);
       }
       throw new Error(`Failed to create user: ${profileError.message}`);
+    }
+
+    // Only create auth if profile creation was successful
+    if (profileData && isValidEmail(profileData.email)) {
+      await supabase.auth.signUp({
+        email: profileData.email,
+        password: DEFAULT_PASSWORD,
+      });
+    } else {
+      console.log('Invalid email format, user not signed in automatically.');
     }
 
     console.log('User created successfully in database:', profileData);
