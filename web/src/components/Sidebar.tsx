@@ -6,6 +6,7 @@ import {
   FaUsers,
   FaTable,
   FaUserTie,
+  FaUserFriends,
 } from 'react-icons/fa';
 import {
   MdPointOfSale,
@@ -49,6 +50,13 @@ export function Sidebar() {
         >
           <FaUsers className="text-xl" />
           User Managements
+        </Link>
+        <Link
+          href="/customer-management"
+          className="flex items-center gap-2 text-blue-700 font-semibold hover:underline"
+        >
+          <FaUserFriends className="text-xl" />
+          Customers Managements
         </Link>
         <Link
           href="/points-management"
@@ -147,6 +155,9 @@ export function Sidebar() {
               </Link>
               <Link href="/user-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
                 <FaUsers className="text-xl" /> User Managements
+              </Link>
+              <Link href="/customer-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
+                <FaUserFriends className="text-xl" /> Customers Managements
               </Link>
               <Link href="/points-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
                 <MdPointOfSale className="text-xl" /> Points Managements
