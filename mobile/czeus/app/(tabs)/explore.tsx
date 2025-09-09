@@ -81,7 +81,7 @@ export default function MoreScreen() {
       description: 'Customer loyalty points',
       icon: 'star.fill',
       color: '#8b5cf6',
-      onPress: () => console.log('Points Management'),
+      onPress: () => router.push('/points-management'),
     },
     {
       title: 'Settings',
