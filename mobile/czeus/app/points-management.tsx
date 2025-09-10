@@ -11,11 +11,10 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   useCustomerPoints,
   useUpdateCustomerPoints,
-  useInitializeCustomerPoints,
 } from '@/hooks/usePoints';
 import { CustomerPoint } from '@/lib/points';
 import EditPointsModal from '@/components/modals/EditPointsModal';
@@ -34,20 +33,6 @@ export default function PointsManagementScreen() {
     refetch,
   } = useCustomerPoints();
   const updatePointsMutation = useUpdateCustomerPoints();
-  const initializeMutation = useInitializeCustomerPoints();
-
-  // Initialize customer points on component mount
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        await initializeMutation.mutateAsync();
-      } catch (error) {
-        console.error('Error initializing customer points:', error);
-      }
-    };
-
-    initialize();
-  }, [initializeMutation]);
 
   const filteredCustomerPoints = customerPoints.filter(
     (item) =>

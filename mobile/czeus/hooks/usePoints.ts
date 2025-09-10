@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getCustomerPoints,
   updateCustomerPoints,
-  initializeCustomerPoints,
   CustomerPoint,
   CustomerPointsFormData,
 } from '@/lib/points';
@@ -31,19 +30,6 @@ export function useUpdateCustomerPoints() {
           item.id === updatedCustomerPoints.id ? updatedCustomerPoints : item
         );
       });
-    },
-  });
-}
-
-// Hook to initialize customer points for all customers
-export function useInitializeCustomerPoints() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: initializeCustomerPoints,
-    onSuccess: () => {
-      // Invalidate and refetch customer points list
-      queryClient.invalidateQueries({ queryKey: ['customerPoints'] });
     },
   });
 }
