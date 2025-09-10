@@ -7,7 +7,6 @@ export interface CustomerPoint {
   points: number;
   created_at: string;
   updated_at: string | null;
-  // Profile data joined from profiles table
   customer_name: string;
   customer_email: string;
   customer_phone: string | null;
@@ -46,11 +45,13 @@ export async function initializeCustomerPoints(): Promise<void> {
       throw pointsError;
     }
 
-    const existingProfileIds = new Set(existingPoints?.map(p => p.profile_id) || []);
+    const existingProfileIds = new Set(
+      existingPoints?.map((p) => p.profile_id) || []
+    );
 
     // Find customers that don't have points entries
     const customersWithoutPoints = customers.filter(
-      customer => !existingProfileIds.has(customer.id)
+      (customer) => !existingProfileIds.has(customer.id)
     );
 
     if (customersWithoutPoints.length === 0) {
@@ -59,7 +60,7 @@ export async function initializeCustomerPoints(): Promise<void> {
     }
 
     // Insert default points (0) for customers without entries
-    const pointsToInsert = customersWithoutPoints.map(customer => ({
+    const pointsToInsert = customersWithoutPoints.map((customer) => ({
       profile_id: customer.id,
       points: 0,
     }));
@@ -72,7 +73,9 @@ export async function initializeCustomerPoints(): Promise<void> {
       throw insertError;
     }
 
-    console.log(`Initialized points for ${customersWithoutPoints.length} customers`);
+    console.log(
+      `Initialized points for ${customersWithoutPoints.length} customers`
+    );
   } catch (error) {
     console.error('Error initializing customer points:', error);
     throw error;
@@ -88,19 +91,16 @@ export async function getCustomerPoints(): Promise<CustomerPoint[]> {
     // Fetch customer points with joined profile data
     const { data, error } = await supabase
       .from('customer_points')
-      .select(`
+      .select(
+        `
         id,
         profile_id,
         points,
         created_at,
         updated_at,
-        profiles!customer_points_profile_id_fkey (
-          first_name,
-          last_name,
-          email,
-          phone
-        )
-      `)
+  profiles:profiles!customer_points_profile_id_fkey (*)
+      `
+      )
       .is('deleted_at', null)
       .eq('profiles.role', 'customer')
       .is('profiles.deleted_at', null)
@@ -121,7 +121,8 @@ export async function getCustomerPoints(): Promise<CustomerPoint[]> {
       points: Number(item.points),
       created_at: item.created_at,
       updated_at: item.updated_at,
-      customer_name: `${item.profiles.first_name} ${item.profiles.last_name}`.trim(),
+      customer_name:
+        `${item.profiles.first_name} ${item.profiles.last_name}`.trim(),
       customer_email: item.profiles.email,
       customer_phone: item.profiles.phone,
     }));
@@ -145,19 +146,16 @@ export async function updateCustomerPoints(
       })
       .eq('id', id)
       .is('deleted_at', null)
-      .select(`
+      .select(
+        `
         id,
         profile_id,
         points,
         created_at,
         updated_at,
-        profiles!customer_points_profile_id_fkey (
-          first_name,
-          last_name,
-          email,
-          phone
-        )
-      `)
+  profiles:profiles!customer_points_profile_id_fkey (*)
+      `
+      )
       .single();
 
     if (error) {
@@ -174,9 +172,9 @@ export async function updateCustomerPoints(
       points: Number(data.points),
       created_at: data.created_at,
       updated_at: data.updated_at,
-      customer_name: `${data.profiles.first_name} ${data.profiles.last_name}`.trim(),
-      customer_email: data.profiles.email,
-      customer_phone: data.profiles.phone,
+      customer_name: '',
+      customer_email: '',
+      customer_phone: null,
     };
   } catch (error) {
     console.error('Error updating customer points:', error);
@@ -185,23 +183,22 @@ export async function updateCustomerPoints(
 }
 
 // Get customer points by profile ID (useful for individual customer lookup)
-export async function getCustomerPointsByProfileId(profileId: number): Promise<CustomerPoint | null> {
+export async function getCustomerPointsByProfileId(
+  profileId: number
+): Promise<CustomerPoint | null> {
   try {
     const { data, error } = await supabase
       .from('customer_points')
-      .select(`
+      .select(
+        `
         id,
         profile_id,
         points,
         created_at,
         updated_at,
-        profiles!customer_points_profile_id_fkey (
-          first_name,
-          last_name,
-          email,
-          phone
-        )
-      `)
+  profiles:profiles!customer_points_profile_id_fkey (*)
+      `
+      )
       .eq('profile_id', profileId)
       .is('deleted_at', null)
       .single();
@@ -218,15 +215,16 @@ export async function getCustomerPointsByProfileId(profileId: number): Promise<C
       return null;
     }
 
+    const profile = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles;
     return {
       id: data.id,
       profile_id: data.profile_id,
       points: Number(data.points),
       created_at: data.created_at,
       updated_at: data.updated_at,
-      customer_name: `${data.profiles.first_name} ${data.profiles.last_name}`.trim(),
-      customer_email: data.profiles.email,
-      customer_phone: data.profiles.phone,
+      customer_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : '',
+      customer_email: profile?.email ?? '',
+      customer_phone: profile?.phone ?? null,
     };
   } catch (error) {
     console.error('Error fetching customer points by profile ID:', error);

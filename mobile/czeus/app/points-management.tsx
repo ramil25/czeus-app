@@ -12,18 +12,27 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useState, useEffect } from 'react';
-import { useCustomerPoints, useUpdateCustomerPoints, useInitializeCustomerPoints } from '@/hooks/usePoints';
+import {
+  useCustomerPoints,
+  useUpdateCustomerPoints,
+  useInitializeCustomerPoints,
+} from '@/hooks/usePoints';
 import { CustomerPoint } from '@/lib/points';
 import EditPointsModal from '@/components/modals/EditPointsModal';
-import { router } from 'expo-router';
 
 export default function PointsManagementScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [selectedCustomerPoint, setSelectedCustomerPoint] = useState<CustomerPoint | null>(null);
+  const [selectedCustomerPoint, setSelectedCustomerPoint] =
+    useState<CustomerPoint | null>(null);
 
   // Hooks for data management
-  const { data: customerPoints = [], isLoading, error, refetch } = useCustomerPoints();
+  const {
+    data: customerPoints = [],
+    isLoading,
+    error,
+    refetch,
+  } = useCustomerPoints();
   const updatePointsMutation = useUpdateCustomerPoints();
   const initializeMutation = useInitializeCustomerPoints();
 
@@ -38,11 +47,12 @@ export default function PointsManagementScreen() {
     };
 
     initialize();
-  }, []);
+  }, [initializeMutation]);
 
-  const filteredCustomerPoints = customerPoints.filter((item) =>
-    item.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.customer_email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCustomerPoints = customerPoints.filter(
+    (item) =>
+      item.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.customer_email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleEditPoints = (customerPoint: CustomerPoint) => {
@@ -71,10 +81,6 @@ export default function PointsManagementScreen() {
     }
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   const getPointsColor = (points: number) => {
     if (points >= 1000) return '#10b981'; // Green for high points
     if (points >= 500) return '#f59e0b'; // Orange for medium points
@@ -91,15 +97,6 @@ export default function PointsManagementScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-          <IconSymbol size={24} name="chevron.left" color="#2362c7" />
-        </TouchableOpacity>
-        <ThemedText type="title">Points Management</ThemedText>
-        <View style={styles.placeholder} />
-      </View>
-
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
@@ -135,10 +132,7 @@ export default function PointsManagementScreen() {
           <ThemedText style={styles.errorText}>
             Failed to load customer points
           </ThemedText>
-          <TouchableOpacity
-            onPress={refreshPoints}
-            style={styles.retryButton}
-          >
+          <TouchableOpacity onPress={refreshPoints} style={styles.retryButton}>
             <ThemedText style={styles.retryText}>Retry</ThemedText>
           </TouchableOpacity>
         </View>
@@ -160,7 +154,9 @@ export default function PointsManagementScreen() {
         {isLoading && customerPoints.length === 0 ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#8b5cf6" />
-            <ThemedText style={styles.loadingText}>Loading customer points...</ThemedText>
+            <ThemedText style={styles.loadingText}>
+              Loading customer points...
+            </ThemedText>
           </View>
         ) : (
           <>
@@ -184,7 +180,7 @@ export default function PointsManagementScreen() {
                     <ThemedText
                       style={[
                         styles.pointsAmount,
-                        { color: getPointsColor(item.points) }
+                        { color: getPointsColor(item.points) },
                       ]}
                     >
                       {item.points} Points
@@ -192,7 +188,7 @@ export default function PointsManagementScreen() {
                     <ThemedText
                       style={[
                         styles.pointsTier,
-                        { color: getPointsColor(item.points) }
+                        { color: getPointsColor(item.points) },
                       ]}
                     >
                       {getPointsLabel(item.points)}
@@ -205,11 +201,7 @@ export default function PointsManagementScreen() {
 
             {filteredCustomerPoints.length === 0 && !isLoading && (
               <View style={styles.emptyState}>
-                <IconSymbol
-                  size={48}
-                  name="star.fill"
-                  color="#d1d5db"
-                />
+                <IconSymbol size={48} name="star.fill" color="#d1d5db" />
                 <ThemedText style={styles.emptyText}>
                   {searchQuery
                     ? 'No customers found'
@@ -234,11 +226,15 @@ export default function PointsManagementScreen() {
                 <ThemedText style={styles.statValue}>
                   {customerPoints.length}
                 </ThemedText>
-                <ThemedText style={styles.statLabel}>Total Customers</ThemedText>
+                <ThemedText style={styles.statLabel}>
+                  Total Customers
+                </ThemedText>
               </View>
               <View style={styles.statCard}>
                 <ThemedText style={styles.statValue}>
-                  {customerPoints.reduce((sum, item) => sum + item.points, 0).toLocaleString()}
+                  {customerPoints
+                    .reduce((sum, item) => sum + item.points, 0)
+                    .toLocaleString()}
                 </ThemedText>
                 <ThemedText style={styles.statLabel}>Total Points</ThemedText>
               </View>
