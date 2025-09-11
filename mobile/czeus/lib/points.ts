@@ -166,15 +166,17 @@ export async function updateCustomerPoints(
       throw new Error('Customer points not found');
     }
 
+    // Transform the data to include customer information from the joined profile
+    const profile = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles;
     return {
       id: data.id,
       profile_id: data.profile_id,
       points: Number(data.points),
       created_at: data.created_at,
       updated_at: data.updated_at,
-      customer_name: '',
-      customer_email: '',
-      customer_phone: null,
+      customer_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : '',
+      customer_email: profile?.email ?? '',
+      customer_phone: profile?.phone ?? null,
     };
   } catch (error) {
     console.error('Error updating customer points:', error);
