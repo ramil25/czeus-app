@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useTables } from '@/hooks/useTables';
 import { useRouter } from 'expo-router';
+import React from 'react';
 import { useState } from 'react';
 import {
   ActivityIndicator,

@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useSizes } from '@/hooks/useSizes';
 import { Size } from '@/lib/sizes';
+import React from 'react';
 import { useState } from 'react';
 import {
   ActivityIndicator,

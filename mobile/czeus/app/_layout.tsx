@@ -15,6 +15,7 @@ import { Colors } from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getInitialRouteForRole } from '@/utils/navigation';
+import React from 'react';
 
 // Create a query client
 const queryClient = new QueryClient({
