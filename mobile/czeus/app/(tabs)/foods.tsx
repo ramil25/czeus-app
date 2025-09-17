@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, ScrollView, View, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -78,7 +79,7 @@ export default function FoodsScreen() {
     }
     Alert.alert(
       'Add to Order',
-      `Add ${item.name} ($${item.price.toFixed(2)}) to your order?`,
+      `Add ${item.name} (₱${item.price.toFixed(2)}) to your order?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Add', onPress: () => Alert.alert('Added!', `${item.name} added to order.`) }
@@ -190,12 +191,21 @@ export default function FoodsScreen() {
               style={[styles.foodItem, !item.available && styles.unavailableItem]}
               onPress={() => addToOrder(item)}
             >
+              {item.image && (
+                <Image
+                  source={{ uri: item.image }}
+                  style={styles.foodImage}
+                  contentFit="cover"
+                  placeholder="🍽️"
+                />
+              )}
+              
               <View style={styles.foodItemHeader}>
                 <ThemedText type="defaultSemiBold" style={styles.foodName}>
                   {item.name}
                 </ThemedText>
                 <ThemedText style={styles.foodPrice}>
-                  ${item.price.toFixed(2)}
+                  ₱{item.price.toFixed(2)}
                 </ThemedText>
               </View>
               
@@ -363,6 +373,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+  },
+  foodImage: {
+    width: '100%',
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: '#f3f4f6',
   },
   unavailableItem: {
     opacity: 0.6,
