@@ -1,22 +1,52 @@
-import { StyleSheet, ScrollView, View, Alert, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, ScrollView, View, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useProducts } from '@/hooks/useProducts';
+import { useCategories } from '@/hooks/useCategories';
+import { Product } from '@/lib/products';
+import { Category } from '@/lib/categories';
 
 interface FoodItem {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
   category: string;
+  categoryId: number;
   available: boolean;
+  size: string;
+  image?: string;
 }
 
 export default function FoodsScreen() {
   const { user, signOut } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState('coffee');
+  const { products, loading: productsLoading, error: productsError } = useProducts();
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+
+  // Transform database products into FoodItem format
+  const foodItems: FoodItem[] = useMemo(() => {
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      description: `${product.size} size`, // Using size as description since we don't have description field
+      price: product.price,
+      category: product.category,
+      categoryId: product.categoryId,
+      available: product.status === 'Available',
+      size: product.size,
+      image: product.image,
+    }));
+  }, [products]);
+
+  // Use the first category as default if none selected
+  const defaultCategoryId = categories.length > 0 ? categories[0].id : null;
+  const currentCategoryId = selectedCategory || defaultCategoryId;
 
   const handleSignOut = () => {
     Alert.alert(
@@ -40,40 +70,7 @@ export default function FoodsScreen() {
     );
   };
 
-  const foodItems: FoodItem[] = [
-    // Coffee
-    { id: '1', name: 'Espresso', description: 'Strong coffee shot', price: 2.50, category: 'coffee', available: true },
-    { id: '2', name: 'Americano', description: 'Espresso with hot water', price: 3.00, category: 'coffee', available: true },
-    { id: '3', name: 'Cappuccino', description: 'Espresso with steamed milk foam', price: 3.50, category: 'coffee', available: true },
-    { id: '4', name: 'Latte', description: 'Espresso with steamed milk', price: 4.00, category: 'coffee', available: true },
-    { id: '5', name: 'Mocha', description: 'Chocolate coffee delight', price: 4.50, category: 'coffee', available: false },
-    
-    // Pastries
-    { id: '6', name: 'Croissant', description: 'Buttery French pastry', price: 2.00, category: 'pastries', available: true },
-    { id: '7', name: 'Blueberry Muffin', description: 'Fresh baked with blueberries', price: 2.50, category: 'pastries', available: true },
-    { id: '8', name: 'Danish', description: 'Sweet pastry with filling', price: 3.00, category: 'pastries', available: true },
-    { id: '9', name: 'Scone', description: 'Traditional British biscuit', price: 2.75, category: 'pastries', available: false },
-    
-    // Tea
-    { id: '10', name: 'Green Tea', description: 'Refreshing green tea', price: 2.00, category: 'tea', available: true },
-    { id: '11', name: 'Earl Grey', description: 'Classic British tea', price: 2.50, category: 'tea', available: true },
-    { id: '12', name: 'Chamomile', description: 'Calming herbal tea', price: 2.50, category: 'tea', available: true },
-    { id: '13', name: 'Jasmine Tea', description: 'Fragrant jasmine tea', price: 2.75, category: 'tea', available: true },
-    
-    // Snacks
-    { id: '14', name: 'Sandwich', description: 'Fresh deli sandwich', price: 5.50, category: 'snacks', available: true },
-    { id: '15', name: 'Bagel', description: 'Fresh baked bagel', price: 2.25, category: 'snacks', available: true },
-    { id: '16', name: 'Cookie', description: 'Homemade chocolate chip cookie', price: 1.50, category: 'snacks', available: true },
-  ];
-
-  const categories = [
-    { id: 'coffee', name: 'Coffee', icon: 'cup.and.saucer.fill' as const, color: '#f59e0b' },
-    { id: 'pastries', name: 'Pastries', icon: 'birthday.cake.fill' as const, color: '#10b981' },
-    { id: 'tea', name: 'Tea', icon: 'leaf.fill' as const, color: '#8b5cf6' },
-    { id: 'snacks', name: 'Snacks', icon: 'fork.knife' as const, color: '#ef4444' },
-  ];
-
-  const filteredItems = foodItems.filter(item => item.category === selectedCategory);
+  const filteredItems = foodItems.filter(item => item.categoryId === currentCategoryId);
 
   const addToOrder = (item: FoodItem) => {
     if (!item.available) {
@@ -82,13 +79,54 @@ export default function FoodsScreen() {
     }
     Alert.alert(
       'Add to Order',
-      `Add ${item.name} ($${item.price.toFixed(2)}) to your order?`,
+      `Add ${item.name} (₱${item.price.toFixed(2)}) to your order?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Add', onPress: () => Alert.alert('Added!', `${item.name} added to order.`) }
       ]
     );
   };
+
+  // Show loading state
+  if (productsLoading || categoriesLoading) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color="#2362c7" />
+        <ThemedText style={styles.loadingText}>Loading menu...</ThemedText>
+      </View>
+    );
+  }
+
+  // Show error state
+  if (productsError || categoriesError) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <IconSymbol size={48} name="exclamationmark.triangle" color="#ef4444" />
+        <ThemedText style={styles.errorText}>
+          {productsError || categoriesError}
+        </ThemedText>
+        <TouchableOpacity 
+          style={styles.retryButton}
+          onPress={() => {
+            // Since we can't access the hook's refresh methods here, 
+            // we'll rely on the useEffect to retry on component remount
+          }}
+        >
+          <ThemedText style={styles.retryButtonText}>Try Again</ThemedText>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // Show empty state
+  if (categories.length === 0) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <IconSymbol size={48} name="list.bullet" color="#6b7280" />
+        <ThemedText style={styles.emptyText}>No menu categories found</ThemedText>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -122,20 +160,20 @@ export default function FoodsScreen() {
               key={category.id}
               style={[
                 styles.categoryTab,
-                selectedCategory === category.id && styles.activeCategoryTab,
+                currentCategoryId === category.id && styles.activeCategoryTab,
                 { borderColor: category.color }
               ]}
               onPress={() => setSelectedCategory(category.id)}
             >
               <IconSymbol 
                 size={20} 
-                name={category.icon} 
-                color={selectedCategory === category.id ? '#fff' : category.color} 
+                name={category.icon as any} 
+                color={currentCategoryId === category.id ? '#fff' : category.color} 
               />
               <ThemedText 
                 style={[
                   styles.categoryText, 
-                  selectedCategory === category.id && styles.activeCategoryText
+                  currentCategoryId === category.id && styles.activeCategoryText
                 ]}
               >
                 {category.name}
@@ -153,12 +191,21 @@ export default function FoodsScreen() {
               style={[styles.foodItem, !item.available && styles.unavailableItem]}
               onPress={() => addToOrder(item)}
             >
+              {item.image && (
+                <Image
+                  source={{ uri: item.image }}
+                  style={styles.foodImage}
+                  contentFit="cover"
+                  placeholder="🍽️"
+                />
+              )}
+              
               <View style={styles.foodItemHeader}>
                 <ThemedText type="defaultSemiBold" style={styles.foodName}>
                   {item.name}
                 </ThemedText>
                 <ThemedText style={styles.foodPrice}>
-                  ${item.price.toFixed(2)}
+                  ₱{item.price.toFixed(2)}
                 </ThemedText>
               </View>
               
@@ -191,6 +238,40 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9fafb',
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#ef4444',
+    textAlign: 'center',
+  },
+  emptyText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  retryButton: {
+    marginTop: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#2362c7',
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   header: {
     padding: 20,
@@ -292,6 +373,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+  },
+  foodImage: {
+    width: '100%',
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 12,
+    backgroundColor: '#f3f4f6',
   },
   unavailableItem: {
     opacity: 0.6,

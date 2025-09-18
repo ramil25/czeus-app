@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserRole } from '@/types/auth';
+import { Platform } from 'react-native';
 
 // Get environment variables from Expo's public environment variables
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
@@ -10,14 +11,44 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+// Create a storage adapter that works for both web and mobile
+const createStorageAdapter = () => {
+  if (Platform.OS === 'web') {
+    // Use localStorage for web
+    return {
+      getItem: (key: string) => {
+        if (typeof window !== 'undefined') {
+          return Promise.resolve(window.localStorage.getItem(key));
+        }
+        return Promise.resolve(null);
+      },
+      setItem: (key: string, value: string) => {
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem(key, value);
+        }
+        return Promise.resolve();
+      },
+      removeItem: (key: string) => {
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem(key);
+        }
+        return Promise.resolve();
+      },
+    };
+  } else {
+    // Use AsyncStorage for mobile
+    return AsyncStorage;
+  }
+};
+
 // Enhanced client with authentication support
 export const supabase = createClient(
   supabaseUrl, 
   supabaseAnonKey,
   {
     auth: {
-      // Enable session persistence for mobile
-      storage: AsyncStorage,
+      // Enable session persistence with platform-specific storage
+      storage: createStorageAdapter(),
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
