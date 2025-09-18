@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CZeus App - Basket Implementation Preview</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin: 0;
+        }
+        .food-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .food-image {
+            width: 100%;
+            height: 120px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .food-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .food-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0;
+        }
+        .food-price {
+            font-weight: 600;
+            color: #2362c7;
+            margin: 0;
+        }
+        .food-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0 0 12px 0;
+        }
+        .food-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .available {
+            color: #10b981;
+        }
+        .add-button {
+            background: #2362c7;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .add-button:hover {
+            background: #1d4ed8;
+        }
+        .tab-bar {
+            display: flex;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 10px 0;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .tab.active {
+            color: #2362c7;
+        }
+        .basket-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .item-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .checkbox {
+            margin-right: 12px;
+            padding: 4px;
+        }
+        .item-image {
+            width: 60px;
+            height: 60px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .item-details {
+            flex: 1;
+            margin-right: 12px;
+        }
+        .item-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0 0 4px 0;
+        }
+        .item-size {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0 0 4px 0;
+        }
+        .item-price {
+            color: #2362c7;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0;
+        }
+        .item-controls {
+            text-align: right;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .qty-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .quantity {
+            padding: 0 12px;
+            font-weight: 500;
+            min-width: 40px;
+            text-align: center;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: #ef4444;
+        }
+        .checkout-section {
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 20px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .total-label {
+            color: #6b7280;
+        }
+        .total-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2362c7;
+        }
+        .checkout-btn {
+            width: 100%;
+            background: #2362c7;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .checkout-btn:hover {
+            background: #1d4ed8;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .nav-buttons {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .nav-btn {
+            background: #2362c7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .nav-btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="showScreen('foods')">Foods Tab</button>
+        <button class="nav-btn" onclick="showScreen('basket')">Basket Tab</button>
+    </div>
+
+    <!-- Foods Screen -->
+    <div id="foods" class="screen active">
+        <div class="container">
+            <div class="header">
+                <h1 class="title">Our Menu</h1>
+                <p class="subtitle">Fresh coffee and delicious treats</p>
+            </div>
+            
+            <div class="food-item">
+                <div class="food-image">☕</div>
+                <div class="food-header">
+                    <h3 class="food-name">Cappuccino</h3>
+                    <p class="food-price">₱4.50</p>
+                </div>
+                <p class="food-description">Large size</p>
+                <div class="food-footer">
+                    <div class="status-badge available">✓ Available</div>
+                    <button class="add-button">
+                        <span>+</span>
+                        Add to Order
+                    </button>
+                </div>
+            </div>
+
+            <div class="food-item">
+                <div class="food-image">🥐</div>
+                <div class="food-header">
+                    <h3 class="food-name">Croissant</h3>
+                    <p class="food-price">₱2.00</p>
+                </div>
+                <p class="food-description">Regular size</p>
+                <div class="food-footer">
+                    <div class="status-badge available">✓ Available</div>
+                    <button class="add-button">
+                        <span>+</span>
+                        Add to Order
+                    </button>
+                </div>
+            </div>
+
+            <div class="tab-bar">
+                <a href="#" class="tab active">Foods</a>
+                <a href="#" class="tab">Basket</a>
+                <a href="#" class="tab">Points</a>
+                <a href="#" class="tab">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Basket Screen -->
+    <div id="basket" class="screen">
+        <div class="container">
+            <div class="header">
+                <h1 class="title">My Basket</h1>
+                <p class="subtitle">2 items in basket</p>
+            </div>
+
+            <div style="background: white; border-bottom: 1px solid #e5e7eb; padding: 16px 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 500;">Select All</span>
+                    <label style="cursor: pointer;">
+                        <input type="checkbox" checked style="margin-right: 8px;">
+                    </label>
+                </div>
+            </div>
+            
+            <div class="basket-item">
+                <div class="item-row">
+                    <div class="checkbox">
+                        <input type="checkbox" checked>
+                    </div>
+                    <div class="item-image">☕</div>
+                    <div class="item-details">
+                        <h4 class="item-name">Cappuccino</h4>
+                        <p class="item-size">Large size</p>
+                        <p class="item-price">₱4.50 each</p>
+                    </div>
+                    <div class="item-controls">
+                        <div class="quantity-controls">
+                            <button class="qty-btn">-</button>
+                            <span class="quantity">2</span>
+                            <button class="qty-btn">+</button>
+                        </div>
+                        <button class="remove-btn">🗑️</button>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-weight: 500; color: #374151;">Subtotal: ₱9.00</span>
+                </div>
+            </div>
+
+            <div class="basket-item">
+                <div class="item-row">
+                    <div class="checkbox">
+                        <input type="checkbox" checked>
+                    </div>
+                    <div class="item-image">🥐</div>
+                    <div class="item-details">
+                        <h4 class="item-name">Croissant</h4>
+                        <p class="item-size">Regular size</p>
+                        <p class="item-price">₱2.00 each</p>
+                    </div>
+                    <div class="item-controls">
+                        <div class="quantity-controls">
+                            <button class="qty-btn">-</button>
+                            <span class="quantity">1</span>
+                            <button class="qty-btn">+</button>
+                        </div>
+                        <button class="remove-btn">🗑️</button>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-weight: 500; color: #374151;">Subtotal: ₱2.00</span>
+                </div>
+            </div>
+
+            <div class="checkout-section">
+                <div class="total-row">
+                    <span class="total-label">Selected (2 items)</span>
+                    <span class="total-price">₱11.00</span>
+                </div>
+                <button class="checkout-btn">Checkout</button>
+            </div>
+
+            <div class="tab-bar">
+                <a href="#" class="tab">Foods</a>
+                <a href="#" class="tab active">Basket</a>
+                <a href="#" class="tab">Points</a>
+                <a href="#" class="tab">Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenName) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            // Show selected screen
+            document.getElementById(screenName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

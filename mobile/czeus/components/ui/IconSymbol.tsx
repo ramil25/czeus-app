@@ -95,6 +95,7 @@ const MAPPING = {
   'camera.fill': 'camera-alt',
   'chevron.up': 'keyboard-arrow-up',
   'chevron.down': 'keyboard-arrow-down',
+  'circle': 'radio-button-unchecked',
 } as const;
 
 /**
