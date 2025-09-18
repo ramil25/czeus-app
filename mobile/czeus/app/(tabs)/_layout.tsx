@@ -97,6 +97,16 @@ export default function TabLayout() {
         }}
       />
       
+      {/* Basket - Customer only */}
+      <Tabs.Screen
+        name="basket"
+        options={{
+          title: 'Basket',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bag.fill" color={color} />,
+          href: isTabVisible('basket') ? '/basket' : null,
+        }}
+      />
+      
       {/* Points - Customer only */}
       <Tabs.Screen
         name="points"

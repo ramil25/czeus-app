@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
+import { useBasket } from '@/contexts/BasketContext';
 import { useState, useMemo } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
@@ -25,6 +26,7 @@ interface FoodItem {
 
 export default function FoodsScreen() {
   const { user, signOut } = useAuth();
+  const { addToBasket } = useBasket();
   const { products, loading: productsLoading, error: productsError } = useProducts();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -77,14 +79,17 @@ export default function FoodsScreen() {
       Alert.alert('Unavailable', 'This item is currently not available.');
       return;
     }
-    Alert.alert(
-      'Add to Order',
-      `Add ${item.name} (₱${item.price.toFixed(2)}) to your order?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Add', onPress: () => Alert.alert('Added!', `${item.name} added to order.`) }
-      ]
-    );
+    
+    // Add to basket instead of just showing alert
+    addToBasket({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      size: item.size,
+      image: item.image,
+    });
+    
+    Alert.alert('Added to Basket!', `${item.name} has been added to your basket.`);
   };
 
   // Show loading state
@@ -186,10 +191,9 @@ export default function FoodsScreen() {
       <ScrollView style={styles.menuContent}>
         <View style={styles.itemsGrid}>
           {filteredItems.map(item => (
-            <TouchableOpacity
+            <View
               key={item.id}
               style={[styles.foodItem, !item.available && styles.unavailableItem]}
-              onPress={() => addToOrder(item)}
             >
               {item.image && (
                 <Image
@@ -214,19 +218,42 @@ export default function FoodsScreen() {
               </ThemedText>
               
               <View style={styles.foodFooter}>
-                {item.available ? (
-                  <View style={styles.availableBadge}>
-                    <IconSymbol size={12} name="checkmark.circle.fill" color="#10b981" />
-                    <ThemedText style={styles.availableText}>Available</ThemedText>
-                  </View>
-                ) : (
-                  <View style={styles.unavailableBadge}>
-                    <IconSymbol size={12} name="xmark.circle.fill" color="#ef4444" />
-                    <ThemedText style={styles.unavailableText}>Unavailable</ThemedText>
-                  </View>
-                )}
+                <View style={styles.statusContainer}>
+                  {item.available ? (
+                    <View style={styles.availableBadge}>
+                      <IconSymbol size={12} name="checkmark.circle.fill" color="#10b981" />
+                      <ThemedText style={styles.availableText}>Available</ThemedText>
+                    </View>
+                  ) : (
+                    <View style={styles.unavailableBadge}>
+                      <IconSymbol size={12} name="xmark.circle.fill" color="#ef4444" />
+                      <ThemedText style={styles.unavailableText}>Unavailable</ThemedText>
+                    </View>
+                  )}
+                </View>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.addToOrderButton,
+                    !item.available && styles.addToOrderButtonDisabled
+                  ]}
+                  onPress={() => addToOrder(item)}
+                  disabled={!item.available}
+                >
+                  <IconSymbol 
+                    size={16} 
+                    name={item.available ? "plus.circle.fill" : "xmark.circle.fill"} 
+                    color={item.available ? "#fff" : "#9ca3af"} 
+                  />
+                  <ThemedText style={[
+                    styles.addToOrderButtonText,
+                    !item.available && styles.addToOrderButtonTextDisabled
+                  ]}>
+                    {item.available ? "Add to Order" : "Unavailable"}
+                  </ThemedText>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
           ))}
         </View>
       </ScrollView>
@@ -410,6 +437,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  statusContainer: {
+    flex: 1,
+  },
   availableBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -429,5 +459,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#ef4444',
     fontWeight: '500',
+  },
+  addToOrderButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2362c7',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginLeft: 12,
+  },
+  addToOrderButtonDisabled: {
+    backgroundColor: '#e5e7eb',
+  },
+  addToOrderButtonText: {
+    marginLeft: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  addToOrderButtonTextDisabled: {
+    color: '#9ca3af',
   },
 });
