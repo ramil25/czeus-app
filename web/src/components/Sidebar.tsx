@@ -7,6 +7,7 @@ import {
   FaTable,
   FaUserTie,
   FaUserFriends,
+  FaTicketAlt,
 } from 'react-icons/fa';
 import {
   MdPointOfSale,
@@ -18,10 +19,12 @@ import {
 } from 'react-icons/md';
 import { MdInventory, MdSettings } from 'react-icons/md';
 import { useState } from 'react';
+import { useHasRole } from '../hooks/useCurrentUser';
 
 export function Sidebar() {
   const [posOpen, setPosOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { hasRole: canAccessVoucherManagement } = useHasRole(['admin', 'staff']);
   return (
     <>
       {/* Hamburger for mobile */}
@@ -65,6 +68,15 @@ export function Sidebar() {
           <MdPointOfSale className="text-xl" />
           Points Managements
         </Link>
+        {canAccessVoucherManagement && (
+          <Link
+            href="/voucher-management"
+            className="flex items-center gap-2 text-blue-700 font-semibold hover:underline"
+          >
+            <FaTicketAlt className="text-xl" />
+            Vouchers Managements
+          </Link>
+        )}
         {/* POS Setup collapsible menu */}
         <button
           type="button"
@@ -162,6 +174,11 @@ export function Sidebar() {
               <Link href="/points-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
                 <MdPointOfSale className="text-xl" /> Points Managements
               </Link>
+              {canAccessVoucherManagement && (
+                <Link href="/voucher-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
+                  <FaTicketAlt className="text-xl" /> Vouchers Managements
+                </Link>
+              )}
               {/* POS Setup collapsible menu */}
               <button
                 type="button"
