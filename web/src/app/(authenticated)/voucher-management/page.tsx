@@ -49,7 +49,7 @@ export default function VoucherManagement() {
   // Show loading while checking role
   if (roleLoading) {
     return (
-      <div className="p-8">
+      <div className="p-8 bg-blue-50 min-h-screen">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
         </div>
@@ -60,7 +60,7 @@ export default function VoucherManagement() {
   // Show access denied if user doesn't have required role
   if (!hasRole) {
     return (
-      <div className="p-8">
+      <div className="p-8 bg-blue-50 min-h-screen">
         <div className="text-center">
           <div className="text-red-600 text-xl font-semibold mb-4">Access Denied</div>
           <p className="text-gray-600">
@@ -167,31 +167,36 @@ export default function VoucherManagement() {
 
   if (error) {
     return (
-      <div className="p-8">
-        <div className="text-red-600">Error loading vouchers: {error.message}</div>
+      <div className="p-8 bg-blue-50 min-h-screen">
+        <div className="bg-red-50 border border-red-200 rounded p-4">
+          <h2 className="text-red-700 font-semibold">Error Loading Vouchers</h2>
+          <p className="text-red-600 mt-1">
+            {error instanceof Error ? error.message : 'An unexpected error occurred'}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Vouchers Management</h1>
+    <div className="p-8 bg-blue-50 min-h-screen">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold text-blue-700">Vouchers Management</h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
         >
           Add Voucher
         </button>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <input
           type="text"
           placeholder="Search vouchers by code, amount, or status..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="border border-blue-300 rounded px-3 py-2 w-full text-black bg-white"
         />
       </div>
 
