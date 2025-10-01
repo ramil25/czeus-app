@@ -1,7 +1,8 @@
 export type UserRole = 'admin' | 'staff' | 'customer';
 
 export interface User {
-  id: string;
+  id: string; // Auth UUID
+  profileId: number; // Database profile ID for foreign key references
   email: string;
   // Fields from profiles table
   first_name: string;

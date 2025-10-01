@@ -70,7 +70,7 @@ export default function BasketScreen() {
       return;
     }
 
-    if (!user?.id) {
+    if (!user?.profileId) {
       Alert.alert('Error', 'You must be logged in to checkout.');
       return;
     }
@@ -89,7 +89,7 @@ export default function BasketScreen() {
             try {
               // Create order in Supabase
               const orderInput = {
-                customer_id: user.id,
+                customer_id: user.profileId,
                 items: selectedBasketItems.map(item => ({
                   product_id: item.productId,
                   qty: item.quantity,
