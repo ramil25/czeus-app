@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, ScrollView, View, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
@@ -6,11 +6,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBasket } from '@/contexts/BasketContext';
-import { useState, useMemo } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
-import { Product } from '@/lib/products';
-import { Category } from '@/lib/categories';
 
 interface FoodItem {
   id: number;
