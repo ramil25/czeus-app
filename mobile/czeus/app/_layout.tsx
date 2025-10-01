@@ -13,6 +13,7 @@ import 'react-native-reanimated';
 
 import { Colors } from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { BasketProvider } from '@/contexts/BasketContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getInitialRouteForRole } from '@/utils/navigation';
 import React from 'react';
@@ -215,10 +216,12 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider value={LightNavigationTheme}>
-          <AppNavigator />
-          <StatusBar style="dark" />
-        </ThemeProvider>
+        <BasketProvider>
+          <ThemeProvider value={LightNavigationTheme}>
+            <AppNavigator />
+            <StatusBar style="dark" />
+          </ThemeProvider>
+        </BasketProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
