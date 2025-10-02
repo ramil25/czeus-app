@@ -79,10 +79,11 @@ export const supabaseAuth = {
       
       if (profileError) {
         console.warn('Could not fetch user profile:', profileError);
-        // Return user without profile data
+        // Return user without profile data - use 0 as placeholder for profileId
         return {
           user: {
             id: data.user.id,
+            profileId: 0, // Invalid profile ID to indicate error
             email: data.user.email || '',
             first_name: '',
             last_name: '',
@@ -96,6 +97,7 @@ export const supabaseAuth = {
       return {
         user: {
           id: data.user.id,
+          profileId: profile.id, // Include database profile ID
           email: profile.email,
           first_name: profile.first_name,
           middle_name: profile.middle_name,
@@ -129,7 +131,7 @@ export const supabaseAuth = {
     
     // Create profile entry if user was created
     if (data.user) {
-      const { error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .insert([
           {
@@ -138,15 +140,30 @@ export const supabaseAuth = {
             last_name: lastName || 'User',
             role: 'customer',
           }
-        ]);
+        ])
+        .select()
+        .single();
       
       if (profileError) {
         console.warn('Could not create user profile:', profileError);
+        return {
+          user: {
+            id: data.user.id,
+            profileId: 0, // Invalid profile ID to indicate error
+            email: data.user.email || '',
+            first_name: firstName || 'New',
+            last_name: lastName || 'User',
+            role: 'customer' as UserRole,
+            created_at: data.user.created_at || new Date().toISOString(),
+          },
+          error: null
+        };
       }
       
       return {
         user: {
           id: data.user.id,
+          profileId: profileData.id, // Include the created profile ID
           email: data.user.email || '',
           first_name: firstName || 'New',
           last_name: lastName || 'User',
@@ -199,6 +216,7 @@ export const supabaseAuth = {
           return {
             user: {
               id: session.user.id,
+              profileId: 0, // Invalid profile ID to indicate error
               email: session.user.email || '',
               first_name: '',
               last_name: '',
@@ -212,6 +230,7 @@ export const supabaseAuth = {
         return {
           user: {
             id: session.user.id,
+            profileId: profile.id, // Include database profile ID
             email: profile.email,
             first_name: profile.first_name,
             middle_name: profile.middle_name,

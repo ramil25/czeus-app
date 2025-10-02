@@ -1,15 +1,13 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { StyleSheet, ScrollView, View, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useMemo } from 'react';
+import { useBasket } from '@/contexts/BasketContext';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
-import { Product } from '@/lib/products';
-import { Category } from '@/lib/categories';
 
 interface FoodItem {
   id: number;
@@ -25,6 +23,7 @@ interface FoodItem {
 
 export default function FoodsScreen() {
   const { user, signOut } = useAuth();
+  const { addToBasket } = useBasket();
   const { products, loading: productsLoading, error: productsError } = useProducts();
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -72,19 +71,33 @@ export default function FoodsScreen() {
 
   const filteredItems = foodItems.filter(item => item.categoryId === currentCategoryId);
 
-  const addToOrder = (item: FoodItem) => {
+  const addToOrder = async (item: FoodItem) => {
     if (!item.available) {
       Alert.alert('Unavailable', 'This item is currently not available.');
       return;
     }
-    Alert.alert(
-      'Add to Order',
-      `Add ${item.name} (₱${item.price.toFixed(2)}) to your order?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Add', onPress: () => Alert.alert('Added!', `${item.name} added to order.`) }
-      ]
-    );
+    
+    try {
+      // Calculate points (assuming 10 points per peso spent)
+      const points = item.price * 10;
+      
+      await addToBasket({
+        productId: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        points,
+      });
+      
+      Alert.alert(
+        'Added to Basket',
+        `${item.name} has been added to your basket!`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error adding to basket:', error);
+      Alert.alert('Error', 'Failed to add item to basket. Please try again.');
+    }
   };
 
   // Show loading state
