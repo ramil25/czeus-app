@@ -8,6 +8,7 @@ import {
   FaUserTie,
   FaUserFriends,
   FaTicketAlt,
+  FaShoppingCart,
 } from 'react-icons/fa';
 import {
   MdPointOfSale,
@@ -60,6 +61,13 @@ export function Sidebar() {
         >
           <FaUserFriends className="text-xl" />
           Customers Managements
+        </Link>
+        <Link
+          href="/order-management"
+          className="flex items-center gap-2 text-blue-700 font-semibold hover:underline"
+        >
+          <FaShoppingCart className="text-xl" />
+          Order Managements
         </Link>
         <Link
           href="/points-management"
@@ -170,6 +178,9 @@ export function Sidebar() {
               </Link>
               <Link href="/customer-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
                 <FaUserFriends className="text-xl" /> Customers Managements
+              </Link>
+              <Link href="/order-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
+                <FaShoppingCart className="text-xl" /> Order Managements
               </Link>
               <Link href="/points-management" className="flex items-center gap-2 text-blue-700 font-semibold hover:underline" onClick={() => setMobileOpen(false)}>
                 <MdPointOfSale className="text-xl" /> Points Managements
